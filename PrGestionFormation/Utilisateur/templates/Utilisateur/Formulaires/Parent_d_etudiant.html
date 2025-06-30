@@ -1,7 +1,7 @@
 {% load static %}
 
-<div class="card-header border-bottom bg-warning text-white">
-  <h5 class="mb-0 text-black">Informations {{ titre_formulaire }}</h5>
+<div class="bg-primary py-3 px-4 rounded mb-4">
+  <h5 class="mb-0 text-center text-white">Informations {{ role_utilisateur }}</h5>
 </div>
 
   <!-- Barre de recherche -->
@@ -96,7 +96,7 @@ function createEtudiantItem(etudiant, isSelected) {
   });
 
   const content = document.createElement("div");
-  content.className = "d-flex align-items-center gap-3 w-100";
+  content.className = "d-flex align-items-center gap-1 w-100";
 
   const photo = document.createElement("img");
   photo.src = etudiant.photo;
@@ -117,7 +117,7 @@ function createEtudiantItem(etudiant, isSelected) {
     ${classeNomHtml}`;
 
   const wrapper = document.createElement("div");
-  wrapper.className = "position-relative w-100 d-flex align-items-center gap-2";
+  wrapper.className = "position-relative w-100 d-flex align-items-center gap-1";
   wrapper.appendChild(photo);
   wrapper.appendChild(info);
 

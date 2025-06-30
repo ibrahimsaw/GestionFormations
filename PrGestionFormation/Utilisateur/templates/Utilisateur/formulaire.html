@@ -20,30 +20,30 @@
 	<div class="nav-align-top mb-4">
 	  {% include "Utilisateur/Formulaires/nav.html" %}
 	 {% if model_type %}
-	  <div class="tab-content">
-		  <div class="tab-pane fade show active">
-			 <div class="card-body">
-			   <form method="post" id="user-form" enctype="multipart/form-data">
-				 {% csrf_token %}
-				 {% include "Utilisateur/Formulaires/utilisateur.html" %}
-				 {% if role_utilisateur == "Agent d'Administration" %}
-					 {% include "Utilisateur/Formulaires/Agent_d_Administration.html" %}
-				 {% elif role_utilisateur == "Parent d'étudiant" %}
-					 {% include "Utilisateur/Formulaires/Parent_d_etudiant.html" %}
-				 {% elif role_utilisateur == "Enseignant" %}
-					 {% include "Utilisateur/Formulaires/Enseignant.html" %}
-				 {% elif role_utilisateur == "Étudiant" %}
-						 {% include "Utilisateur/Formulaires/Etudiant.html" %}
-				 {% endif %}
-				 <!-- Bouton de soumission -->
-				 <div class="row justify-content-end">
-					 <div class="col-sm-10">
-						 <button type="submit" class="btn btn-success mt-3">{{ bouton }}</button>
-					 </div>
-				 </div>
-			   </form>
+	  <div class="card mb-4">
+		 <div class="card-body">
+		   <form method="post" id="user-form" enctype="multipart/form-data">
+			 {% csrf_token %}
+			 {% include "Utilisateur/Formulaires/utilisateur.html" %}
+			  
+			   {% if role_utilisateur == "Agent d'Administration" %}
+				   {% include "Utilisateur/Formulaires/Agent_d_Administration.html" %}
+			   {% elif role_utilisateur == "Parent d'étudiant" %}
+				   {% include "Utilisateur/Formulaires/Parent_d_etudiant.html" %}
+			   {% elif role_utilisateur == "Enseignant" %}
+				   {% include "Utilisateur/Formulaires/Enseignant.html" %}
+			   {% elif role_utilisateur == "Étudiant" %}
+					   {% include "Utilisateur/Formulaires/Etudiant.html" %}
+			   {% endif %}
+			   <!-- Bouton de soumission -->
+			   <div class="row justify-content-end">
+				   <div class="col-sm-10">
+					   <button type="submit" class="btn btn-success mt-3">{{ bouton }}</button>
+				   </div>
+			   </div>
+				
+		   </form>
 			 </div>
-		  </div>
 		</div>
 	  <div class="fixed-action-buttons">
 		  <a href="{% url 'utilisateur:utilisateur_list' model_type %}" class="btn btn-list">
