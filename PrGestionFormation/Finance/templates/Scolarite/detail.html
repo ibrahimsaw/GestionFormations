@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>{{ titre_detail }}</h2>
+  <p>{{ object }}</p>
+<div class="fixed-action-buttons">
+    <a href="{% url 'finance:scolarite-list' type=model_type %}" class="btn btn-list">
+        <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
+    </a>
+    <a href="{% url 'finance:scolarite-create' type=model_type %}" class="btn btn-add">
+        <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+    </a>
+</div>
+  <a href="{% url 'finance:scolarite-update' type=model_type pk=object.pk %}">Modifier</a>
+  <a href="{% url 'finance:scolarite-delete' type=model_type pk=object.pk %}">Supprimer</a>
+{% endblock %}

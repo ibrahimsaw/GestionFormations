@@ -1,0 +1,100 @@
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include 'includes/head.html' %}
+</head>
+<body>
+    <!-- Content -->
+    <div class="container-xxl">
+      <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+          <!-- Register -->
+          <div class="card">
+            <div class="card-body">
+              <!-- Logo -->
+              <div class="app-brand justify-content-center">
+                <a href="index.html" class="app-brand-link gap-2">
+                  <img src="{% static 'login/images/logo/logo_icon.png' %}" alt="Logo" style="width: 50px; height: auto; margin-right: 5px;">
+                  <span class="app-brand-text demo text-body fw-bolder">{{ data.nom }}</span>
+                </a>
+              </div>
+              <!-- /Logo -->
+
+              <h4 class="mb-2">Bienvenue chez {{ data.nom }} ! 👋</h4>
+              <p class="mb-4">Veuillez vous connecter à votre compte et commencer l'aventure</p>
+
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              <form id="formAuthentication" class="mb-3" action="{% url 'login' %}" method="POST" autocomplete="on">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                  <label for="matricule" class="form-label">Matricule</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="matricule"
+                    name="matricule"
+                    placeholder="Votre matricule"
+                    autocomplete="username"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3 form-password-toggle">
+                  <div class="d-flex justify-content-between">
+                    <label class="form-label" for="password">Mot de passe</label>
+                    <a href="#">
+                      <small>Mot de passe oublié ?</small>
+                    </a>
+                  </div>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="password"
+                      id="password"
+                      class="form-control"
+                      name="password"
+                      placeholder="••••••••••"
+                      autocomplete="current-password"
+                      required
+                    />
+                    <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me" />
+                    <label class="form-check-label" for="remember-me">Souviens-toi de moi</label>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <button class="btn btn-primary d-grid w-100" type="submit">Se connecter</button>
+                </div>
+              </form>
+
+              <p class="text-center">
+                <span>Nouveau sur notre plateforme ? </span>
+                <a href="#"><span>Créez un compte.</span></a>
+              </p>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- / Content -->
+
+    {% include 'includes/scripts.html' %}
+</body>
+</html>

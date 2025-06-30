@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card my-4 shadow">
+  <div class="card-body">
+
+    {% if model_type == 'parcours' %}
+    <div class="container">
+
+      <!-- Titre principal -->
+      <h3 class="text-primary border-bottom pb-2 mb-4">
+        🎓 Parcours : <span class="text-dark">{{ parcours.nom }}</span>
+      </h3>
+
+      <!-- Détails du parcours -->
+      <div class="row g-3 mb-4">
+	   {% if parcours.type_formation.nom %}
+        <div class="col-md-6">
+          <div class="border rounded p-3 bg-light">
+            <strong>Type de formation :</strong>
+            <span class="badge bg-secondary mt-1">{{ parcours.type_formation.nom }}</span>
+          </div>
+        </div>
+	   {% endif %}
+	   {% if parcours.specification.nom %}
+        <div class="col-md-6">
+          <div class="border rounded p-3 bg-light">
+            <strong>Spécification :</strong>
+            <span class="badge bg-info text-dark mt-1">{{ parcours.specification.nom }}</span>
+          </div>
+        </div>
+	   {% endif %}
+	   {% if parcours.code_serie %}
+        <div class="col-md-6">
+          <div class="border rounded p-3 bg-light">
+            <strong>Code série :</strong>
+            <span class="badge bg-success mt-1">{{ parcours.code_serie|default:"N/A" }}</span>
+          </div>
+        </div>
+	   {% endif %}
+	   {% if  parcours.diplome_final %}
+        <div class="col-md-6">
+          <div class="border rounded p-3 bg-light">
+            <strong>Diplôme final :</strong>
+            <span class="badge bg-warning text-dark mt-1">{{ parcours.diplome_final|default:"-" }}</span>
+          </div>
+        </div>
+	   {% endif %}
+      </div>
+
+      <!-- Structure des classes -->
+	 {% if  parcours.structure_classes %}
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          Structure des classes
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for classe in parcours.structure_classes %}
+            <li class="list-group-item">{{ classe }}</li>
+          {% empty %}
+            <li class="list-group-item text-muted">Aucune classe définie.</li>
+          {% endfor %}
+        </ul>
+      </div>
+	 {% endif %}
+
+      <!-- Étudiants par formation et année -->
+      {% for formation_data in formations_et_classes %}
+      <div class="mb-5">
+        <h4 class="text-success mb-3 border-bottom pb-1">🏛️ Formation : {{ formation_data.formation.nom }}</h4>
+
+        {% for annee_data in formation_data.classes_par_annee %}
+        <div class="ps-3 mb-4">
+          <h5 class="mb-1">
+            Année académique :
+            <a href="{% url 'formation:universal-detail' 'annee' 1 %}" class="badge bg-warning text-dark">
+              {{ annee_data.annee }}
+            </a>
+          </h5>
+          <p class="fw-bold">
+            👨‍🎓 Total étudiants cette année :
+            <span class="badge bg-info">{{ annee_data.nb_etudiants_annee }}</span>
+          </p>
+
+          <ul class="list-group list-group-flush">
+            {% for classe_info in annee_data.classes %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+			   Classe :
+                <a href="{% url 'formation:universal-detail' 'classe' classe_info.classe.pk %}" class="btn btn-outline-primary btn-sm ms-2">
+                  {{ classe_info.classe.nom }}
+                </a>
+              </div>
+              <span class="badge bg-secondary rounded-pill">
+                {{ classe_info.nb_etudiants }} étudiant(s)
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+    </div>
+
+   
+
+        {% elif model_type == 'formation' %}
+            <h4 class="text-primary">Détail de la Formation : {{ odj }}</h4>
+            <h5>Parcours : <span class="badge bg-success">{{ obj.parcours }}</span></h5>
+
+            {% for groupe in classes %}
+                <div class="mb-3">
+                    <h6>
+                        Année académique :
+                        <a href="{% url 'formation:universal-detail' 'annee' 1 %}" class="badge bg-warning text-dark">{{ groupe.annee }}</a>
+                    </h6>
+                    <ul class="list-group list-group-flush">
+                        {% for item in groupe.classes %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    Classe :
+                                    <a href="{% url 'formation:universal-detail' 'classe' item.classe.pk %}" class="btn btn-outline-primary btn-sm">
+                                        {{ item.classe.nom }}
+                                    </a>
+                                </span>
+                                <span class="badge bg-secondary rounded-pill">
+                                    {{ item.nb_etudiants }} étudiant(s)
+                                </span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">Aucune classe pour cette année.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+
+        {% elif model_type == 'annee' %}
+            <h2 class="text-success">Année académique : {{ annee }}</h2>
+            <h4>Nombre total d'étudiants :
+                <span class="badge bg-info">{{ nb_etudiants_total }}</span>
+            </h4>
+
+            {% for bloc in formations_et_classes %}
+                <div class="my-3">
+                    <h5>
+                        Formation :
+                        <a href="{% url 'formation:universal-detail' 'formation' bloc.formation.pk %}" class="btn btn-outline-success btn-sm">
+                            {{ bloc.formation }}
+                        </a>
+                    </h5>
+                    <ul class="list-group list-group-flush">
+                        {% for info in bloc.classes %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    Classe :
+                                    <a href="{% url 'formation:universal-detail' 'classe' info.classe.pk %}" class="btn btn-outline-primary btn-sm">
+                                        {{ info.classe.nom }}
+                                    </a>
+                                </span>
+                                <span class="badge bg-secondary rounded-pill">
+                                    {{ info.nb_etudiants }} étudiant(s)
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+
+        {% elif model_type == 'classe' %}
+            <h2 class="text-primary">Détails de la classe : {{ obj.nom }}</h2>
+            <p><strong>Formation :</strong> {{ formation }}</p>
+            <p><strong>Parcours :</strong> {{ parcours }}</p>
+            <p><strong>Année académique :</strong> {{ annee }}</p>
+            <p><strong>Nombre d'étudiants :</strong>
+                <span class="badge bg-info">{{ nb_etudiants }}</span>
+            </p>
+
+            <div class="table-responsive mt-4">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Matricule</th>
+                            <th>Date de Naissance</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for etu in etudiants %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ etu.utilisateur.last_name }}</td>
+                                <td>{{ etu.utilisateur.first_name }}</td>
+                                <td>{{ etu.utilisateur.matricule }}</td>
+                                <td>{{ etu.utilisateur.date_nais }}</td>
+                                <td>{{ etu.utilisateur.email }}</td>
+                                <td>{{ etu.utilisateur.telephone }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7">Aucun étudiant inscrit dans cette classe.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+            <p>Aucune donnée disponible pour ce type d'objet.</p>
+        {% endif %}
+    </div>
+
+    <div class="card-footer text-end">
+        <a href="{% url 'formation:universal-list' 'model_type' %}" class="btn btn-secondary">← Retour</a>
+    </div>
+</div>
+<div class="fixed-action-buttons">
+    <a href="{% url 'formation:universal-list' 'model_type' %}" class="btn btn-list">
+        <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
+    </a>
+    <a href="{% url 'formation:universal-create' 'model_type' %}" class="btn btn-add">
+        <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+    </a>
+</div>
+
+{% endblock %}

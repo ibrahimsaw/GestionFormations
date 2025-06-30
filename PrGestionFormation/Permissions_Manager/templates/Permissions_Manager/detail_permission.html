@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">Détail de la permission</h2>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5>Informations sur la permission</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>App :</strong> {{ permission.content_type.app_label }}</p>
+            <p><strong>Modèle :</strong> {{ permission.content_type.model }}</p>
+            <p><strong>Code :</strong> {{ permission.codename }}</p>
+            <p><strong>Nom :</strong> {{ form.name.value }}</p>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5>Rôles autorisés</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for role in form.roles_autorises %}
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check">
+                            {{ role.tag }}
+                            <label class="form-check-label" for="{{ role.id_for_label }}">
+                                {{ role.choice_label }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'Permissions_Manager:permission' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

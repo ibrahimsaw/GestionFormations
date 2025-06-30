@@ -1,0 +1,55 @@
+{% if page == "Modification" %}
+  <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+	<li class="nav-item" style="max-width: 300px; margin: 0 auto;">
+	  <p class="nav-link active d-flex justify-content-center align-items-center gap-2">
+		<i class="tf-icons bx bx-book"></i>
+		<span>{{role_utilisateur}}</span>
+	  </p>
+	</li>
+  </ul>
+{% else %}
+  <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+	{% if page == "Liste" %}
+	  <li class="nav-item">
+		<a class="nav-link {% if role_utilisateur == 'Utilisateur' %}active{% endif %}" href="{% url 'utilisateur:utilisateur_list' 'utilisateur' %}">
+		  <i class="tf-icons bx bx-cog"></i> Utilisateurs
+		</a>
+	  </li>
+	{% endif %}
+ 
+	<li class="nav-item">
+	  <a class="nav-link {% if role_utilisateur == 'Administrateur Système' %}active{% endif %}"
+		 href="{% if page == 'Liste' %}{% url 'utilisateur:utilisateur_list' 'admin' %}{% else %}{% url 'utilisateur:utilisateur_create' 'admin' %}{% endif %}">
+		<i class="tf-icons bx bx-cog"></i> Administrateur Système
+	  </a>
+	</li>
+ 
+	<li class="nav-item">
+	  <a class="nav-link {% if role_utilisateur == "Agent d'Administration" %}active{% endif %}"
+		 href="{% if page == 'Liste' %}{% url 'utilisateur:utilisateur_list' 'agent' %}{% else %}{% url 'utilisateur:utilisateur_create' 'agent' %}{% endif %}">
+		<i class="tf-icons bx bx-notepad"></i>&nbsp;Agent Administratif
+	  </a>
+	</li>
+ 
+	<li class="nav-item">
+	  <a class="nav-link {% if role_utilisateur == 'Enseignant' %}active{% endif %}"
+		 href="{% if page == 'Liste' %}{% url 'utilisateur:utilisateur_list' 'enseignant' %}{% else %}{% url 'utilisateur:utilisateur_create' 'enseignant' %}{% endif %}">
+		<i class="tf-icons bx bx-chalkboard"></i> Enseignant
+	  </a>
+	</li>
+ 
+	<li class="nav-item">
+	  <a class="nav-link {% if role_utilisateur == 'Étudiant' %}active{% endif %}"
+		 href="{% if page == 'Liste' %}{% url 'utilisateur:utilisateur_list' 'etudiant' %}{% else %}{% url 'utilisateur:utilisateur_create' 'etudiant' %}{% endif %}">
+		<i class="tf-icons bx bx-book"></i> Étudiant
+	  </a>
+	</li>
+ 
+	<li class="nav-item">
+	  <a class="nav-link {% if role_utilisateur == "Parent d'étudiant" %}active{% endif %}"
+		 href="{% if page == 'Liste' %}{% url 'utilisateur:utilisateur_list' 'parent' %}{% else %}{% url 'utilisateur:utilisateur_create' 'parent' %}{% endif %}">
+		<i class="tf-icons bx bx-user"></i> Parent
+	  </a>
+	</li>
+  </ul>
+{% endif %}

@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+{% block content %}
+                <div class="col-xl-12">
+				  <div class="row g-3 mb-4 align-items-center justify-content-between">
+				    <div class="col-auto">
+			            <h4 class="app-page-title mb-0">{{ titre }}</h4>
+				    </div>
+				    <div class="col-auto">
+					     <div class="page-utilities">
+						    <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
+							    <div class="col-auto">
+                                    <form method="get" class="table-search-form row gx-1 align-items-center">
+                                        <div class="col-auto">
+                                            <input type="text" id="search-orders" name="q" class="form-control search-orders" placeholder="Rechercher..." value="{{ request.GET.q }}">
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn app-btn-secondary">Rechecher</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-auto">
+                                    <select name="periode" class="form-select w-auto" onchange="this.form.submit()">
+                                        <option value="" {% if not request.GET.periode %}selected{% endif %}>Tout</option>
+                                        <option value="semaine" {% if request.GET.periode == "semaine" %}selected{% endif %}>Cette semaine</option>
+                                        <option value="mois" {% if request.GET.periode == "mois" %}selected{% endif %}>Ce mois</option>
+                                        <option value="3mois" {% if request.GET.periode == "3mois" %}selected{% endif %}>3 derniers mois</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <a class="btn app-btn-secondary">
+                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                            <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                        </svg>
+                                        Télécharger en pdf
+                                    </a>
+                                </div>
+						    </div><!--//row-->
+					    </div><!--//table-utilities-->
+				    </div><!--//col-auto-->
+			    </div><!--//row-->
+                  <div class="nav-align-top mb-4">
+                    <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link {% if model_type == 'formation' %}active{% endif %}"
+                           href="{% url 'formation:universal-list' 'formation' %}">
+                            <i class="tf-icons bx bx-book-alt"></i> Formations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if model_type == 'parcours' %}active{% endif %}"
+                           href="{% url 'formation:universal-list' 'parcours' %}">
+                            <i class="tf-icons bx bx-map"></i> Parcours
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if model_type == 'annee' %}active{% endif %}"
+                           href="{% url 'formation:universal-list' 'annee' %}">
+                            <i class="tf-icons bx bx-calendar"></i> Années Académiques
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if model_type == 'classe' %}active{% endif %}"
+                           href="{% url 'formation:universal-list' 'classe' %}">
+                            <i class="tf-icons bx bx-group"></i> Classes
+                        </a>
+                    </li>
+                </ul>
+                      {% if role %}
+                <div class="tab-content">
+                    <div class="tab-pane fade show active">
+                        <h5 class="card-header">Table {{ titre_page }} </h5>
+                        <div class="table-responsive text-nowrap">
+                          <table class="table">
+                            <thead>
+                                <tr>
+                                    {% if model_type == 'formation' %}
+                                    <th>Nom</th>
+                                    <th>Parcours</th>
+                                    <th>Durée</th>
+                                    {% elif model_type == 'parcours' %}
+                                    <th>Nom</th>
+                                    <th>Type</th>
+                                    <th>Diplôme</th>
+                                    {% elif model_type == 'annee' %}
+                                    <th>Nom</th>
+                                    <th>Date Début</th>
+                                    <th>Date Fin</th>
+                                    {% elif model_type == 'classe' %}
+                                    <th>Nom</th>
+                                    <th>Formation</th>
+                                    <th>Année</th>
+                                    {% endif %}
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    {% if model_type == 'formation' %}
+                                    <td>{{ item.nom }}</td>
+                                    <td>{{ item.parcours }}</td>
+                                    <td>{{ item.duree }} mois</td>
+                                    {% elif model_type == 'parcours' %}
+                                    <td>{{ item.nom }}</td>
+                                    <td>{{ item.get_type_formation_display }}</td>
+                                    <td>{{ item.diplome_final }}</td>
+                                    {% elif model_type == 'annee' %}
+                                    <td>{{ item.nom }}</td>
+                                    <td>{{ item.date_debut }}</td>
+                                    <td>{{ item.date_fin }}</td>
+                                    {% elif model_type == 'classe' %}
+                                    <td>{{ item.nom }}</td>
+                                    <td>{{ item.formation }}</td>
+                                    <td>{{ item.annee_academique }}</td>
+                                    {% endif %}
+                                    <td>
+                                        <!-- Bouton Détails -->
+                                        <a href="{% url 'formation:universal-detail' model_type item.pk %}" class="btn btn-sm btn-info">Détails</a>
+
+                                        <!-- Bouton Modifier -->
+                                        <a href="#" class="btn btn-sm btn-warning">Modifier</a>
+
+                                        <!-- Bouton Supprimer -->
+                                        <a href="#" class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+                                            Supprimer
+                                        </a>
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+						 <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
+                            {% if is_paginated %}
+                                <nav class="app-pagination">
+                                    <ul class="pagination justify-content-center">
+                                        {% if page_obj.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                            </li>
+                                        {% endif %}
+
+                                        {% for num in paginator.page_range %}
+                                            {% if page_obj.number == num %}
+                                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if page_obj.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            {% endif %}
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                          <!-- Boutons flottants en bas à droite -->
+					  <div class="fixed-action-buttons">
+						  <a href="{% url 'formation:universal-create' model_type %}" class="btn btn-add">
+							  <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+						  </a>
+					  </div>
+				   
+                      {% else %}
+                      <div class="tab-content">
+                          <div class="tab-pane fade show active">
+                              <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant.</div>
+                          </div>
+                      </div>
+                      {% endif %}
+
+
+<!-- Bloc pour injecter le formulaire -->
+
+
+{% endblock %}
+

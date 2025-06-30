@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include 'includes/head.html' %}
+</head>
+<body>
+    <div class="layout-wrapper layout-content-navbar " >
+        <div class="layout-container">
+            {% include 'includes/sidebar.html' %}
+            <div class="layout-page">
+                {% include 'includes/navbar.html' %}
+                <div class="content-wrapper">
+                    <div class="container-xxl flex-grow-1 container-p-y">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+                {% include 'includes/footer.html' %}
+            </div>
+        </div>
+    </div>
+    {% include 'includes/scripts.html' %}
+</body>
+</html>
