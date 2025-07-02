@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include 'includes/head.html' %}
+</head>
+<body>
+<!-- Content -->
+<div class="container-xxl">
+  <div class="authentication-wrapper authentication-basic container-p-y">
+    <div class="authentication-inner">
+      <!-- Card -->
+      <div class="card">
+        <div class="card-body">
+          <!-- Logo -->
+          <div class="app-brand justify-content-center">
+            <a href="#" class="app-brand-link gap-2">
+              <img src="{% static 'login/images/logo/logo_icon.png' %}" alt="Logo" style="width: 50px; height: auto; margin-right: 5px;">
+              <span class="app-brand-text demo text-body fw-bolder">{{ data.nom }}</span>
+            </a>
+          </div>
+          <!-- /Logo -->
+
+          <h4 class="mb-2">Changer votre mot de passe 🔒</h4>
+          <p class="mb-4">Pour continuer, veuillez choisir un nouveau mot de passe sécurisé.</p>
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" class="mb-3" autocomplete="off">
+            {% csrf_token %}
+            
+            <div class="mb-3 form-password-toggle">
+              <label for="old_password" class="form-label">Ancien mot de passe</label>
+              <div class="input-group input-group-merge">
+                <input
+                  type="password"
+                  name="old_password"
+                  id="old_password"
+                  class="form-control"
+                  placeholder="••••••••"
+                  required
+                />
+                <span class="input-group-text cursor-pointer"><i class="bx bx-lock-alt"></i></span>
+              </div>
+            </div>
+
+            <div class="mb-3 form-password-toggle">
+              <label for="new_password1" class="form-label">Nouveau mot de passe</label>
+              <div class="input-group input-group-merge">
+                <input
+                  type="password"
+                  name="new_password1"
+                  id="new_password1"
+                  class="form-control"
+                  placeholder="••••••••"
+                  required
+                />
+                <span class="input-group-text cursor-pointer"><i class="bx bx-lock"></i></span>
+              </div>
+            </div>
+
+            <div class="mb-3 form-password-toggle">
+              <label for="new_password2" class="form-label">Confirmer le nouveau mot de passe</label>
+              <div class="input-group input-group-merge">
+                <input
+                  type="password"
+                  name="new_password2"
+                  id="new_password2"
+                  class="form-control"
+                  placeholder="••••••••"
+                  required
+                />
+                <span class="input-group-text cursor-pointer"><i class="bx bx-lock"></i></span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <button class="btn btn-primary d-grid w-100" type="submit">Changer le mot de passe</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+      <!-- /Card -->
+    </div>
+  </div>
+</div>
+<!-- / Content -->
+
+{% include 'includes/scripts.html' %}
+</body>
+</html>

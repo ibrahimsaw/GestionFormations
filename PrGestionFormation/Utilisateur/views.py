@@ -21,6 +21,10 @@ import logging
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import PasswordChangeView
+
+
 # Create your views here.
 
 
@@ -72,7 +76,14 @@ def custom_500(request):
     return render(request, 'errors/500.html', {'path': ''}, status=500)
 
 
+class ChangerMotDePasseView(LoginRequiredMixin, PasswordChangeView):
+    template_name = 'Utilisateur/Modification_Motdepasse/changer_mot_de_passe.html'
+    success_url = reverse_lazy('accueil')
 
+    def form_valid(self, form):
+        self.request.user.doit_changer_mot_de_passe = False
+        self.request.user.save()
+        return super().form_valid(form)
 
 
 

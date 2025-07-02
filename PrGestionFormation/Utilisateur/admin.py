@@ -58,7 +58,7 @@ for f in get_utilisateur_fields():
 
 @admin.register(Utilisateur)
 class UtilisateurAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'matricule', 'first_name', 'last_name', 'email', 'role', 'is_staff')
+    list_display = ('pk', 'matricule', 'first_name', 'last_name', 'email', 'role', 'is_staff','doit_changer_mot_de_passe')
     readonly_fields = ('matricule',)
 
 

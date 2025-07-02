@@ -98,6 +98,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
         default=None,  # Temporairement à None
         verbose_name="Genre"
     )
+    doit_changer_mot_de_passe = models.BooleanField(default=False)
     # Champs requis pour AbstractBaseUser
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

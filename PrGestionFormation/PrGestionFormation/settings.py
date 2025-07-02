@@ -62,8 +62,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Utilisateur.middleware.Custom403Middleware',
     'Utilisateur.middleware.Custom404Middleware',
     'Utilisateur.middleware.Custom500Middleware',
+    'Utilisateur.middleware.ForceChangementMotDePasseMiddleware',
 ]
 
 ROOT_URLCONF = 'PrGestionFormation.urls'
