@@ -66,7 +66,7 @@ def custom_403(request, exception):
     return render(request, 'errors/403.html', {'exception': exception, 'path': request.path, 'user': request.user}, status=403)
 
 def custom_404(request, exception):
-    return render(request, 'errors/404.html', {'exception': exception, 'path': request.path}, status=404)
+    return render(request, 'errors/404.html', {'exception': exception, 'path': request.path,'data':data}, status=404)
 
 def custom_500(request):
     return render(request, 'errors/500.html', {'path': ''}, status=500)
@@ -90,6 +90,7 @@ class UtilisateurBaseView(BaseContextView):
     bouton = ""
     titre_page = ""
     path = ""
+    breadcrumb = []
 
     model_mapping = {
         'utilisateur': (Utilisateur, CustomUserCreationForm,CustomUserChangeForm, "Utilisateur"),
@@ -161,12 +162,31 @@ class UtilisateurBaseView(BaseContextView):
         self.bouton = config['bouton']
         self.titre_page = configtitre_page['titre_page']
         role = self.model_type
+        self.path = request.path
+        path = request.path.strip('/').split('/')
+        cumulative_path = ''
+        self.breadcrumb = []
+        for i,part in enumerate(path):
+            cumulative_path += '/' + part
+            print('name :', part.capitalize())
+            print('url :',cumulative_path)
+            self.breadcrumb.append({
+            'name': part.capitalize(),
+            'url': cumulative_path,
+            'is_first': i == 0,
+            'is_last': i == len(path) - 1
+            })
+        print("Chemin de la requête :", request.path)
+        print("Méthode HTTP :", request.method)
+        print("Nom de la vue :", request.resolver_match.view_name)
+        print("Paramètre GET 'name' :", request.GET.get('name'))
 
 
         self.message += f"[dispatch] Action détectée : {self.page}\n"
         self.message += f"[dispatch] Template sélectionné : {selected_template}\n"
 
         if self.model_type not in self.model_mapping:
+            print('path :',self.path,)
             self.message += "[dispatch] Type inconnu, chargement erreur.\n"
             return render(request, selected_template, {
                 'erreur': "Type inconnu.",
@@ -175,6 +195,7 @@ class UtilisateurBaseView(BaseContextView):
                 'data': data,
                 'titre_page': self.titre_page,
                 'page_title': self.page,
+                'path': self.path,
             })
         print(self.message)
         return super().dispatch(request, *args, **kwargs)
@@ -213,22 +234,24 @@ class UtilisateurBaseView(BaseContextView):
 
         context.update({
             'bouton' : self.bouton,
+            'path' : self.path,
             'titre_page' : self.titre_page,
             'role_utilisateur': type_name,
             'model_type': self.model_type,
             'navbar': navbar,  # Assure-toi que 'navbar' est bien défini globalement
             'page': self.page,
-            'message_debug': self.message  # Optionnel : pour affichage dans le template
+            'message_debug': self.message,  # Optionnel : pour affichage dans le template
+            'breadcrumb': self.breadcrumb,
         })
 
         # Debug console log
-        print("[get_context_data] Contexte envoyé :")
-        for key, value in context.items():
-            if key == "form" and value and value.errors:
-                print("[get_context_data] Formulaire avec erreurs :")
-                print("    form.errors :", value.errors)
-            else:
-                print(f"    {key}: {value}")
+        # print("[get_context_data] Contexte envoyé :")
+        # for key, value in context.items():
+        #     if key == "form" and value and value.errors:
+        #         print("[get_context_data] Formulaire avec erreurs :")
+        #         print("    form.errors :", value.errors)
+        #     else:
+        #         print(f"    {key}: {value}")
         return context
 
 

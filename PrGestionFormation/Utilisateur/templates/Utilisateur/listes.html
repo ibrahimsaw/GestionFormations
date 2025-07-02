@@ -8,11 +8,18 @@
 				   <div class="d-sm-flex align-items-center justify-content-between">
 					<h6 class="text-muted">{{ titre_page }}</h6>
 					<nav aria-label="breadcrumb" class="d-none d-sm-block">
-						<ol class="breadcrumb">
-							<li class="breadcrumb-item"><a href="#">Admin</a></li>
-							<li class="breadcrumb-item active" aria-current="page">Permissions</li>
-						</ol>
-					</nav>
+					   <ol class="breadcrumb">
+						 {% for item in breadcrumb %}
+						   {% if item.is_last %}
+							 <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+						   {% elif item.is_first %}
+							 <li class="breadcrumb-item">{{ item.name }}</li>
+						   {% else %}
+							 <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+						   {% endif %}
+						 {% endfor %}
+					   </ol>
+				   </nav>
 				   </div>
 				    <div class="col-auto">
 					     <div class="page-utilities">

@@ -102,7 +102,11 @@ class Formation(models.Model):
         related_name='formations'
     )
     nom = models.CharField(max_length=100)
-    duree = models.IntegerField(help_text="Durée en mois/années selon le type")
+    duree = models.IntegerField(
+        null=True,  # Autorise les valeurs null en base
+        blank=True,  # Autorise les champs vides dans les formulaires
+        help_text="Durée en mois/années selon le type"
+    )
     est_professionnelle = models.BooleanField(default=False)
     avec_classes = models.BooleanField(
         default=True,

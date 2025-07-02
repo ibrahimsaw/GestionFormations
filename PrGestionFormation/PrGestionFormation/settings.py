@@ -26,9 +26,9 @@ SECRET_KEY = 'django-insecure-4m=z&cp#@h$v9zsht-^f-74ceh=f86idt)aje4$9f6k*o!49)=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ibdevexemple.pythonanywhere.com', '127.0.0.1', 'localhost']
 # settings.py
-# DEBUG = False
+#DEBUG = False
 # ALLOWED_HOSTS = ['127.0.0.1', 'localhost']  # mets ton hôte ici
 
 
@@ -62,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Utilisateur.middleware.Custom404Middleware',
+    'Utilisateur.middleware.Custom500Middleware',
 ]
 
 ROOT_URLCONF = 'PrGestionFormation.urls'

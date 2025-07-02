@@ -68,6 +68,13 @@ class FormationForm(forms.ModelForm):
             'avec_classes': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for parcours in self.fields['parcours'].queryset:
+            self.fields['parcours'].widget.choices.queryset = self.fields['parcours'].queryset
+            self.fields['parcours'].widget.choices.field.empty_label = None
+            self.fields['parcours'].widget.attrs.update({'data-type-formation': parcours.type_formation.nom})
+
 class ClasseForm(forms.ModelForm):
     class Meta:
         model = Classe
