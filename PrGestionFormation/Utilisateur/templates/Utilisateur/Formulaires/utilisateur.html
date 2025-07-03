@@ -89,7 +89,6 @@
   </div>
 </div>
 <div class="row">
-
   <!--Date de Naissance-->
 	<div class="col-md-6 mb-3">
 	  <label class="form-label">Date de Naissance</label>
@@ -103,7 +102,6 @@
 				 id="id_date_nais"
 				 value="{{ utilisateur_form.date_nais.value|date:'Y-m-d' }}"
 				 placeholder="JJ/MM/AAAA">
-
 		  </div>
 		  {% for error in utilisateur_form.date_nais.errors %}
 			  <div class="text-danger small">⚠️ {{ error }}</div>
@@ -225,8 +223,6 @@
 	 </select>
    </div>
  </div>
-
-
    <!-- Téléphone -->
    <div class="col-md-6 mb-3">
 	 <label class="form-label" for="{{ utilisateur_form.telephone.id_for_label }}">Téléphone</label>
@@ -289,39 +285,42 @@
 </div>
 
  {% if page|lower != "modification" %}
-   <div class="row">
-	 <!-- Mot de passe -->
-	   <div class="col-md-6 mb-3">
-		   <label class="form-label" for="{{ utilisateur_form.password1.id_for_label }}">Mot de passe</label>
+
+ <div class="row">
+	<!-- Mot de passe -->
+	<div class="col-md-6 mb-3">
+		<label class="form-label" for="{{ utilisateur_form.password1.id_for_label }}">Mot de passe</label>
 		<div class="col-sm-12">
 			<div class="input-group input-group-merge">
 				<span class="input-group-text"><i class="bx bx-lock"></i></span>
-				<input type="password"
-					   id="{{ utilisateur_form.password1.id_for_label }}"
-					   name="{{ utilisateur_form.password1.html_name }}"
-					   class="form-control"
-					   placeholder="8 caractères minimum avec chiffres et lettres"
-					   oninput="validatePassword()">
+				<input type="text"
+					id="{{ utilisateur_form.password1.id_for_label }}"
+					name="{{ utilisateur_form.password1.html_name }}"
+					class="form-control"
+					placeholder="8 caractères minimum avec chiffres et lettres"
+					oninput="validatePassword()">
 				<button type="button" class="btn btn-outline-secondary" onclick="togglePassword('{{ utilisateur_form.password1.id_for_label }}')">
-					<i class="bx bx-show"></i>
+					<i class="bx bx-hide"></i>
 				</button>
 			</div>
+
 			<!-- Indicateur de force du mot de passe -->
 			<div id="password-strength-indicator" class="mt-2 fw-bold"></div>
+
 			<!-- Exigences du mot de passe -->
 			<div id="password-requirements" style="display: none;" class="border rounded p-3 bg-light mt-2">
 				<div id="length-requirement" class="d-flex align-items-center mb-2 invalid">
 					<i id="length-icon" class="bi bi-x-circle me-2"></i>
 					<span>Au moins 8 caractères</span>
 				</div>
-			 <div id="uppercase-requirement" class="d-flex align-items-center mb-2 invalid">
-				<i id="uppercase-icon" class="bi bi-x-circle me-2"></i>
-				<span>Inclure une lettre majuscule</span>
-			  </div>
-			  <div id="special-requirement" class="d-flex align-items-center mb-2 invalid">
-				<i id="special-icon" class="bi bi-x-circle me-2"></i>
-				<span>Inclure un caractère spécial (ex: !@#$%)</span>
-			  </div>
+				<div id="uppercase-requirement" class="d-flex align-items-center mb-2 invalid">
+					<i id="uppercase-icon" class="bi bi-x-circle me-2"></i>
+					<span>Inclure une lettre majuscule</span>
+				</div>
+				<div id="special-requirement" class="d-flex align-items-center mb-2 invalid">
+					<i id="special-icon" class="bi bi-x-circle me-2"></i>
+					<span>Inclure un caractère spécial (ex: !@#$%)</span>
+				</div>
 				<div id="numeric-requirement" class="d-flex align-items-center mb-2 invalid">
 					<i id="numeric-icon" class="bi bi-x-circle me-2"></i>
 					<span>Inclure un chiffre</span>
@@ -344,21 +343,21 @@
 			{% endfor %}
 		</div>
 	</div>
- 
+
 	<!-- Confirmation du mot de passe -->
 	<div class="col-md-6 mb-3">
 		<label class="form-label" for="{{ utilisateur_form.password2.id_for_label }}">Confirmation</label>
 		<div class="col-sm-12">
 			<div class="input-group input-group-merge">
 				<span class="input-group-text"><i class="bx bx-lock-alt"></i></span>
-				<input type="password"
-					   id="{{ utilisateur_form.password2.id_for_label }}"
-					   name="{{ utilisateur_form.password2.html_name }}"
-					   class="form-control"
-					   placeholder="Répétez le même mot de passe"
-					   oninput="validatePassword()">
+				<input type="text"
+					id="{{ utilisateur_form.password2.id_for_label }}"
+					name="{{ utilisateur_form.password2.html_name }}"
+					class="form-control"
+					placeholder="Répétez le même mot de passe"
+					oninput="validatePassword()">
 				<button type="button" class="btn btn-outline-secondary" onclick="togglePassword('{{ utilisateur_form.password2.id_for_label }}')">
-					<i class="bx bx-show"></i>
+					<i class="bx bx-hide"></i>
 				</button>
 			</div>
 			<div id="password-confirm-error" class="text-danger mt-1"></div>
@@ -367,117 +366,224 @@
 			{% endfor %}
 		</div>
 	</div>
-	
-	<script>
-	function togglePassword(id) {
-		const passwordField = document.getElementById(id);
-		if (passwordField) {
-			const icon = passwordField.nextElementSibling.querySelector('i');
-			if (passwordField.type === "password") {
-				passwordField.type = "text";
-				icon.classList.replace('bx-show', 'bx-hide');
-			} else {
-				passwordField.type = "password";
-				icon.classList.replace('bx-hide', 'bx-show');
-			}
-		}
-	}
-	
-	function updateRequirement(id, condition) {
-		const icon = document.getElementById(id + '-icon');
-		const item = document.getElementById(id + '-requirement');
-		if (condition) {
-			icon.className = 'bi bi-check-circle me-2';
-			item.classList.remove('invalid');
-			item.classList.add('valid');
-		} else {
-			icon.className = 'bi bi-x-circle me-2';
-			item.classList.remove('valid');
-			item.classList.add('invalid');
-		}
-	}
-	
-	function validatePassword() {
-		const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}").value;
-		const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}").value;
-		const strength = document.getElementById('password-strength-indicator');
-		const matchError = document.getElementById('password-match-error');
-		const confirmError = document.getElementById('password-confirm-error');
-	
-		const hasMinLength = p1.length >= 8;
-		const hasNumber = /\d/.test(p1);
-		const hasLetter = /[a-zA-Z]/.test(p1);
-		const match = p1 === p2 && p1 !== '';
-		const hasUppercase = /[A-Z]/.test(p1);
-		const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(p1);
-	
-		updateRequirement('length', hasMinLength);
-		updateRequirement('numeric', hasNumber);
-		updateRequirement('letter', hasLetter);
-		updateRequirement('match', match);
-		updateRequirement('uppercase', hasUppercase);
-		updateRequirement('special', hasSpecial);
 
-	
-		const score = [hasMinLength, hasNumber, hasLetter,hasUppercase, hasSpecial].filter(Boolean).length;
-	
-		if (p1.length === 0) {
-			strength.textContent = '';
-			strength.className = '';
-		} else if (score <= 1) {
-			strength.textContent = 'Mot de passe faible';
-			strength.className = 'text-danger fw-bold';
-		} else if (score === 2) {
-			strength.textContent = 'Mot de passe moyen';
-			strength.className = 'text-warning fw-bold';
+	<!-- Bouton pour régénérer un mot de passe -->
+	<div class="col-12 text-end mb-3">
+		<button type="button" class="btn btn-sm btn-primary" onclick="generateSmartPassword()">Générer un nouveau mot de passe</button>
+	</div>
+</div>
+
+<!-- Scripts -->
+<script>
+function togglePassword(id) {
+	const passwordField = document.getElementById(id);
+	if (passwordField) {
+		const icon = passwordField.nextElementSibling.querySelector('i');
+		if (passwordField.type === "password") {
+			passwordField.type = "text";
+			icon.classList.replace('bx-show', 'bx-hide');
 		} else {
-			strength.textContent = 'Mot de passe fort';
-			strength.className = 'text-success fw-bold';
-		}
-	
-		matchError.textContent = (!match && p2.length > 0)
-			? 'Les mots de passe ne correspondent pas'
-			: '';
-		confirmError.textContent = matchError.textContent;
-	
-		const submitBtn = document.querySelector('button[type="submit"]');
-		if (submitBtn) {
-			submitBtn.disabled = !(hasMinLength && hasNumber && hasLetter && hasUppercase && hasSpecial && match);
+			passwordField.type = "password";
+			icon.classList.replace('bx-hide', 'bx-show');
 		}
 	}
-	
-	document.addEventListener('DOMContentLoaded', () => {
-		const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}");
-		const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}");
-		const requirements = document.getElementById('password-requirements');
-	
-		const showRequirements = () => requirements.style.display = 'block';
-		const hideRequirements = () => {
-			if (requirementsValid()) requirements.style.display = 'none';
-		};
-	
-		p1.addEventListener('focus', showRequirements);
-		p2.addEventListener('focus', showRequirements);
-		p1.addEventListener('blur', hideRequirements);
-		p2.addEventListener('blur', hideRequirements);
-		p1.addEventListener('input', validatePassword);
-		p2.addEventListener('input', validatePassword);
-	
-		validatePassword();
-	
-		function requirementsValid() {
-			const val1 = p1.value;
-			const val2 = p2.value;
-			return (
-				val1.length >= 8 &&
-				/\d/.test(val1) &&
-				/[a-zA-Z]/.test(val1) &&
-				/[A-Z]/.test(val1) &&
-				/[!@#$%^&*(),.?":{}|<>]/.test(val1) &&
-				val1 === val2
-			);
-		}
-	});
-	</script>
+}
+
+function updateRequirement(id, condition) {
+	const icon = document.getElementById(id + '-icon');
+	const item = document.getElementById(id + '-requirement');
+	if (condition) {
+		icon.className = 'bi bi-check-circle me-2';
+		item.classList.remove('invalid');
+		item.classList.add('valid');
+	} else {
+		icon.className = 'bi bi-x-circle me-2';
+		item.classList.remove('valid');
+		item.classList.add('invalid');
+	}
+}
+
+function validatePassword() {
+	const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}").value;
+	const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}").value;
+	const strength = document.getElementById('password-strength-indicator');
+	const matchError = document.getElementById('password-match-error');
+	const confirmError = document.getElementById('password-confirm-error');
+
+	const hasMinLength = p1.length >= 8;
+	const hasNumber = /\d/.test(p1);
+	const hasLetter = /[a-zA-Z]/.test(p1);
+	const hasUppercase = /[A-Z]/.test(p1);
+	const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(p1);
+	const match = p1 === p2 && p1 !== '';
+
+	updateRequirement('length', hasMinLength);
+	updateRequirement('numeric', hasNumber);
+	updateRequirement('letter', hasLetter);
+	updateRequirement('uppercase', hasUppercase);
+	updateRequirement('special', hasSpecial);
+	updateRequirement('match', match);
+
+	const score = [hasMinLength, hasNumber, hasLetter, hasUppercase, hasSpecial].filter(Boolean).length;
+
+	if (p1.length === 0) {
+		strength.textContent = '';
+		strength.className = '';
+	} else if (score <= 1) {
+		strength.textContent = 'Mot de passe faible';
+		strength.className = 'text-danger fw-bold';
+	} else if (score === 2) {
+		strength.textContent = 'Mot de passe moyen';
+		strength.className = 'text-warning fw-bold';
+	} else {
+		strength.textContent = 'Mot de passe fort';
+		strength.className = 'text-success fw-bold';
+	}
+
+	matchError.textContent = (!match && p2.length > 0) ? 'Les mots de passe ne correspondent pas' : '';
+	confirmError.textContent = matchError.textContent;
+
+	const submitBtn = document.querySelector('button[type="submit"]');
+	if (submitBtn) {
+		submitBtn.disabled = !(hasMinLength && hasNumber && hasLetter && hasUppercase && hasSpecial && match);
+	}
+}
+
+function generateStrongPassword(length = 12) {
+	const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+	const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	const digits = '0123456789';
+	const specials = '!@#$%^&*()_+[]{}|;:,.<>?';
+	const all = lowercase + uppercase + digits + specials;
+
+	let password = [
+		lowercase[Math.floor(Math.random() * lowercase.length)],
+		uppercase[Math.floor(Math.random() * uppercase.length)],
+		digits[Math.floor(Math.random() * digits.length)],
+		specials[Math.floor(Math.random() * specials.length)]
+	];
+
+	for (let i = 4; i < length; i++) {
+		password.push(all[Math.floor(Math.random() * all.length)]);
+	}
+
+	return password.sort(() => 0.5 - Math.random()).join('');
+}
+
+function regeneratePassword() {
+	const password = generateStrongPassword(12);
+	const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}");
+	const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}");
+
+	p1.type = "text";
+	p2.type = "text";
+
+	p1.value = password;
+	p2.value = password;
+
+	const icon1 = p1.nextElementSibling.querySelector('i');
+	const icon2 = p2.nextElementSibling.querySelector('i');
+	icon1.classList.replace('bx-show', 'bx-hide');
+	icon2.classList.replace('bx-show', 'bx-hide');
+
+	validatePassword();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}");
+	const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}");
+	const requirements = document.getElementById('password-requirements');
+
+	// Génère automatiquement un mot de passe au chargement
+	const generatedPassword = generateStrongPassword(12);
+	p1.value = generatedPassword;
+	p2.value = generatedPassword;
+	p1.type = "text";
+	p2.type = "text";
+
+	const icon1 = p1.nextElementSibling.querySelector('i');
+	const icon2 = p2.nextElementSibling.querySelector('i');
+	icon1.classList.replace('bx-show', 'bx-hide');
+	icon2.classList.replace('bx-show', 'bx-hide');
+
+	const showRequirements = () => requirements.style.display = 'block';
+	const hideRequirements = () => {
+		if (requirementsValid()) requirements.style.display = 'none';
+	};
+
+	p1.addEventListener('focus', showRequirements);
+	p2.addEventListener('focus', showRequirements);
+	p1.addEventListener('blur', hideRequirements);
+	p2.addEventListener('blur', hideRequirements);
+	p1.addEventListener('input', validatePassword);
+	p2.addEventListener('input', validatePassword);
+
+	validatePassword();
+
+	function requirementsValid() {
+		const val1 = p1.value;
+		const val2 = p2.value;
+		return (
+			val1.length >= 8 &&
+			/\d/.test(val1) &&
+			/[a-zA-Z]/.test(val1) &&
+			/[A-Z]/.test(val1) &&
+			/[!@#$%^&*(),.?":{}|<>]/.test(val1) &&
+			val1 === val2
+		);
+	}
+});
+</script>
+<script>
+function generateSmartPassword() {
+	const nom = document.getElementById("{{ utilisateur_form.last_name.id_for_label }}")?.value.trim();
+	const prenom = document.getElementById("{{ utilisateur_form.first_name.id_for_label }}")?.value.trim();
+	const date = document.getElementById("id_date_nais")?.value;
+	const phone = document.getElementById("{{ utilisateur_form.telephone.id_for_label }}")?.value.trim();
+
+	if (!nom || !prenom || !date || !phone) {
+		alert("Veuillez remplir le nom, prénom, date de naissance et téléphone.");
+		return;
+	}
+
+	// Données utiles
+	const jour = date.split("-")[2];          // ex: "15"
+	const annee = date.split("-")[0].slice(2); // ex: "00" pour 2000
+	const phoneDigits = phone.replace(/\D/g, ''); // uniquement les chiffres
+	const phone4 = phoneDigits.slice(-4);     // ex: "2233"
+	const specialChars = ['@', '#', '!', '$', '*'];
+	const symbole = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+	// Construire un mot de passe court mais mixé
+	let segments = [
+		prenom.slice(0, 2),     // Ib
+		nom.slice(0, 2),        // Sa
+		jour,                   // 15
+		symbole,                // @
+		annee,                  // 00
+		phone4.slice(0, 2)      // 22
+	];
+
+	// Mélanger et limiter à 12 caractères
+	const mdp = segments.sort(() => 0.5 - Math.random()).join('').slice(0, 12);
+
+	// Appliquer
+	const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}");
+	const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}");
+
+	p1.type = "text";
+	p2.type = "text";
+	p1.value = mdp;
+	p2.value = mdp;
+
+	// Icônes
+	const icon1 = p1.nextElementSibling.querySelector('i');
+	const icon2 = p2.nextElementSibling.querySelector('i');
+	icon1.classList.replace('bx-show', 'bx-hide');
+	icon2.classList.replace('bx-show', 'bx-hide');
+
+	validatePassword();
+}
+</script>
+
 	{% endif %}
-</div>
