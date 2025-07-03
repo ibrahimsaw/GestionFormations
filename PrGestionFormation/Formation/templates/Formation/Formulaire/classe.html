@@ -1,0 +1,53 @@
+ {% load form_tags %}
+<form method="post" class="needs-validation" novalidate>
+   {% csrf_token %}
+	 <!-- Champ : Formation -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="{{ form.formation.id_for_label }}">Formation</label>
+	   <div class="col-sm-10">
+		 {{ form.formation|add_class:"form-select" }}
+		 {% for error in form.formation.errors %}
+		   <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	   </div>
+	 </div>
+
+	 <!-- Champ : Année académique -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="{{ form.annee_academique.id_for_label }}">Année académique</label>
+	   <div class="col-sm-10">
+		 {{ form.annee_academique|add_class:"form-select" }}
+		 {% for error in form.annee_academique.errors %}
+		   <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	   </div>
+	 </div>
+
+	 <!-- Champ : Nom de la classe -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="{{ form.nom.id_for_label }}">Nom de la classe</label>
+	   <div class="col-sm-10">
+		 {{ form.nom|add_class:"form-control" }}
+		 {% for error in form.nom.errors %}
+		   <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	   </div>
+	 </div>
+
+	 <!-- Champ : Ordre -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="{{ form.ordre.id_for_label }}">Ordre</label>
+	   <div class="col-sm-10">
+		 {{ form.ordre|add_class:"form-control" }}
+		 {% for error in form.ordre.errors %}
+		   <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	   </div>
+	 </div>
+
+   <div class="row justify-content-end">
+	 <div class="col-sm-9 offset-sm-3">
+	   <button type="submit" class="btn btn-primary">Enregistrer</button>
+	 </div>
+   </div>
+ </form>

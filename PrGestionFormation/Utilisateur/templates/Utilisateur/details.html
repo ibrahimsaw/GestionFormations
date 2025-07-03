@@ -2,118 +2,236 @@
 {% load static %}
 {% load form_tags %}
 {% block content %}
-<div class="col-md-12">
-  <div class="d-sm-flex align-items-center justify-content-between">
-    <h6 class="text-muted">{{ titre_page }}</h6>
-    <nav aria-label="breadcrumb" class="d-none d-sm-block">
-      <ol class="breadcrumb">
-        {% for item in breadcrumb %}
-          {% if item.is_last %}
-            <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
-          {% elif item.is_first %}
-            <li class="breadcrumb-item">{{ item.name }}</li>
-          {% else %}
-            <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
-          {% endif %}
-        {% endfor %}
-      </ol>
-    </nav>
-  </div>
+          <!-- Content wrapper -->
+                <div class="col-md-12">
+				 <div class="d-sm-flex align-items-center justify-content-between">
+					<h6 class="text-muted">{{ titre_page }}</h6>
+					<nav aria-label="breadcrumb" class="d-none d-sm-block">
+					   <ol class="breadcrumb">
+						 {% for item in breadcrumb %}
+						   {% if item.is_last %}
+							 <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+						   {% elif item.is_first %}
+							 <li class="breadcrumb-item">{{ item.name }}</li>
+						   {% else %}
+							 <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+						   {% endif %}
+						 {% endfor %}
+					   </ol>
+				   </nav>
+				  </div>
+				   <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+					 <li class="nav-item" style="max-width: 300px; margin: 0 auto;">
+					   <p class="nav-link active d-flex justify-content-center align-items-center gap-2">
+						 <i class="tf-icons bx bx-book"></i>
+						 <span>{{agent.utilisateur.get_role_display}}</span>
+					   </p>
+					 </li>
+				   </ul>
+                  <div class="card mb-4">
+                    <h5 class="card-header">Détails du profil</h5>
+                    <!-- Account -->
+                    <div class="card-body">
+                      <div class="d-flex align-items-start align-items-sm-center gap-4">
+                        <img
+                          src=" {% static 'assets/img/avatars/1.png' %}"
+                          alt="user-avatar"
+                          class="d-block rounded"
+                          height="100"
+                          width="100"
+                          id="uploadedAvatar"
+                        />
+                        <div class="button-wrapper">
+                          <label for="upload" class="btn btn-primary me-2 mb-4" tabindex="0">
+                            <span class="d-none d-sm-block">Télécharger une nouvelle photo</span>
+                            <i class="bx bx-upload d-block d-sm-none"></i>
+                            <input
+                              type="file"
+                              id="upload"
+                              class="account-file-input"
+                              hidden
+                              accept="image/png, image/jpeg"
+                            />
+                          </label>
+                          <button type="button" class="btn btn-outline-secondary account-image-reset mb-4"
+								   onclick="window.location.href='{% url 'utilisateur:modifier_mot_de_passe_utilisateur' agent.utilisateur.id %}';">
+							   <i class="bx bx-reset d-block d-sm-none"></i>
+							   <span class="d-none d-sm-block">Réinitialiser Mot de passe</span>
+						   </button>
+                          <p class="text-muted mb-0">Formats JPG, GIF ou PNG autorisés. Taille maximale : 800 Ko.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <hr class="my-0" />
+                    <div class="card-body">
+                      <form id="formAccountSettings" method="POST" onsubmit="return false">
+                        <div class="mt-2">
+                          <a href="{% url 'utilisateur:utilisateur_modifier' role=agent.utilisateur.role|lower pk=agent.utilisateur.pk %}" class="btn btn-success me-2">Modifier</a>
+                        </div>
+					   <div class="table-responsive">
+						  <table class="table table-sm">
+							<tbody>
+							  <tr><th>Matricule</th><td>{{ agent.utilisateur.matricule|default:'Non défini' }}</td></tr>
+							  <tr><th>Date d'inscription</th><td>{{ agent.utilisateur.date_inscription|date:'d/m/Y' }}</td></tr>
+							  <tr><th>Nom</th><td>{{ agent.utilisateur.last_name|default:'Non défini' }}</td></tr>
+							  <tr><th>Prénom</th><td>{{ agent.utilisateur.first_name|default:'Non défini' }}</td></tr>
+							  <tr><th>Genre</th><td>{{ agent.utilisateur.genre|default:'Non défini' }}</td></tr>
+							  <tr><th>Date de naissance</th><td>{{ agent.utilisateur.date_nais|date:'Y-m-d' }}</td></tr>
+							  <tr><th>Email</th><td>{{ agent.utilisateur.email|default:'Non défini' }}</td></tr>
+							  <tr><th>Téléphone</th><td>{{ agent.utilisateur.telephone|default:'Non défini' }}</td></tr>
+							  <tr><th>Rôle</th><td>{{ agent.utilisateur.get_role_display_name|default:'Non défini' }}</td></tr>
+							  <tr><th>Membre du personnel</th><td>{% if agent.utilisateur.is_staff %}Oui{% else %}Non{% endif %}</td></tr>
+							  <tr><th>Compte actif</th><td>{% if agent.utilisateur.is_active %}Oui{% else %}Non{% endif %}</td></tr>
+							  {% if agent.utilisateur.role == "ADMIN" %}
+								<tr><th>Superutilisateur</th><td>{% if agent.utilisateur.is_superuser %}Oui{% else %}Non{% endif %}</td></tr>
+							  {% endif %}
+							  {% if agent.utilisateur.role == "ETUDIANT" %}
+								<tr><th>Classe</th><td>{{ agent.classe_actuelle|default:'Non défini' }}</td></tr>
+							  {% endif %}
+							  {% if agent.utilisateur.role == "ENSEIGNANT" %}
+								<tr>
+								  <th>Spécialités</th>
+								  <td>
+									{% if agent.specialites.all %}
+									  {{ agent.specialites.all|join:", " }}
+									{% else %}
+									  Aucun
+									{% endif %}
+								  </td>
+								</tr>
+							  	<tr><th>Autres Specialite</th><td>{{ agent.autres_specialites|default:'Non défini' }}</td></tr>
+							  {% endif %}
+							</tbody>
+						  </table>
+						</div>
+					   {% if agent.utilisateur.role == "PARENT" %}
+						  <label for="niveau" class="form-label">Enfants</label>
+						  {% if agent.enfants.all %}
+							<div class="row g-3">  <!-- g-3 pour espace entre les colonnes -->
+							  {% for etudiant in agent.enfants.all %}
+								<div class="mb-3 col-md-6">
+								 <div class="form-control">
+								   <div style="display: flex; align-items: center; position: relative;">
+									 <!-- Photo de l'enfant avec image par défaut -->
+										 {% if etudiant.utilisateur.photo %}
+										   <img src="{{ etudiant.utilisateur.photo.url }}" alt="Photo de {{ etudiant.utilisateur.first_name }}" style="width: 60px; height: 60px; border-radius: 50%;">
+										 {% else %}
+										   <img src="{% static 'assets/img/avatars/1.png' %}" alt="Avatar par défaut"  style="width: 60px; height: 60px; border-radius: 50%;">
+										 {% endif %}
+									 <div style="padding-left: 5px; flex: 1;">
+									   <h6 style="margin: 0; font-weight: bold;">{{ etudiant.utilisateur.matricule }}<br>
+										   {{ etudiant.utilisateur.last_name }} {{ etudiant.utilisateur.first_name }}</h6>
+									   <a href="{% url 'utilisateur:utilisateur_detail' role=etudiant.utilisateur.role|lower pk=etudiant.utilisateur.pk %}" style="color: #2196F3; text-decoration: none; font-size: 0.9em;">{{ etudiant.utilisateur.email }}</a>
+									 </div>
+									 <!-- Visible sur grand écran (≥768px) -->
+									 <div class='mt-1 d-none d-md-block'>
+									   <span class='badge bg-warning text-dark'>
+										 {% if etudiant.classe_actuelle %}
+										   {{ etudiant.classe_actuelle.nom }}
+										 {% else %}
+										   Non défini
+										 {% endif %}
+									   </span>
+									 </div>
+									 
+									 <!-- Visible sur petit écran (<768px), déplacé en bas du bloc -->
+									 <div class='mt-2 d-block d-md-none w-100 text-start'>
+									   <span class='badge bg-warning text-dark'>
+										 {% if etudiant.classe_actuelle %}
+										   {{ etudiant.classe_actuelle.nom }}
+										 {% else %}
+										   Non défini
+										 {% endif %}
+									   </span>
+									 </div>
+								   </div>
+								 </div>
+								</div>
+								{% endfor %}
+							  </div>
+							{% else %}
+							  <p class="text-muted">Aucun enfant enregistré.</p>
+							{% endif %}
+                          {% elif agent.utilisateur.role == "AGENT" %}
+                              <label for="fonctions" class="form-label">Fonctions</label>
+								 {% if agent.fonctions.all %}
+					   				<div class="row">
+									  {% for fonction in agent.fonctions.all %}
+										 <div class="mb-3 col-md-6">
+											  <div class="form-control">
+												  <div style="display: flex; align-items: center; position: relative;">
+													  <!-- Icône représentant la fonction -->
+													  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+														  <i class="bx bx-briefcase" style="font-size: 24px; color: #696cff;"></i>
+													  </div>
+													  
+													  <div style="padding-left: 20px; flex: 1;">
+														  <h6 style="margin: 0; font-weight: bold;">{{ fonction.nom }}</h6>
+														  {% if fonction.description %}
+															  <p style="margin: 0; color: #697a8d; font-size: 0.9em;">{{ fonction.description }}</p>
+														  {% endif %}
+													  </div>
+												  </div>
+											  </div>
+										  </div>
+									  {% endfor %}
+					  				</div>
+								 {% else %}
+									 <p class="text-muted">Aucune fonction attribuée.</p>
+								 {% endif %}
+                          {% endif %}
+                        </div>
+                      </form>
+                    </div>
+                    <!-- /Account -->
+                  </div>
+				<div class="card">
+				<h5 class="card-header">Supprimer {{ type_name }}</h5>
+				<div class="card-body">
+				  <div class="alert alert-warning">
+					<h6 class="alert-heading fw-bold mb-1">Supprimer ce compte ?</h6>
+					<p class="mb-0">
+					  {% if object_name %}Vous êtes sur le point de supprimer <strong>{{ object_name }}</strong>.{% endif %}
+					  Cette action est irréversible.
+					</p>
+				  </div>
+			
+				  <form method="POST" id="formAccountDeactivation">
+					{% csrf_token %}
+					<div class="form-check mb-3">
+					  <input class="form-check-input" type="checkbox" name="confirmation" id="confirmation" required />
+					  <label class="form-check-label" for="confirmation">Je confirme la suppression définitive</label>
+					</div>
+					<button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+				  </form>
+				</div>
+                </div>
 
-  <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
-    <li class="nav-item" style="max-width: 300px; margin: 0 auto;">
-      <p class="nav-link active d-flex justify-content-center align-items-center gap-2">
-        <i class="tf-icons bx bx-book"></i>
-        <span>{{ agent.utilisateur.get_role_display }}</span>
-      </p>
-    </li>
-  </ul>
-
-  <div class="card mb-4">
-    <h5 class="card-header">Détails du profil</h5>
-
-    <div class="card-body">
-      <div class="d-flex flex-column flex-md-row align-items-start gap-4">
-        <img src="{% static 'assets/img/avatars/1.png' %}" alt="user-avatar" class="rounded" height="100" width="100" />
-
-        <div class="button-wrapper text-center text-md-start">
-          <label for="upload" class="btn btn-primary me-2 mb-2 mb-md-0">
-            Télécharger une nouvelle photo
-            <input type="file" id="upload" class="d-none" accept="image/png, image/jpeg" />
-          </label>
-
-          <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{% url 'utilisateur:modifier_mot_de_passe_utilisateur' agent.utilisateur.id %}'">
-            Réinitialiser Mot de passe
-          </button>
-
-          <p class="text-muted mt-2">Formats JPG, GIF ou PNG autorisés. Taille maximale : 800 Ko.</p>
-        </div>
-      </div>
-    </div>
-
-    <hr class="my-0" />
-
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-sm">
-          <tbody>
-            <tr><th>Matricule</th><td>{{ agent.utilisateur.matricule|default:'Non défini' }}</td></tr>
-            <tr><th>Date d'inscription</th><td>{{ agent.utilisateur.date_inscription|date:'d/m/Y' }}</td></tr>
-            <tr><th>Nom</th><td>{{ agent.utilisateur.last_name|default:'Non défini' }}</td></tr>
-            <tr><th>Prénom</th><td>{{ agent.utilisateur.first_name|default:'Non défini' }}</td></tr>
-            <tr><th>Genre</th><td>{{ agent.utilisateur.genre|default:'Non défini' }}</td></tr>
-            <tr><th>Date de naissance</th><td>{{ agent.utilisateur.date_nais|date:'Y-m-d' }}</td></tr>
-            <tr><th>Email</th><td>{{ agent.utilisateur.email|default:'Non défini' }}</td></tr>
-            <tr><th>Téléphone</th><td>{{ agent.utilisateur.telephone|default:'Non défini' }}</td></tr>
-            <tr><th>Rôle</th><td>{{ agent.utilisateur.get_role_display_name|default:'Non défini' }}</td></tr>
-            <tr><th>Membre du personnel</th><td>{% if agent.utilisateur.is_staff %}Oui{% else %}Non{% endif %}</td></tr>
-            <tr><th>Compte actif</th><td>{% if agent.utilisateur.is_active %}Oui{% else %}Non{% endif %}</td></tr>
-            {% if agent.utilisateur.role == "ADMIN" %}
-              <tr><th>Superutilisateur</th><td>{% if agent.utilisateur.is_superuser %}Oui{% else %}Non{% endif %}</td></tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h5 class="card-header">Supprimer {{ type_name }}</h5>
-    <div class="card-body">
-      <div class="alert alert-warning">
-        <h6 class="alert-heading fw-bold mb-1">Supprimer ce compte ?</h6>
-        <p class="mb-0">
-          {% if object_name %}Vous êtes sur le point de supprimer <strong>{{ object_name }}</strong>.{% endif %}
-          Cette action est irréversible.
-        </p>
-      </div>
-
-      <form method="POST" id="formAccountDeactivation">
-        {% csrf_token %}
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" name="confirmation" id="confirmation" required />
-          <label class="form-check-label" for="confirmation">Je confirme la suppression définitive</label>
-        </div>
-        <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="fixed-action-buttons mt-3">
-    <a href="{% url 'utilisateur:utilisateur_list' model_type %}" class="btn btn-list">
-      <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
-    </a>
-    <a href="{% url 'utilisateur:utilisateur_create' model_type %}" class="btn btn-add">
-      <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
-    </a>
-  </div>
-</div>
-
+					<div class="fixed-action-buttons">
+						  <a href="{% url 'utilisateur:utilisateur_list' model_type %}" class="btn btn-list">
+							  <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
+						  </a>
+						  <a href="{% url 'utilisateur:utilisateur_create' model_type %}" class="btn btn-add">
+							  <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+						  </a>
+					  </div>
+          <!-- Content wrapper -->
 <script>
 document.getElementById('formAccountDeactivation').addEventListener('submit', function(e) {
-  if (!confirm('Cette action ne peut pas être annulée. Confirmez-vous la suppression ?')) {
-    e.preventDefault();
-  }
+    if (!confirm('Cette action ne peut pas être annulée. Confirmez-vous la suppression ?')) {
+        e.preventDefault();
+    }
 });
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+

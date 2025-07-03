@@ -1,545 +1,85 @@
-                {% extends 'base.html' %}
-                {% load static %}
-                {% load form_tags %}
-                {% block content %}
+ {% extends 'base.html' %}
+ {% load static %}
+ {% load form_tags %}
+ {% block content %}
 
-                <div class="col-xl-12">
-                  <h6 class="text-muted">{{ fonction}}</h6>
-                  <div class="nav-align-top mb-4">
-                    <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link {% if model_type == 'formation' %}active{% endif %}"
-                           href="{% url 'formation:universal-create' 'formation' %}">
-                            <i class="tf-icons bx bx-book-alt"></i> Formations
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if model_type == 'parcours' %}active{% endif %}"
-                           href="{% url 'formation:universal-create' 'parcours' %}">
-                            <i class="tf-icons bx bx-map"></i> Parcours
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if model_type == 'annee' %}active{% endif %}"
-                           href="{% url 'formation:universal-create' 'annee' %}">
-                            <i class="tf-icons bx bx-calendar"></i> Années Académiques
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if model_type == 'classe' %}active{% endif %}"
-                           href="{% url 'formation:universal-create' 'classe' %}">
-                            <i class="tf-icons bx bx-group"></i> Classes
-                        </a>
-                    </li>
-                </ul>
-                      {% if role %}
-                <div class="tab-content">
-                    <div class="tab-pane fade show active">
-                      <!-- FORMULAIRE DYNAMIQUE -->
-
-                        {% if model_type == 'formation' %}
-                            {% include "Formation/Formulaire/formation.html" %}
-							{% elif model_type == 'parcours' %}
-							<div class="container mt-4">
-								<div class="card">
-									<div class="card-body">
-										<form method="post" id="parcoursForm">
-										 {% if form.errors %}
-										  <div class="alert alert-danger">
-											<strong>⚠ Erreurs dans le formulaire :</strong>
-											<ul>
-											  {% for field in form %}
-												{% for error in field.errors %}
-												  <li><strong>{{ field.label }} :</strong> {{ error }}</li>
-												{% endfor %}
-											  {% endfor %}
-											  {% for error in form.non_field_errors %}
-												<li>{{ error }}</li>
-											  {% endfor %}
-											</ul>
-										  </div>
-										{% endif %}
-											{% csrf_token %}
-											
-											<!-- Type de Formation -->
-											<div class="form-group row mb-3">
-												<label for="id_type_formation" class="col-md-3 col-form-label">Type de formation</label>
-												<div class="col-md-9">
-													{{ form.type_formation }}
-												</div>
-											</div>
-							
-											<!-- Spécification -->
-											<div class="form-group row mb-3" id="specGroup">
-												<label for="id_specification" class="col-md-3 col-form-label">Spécification</label>
-												<div class="col-md-9">
-													{{ form.specification }}
-												</div>
-											</div>
-							
-											<!-- Nom -->
-											<div class="form-group row mb-3">
-												<label for="id_nom" class="col-md-3 col-form-label">Nom du parcours</label>
-												<div class="col-md-9">
-													{{ form.nom }}
-												</div>
-											</div>
-							
-											<!-- Code Série -->
-											<div class="form-group row mb-3" id="codeGroup">
-												<label for="id_code_serie" class="col-md-3 col-form-label">Code série</label>
-												<div class="col-md-9">
-													{{ form.code_serie }}
-												</div>
-											</div>
-							
-											<!-- Structure des Classes -->
-											<div class="form-group row mb-3" id="structureGroup">
-												<label for="id_structure_classes" class="col-md-3 col-form-label">Structure des classes</label>
-												<div class="col-md-9">
-													{{ form.structure_classes }}
-												</div>
-											</div>
-							
-											<!-- Diplôme Final -->
-											<div class="form-group row mb-3" id="diplomeGroup">
-												<label for="id_diplome_final" class="col-md-3 col-form-label">Diplôme final</label>
-												<div class="col-md-9">
-													{{ form.diplome_final }}
-												</div>
-											</div>
-							
-											<button type="submit" class="btn btn-primary">Enregistrer</button>
-										</form>
-									</div>
-								</div>
-							</div>
-							<script>
-							  document.addEventListener("DOMContentLoaded", function () {
-								const typeFormation = document.getElementById("id_type_formation");
-								const nom = document.getElementById("id_nom");
-								const specification = document.getElementById("id_specification");
-								const codeSerie = document.getElementById("id_code_serie");
-								const structureClasses = document.getElementById("id_structure_classes");
-								const diplomeFinal = document.getElementById("id_diplome_final");
-							
-								const typeFormationsData = {{ type_formations_json|safe }};
-								const specificationsData = {{ specifications_json|safe }};
-							
-								const codeSerieGroup = document.getElementById("codeGroup");
-							
-								function getSpecByCode(code) {
-								  return specificationsData.find(s => s.code === code);
-								}
-							
-								function setSpecificationByCode(code, disable = true) {
-								  const spec = getSpecByCode(code);
-								  if (spec) {
-									specification.value = spec.id;
-									specification.disabled = disable;
-									return spec;
-								  }
-								  return null;
-								}
-							
-								function restrictSpecificationOptions(allowedCodes) {
-								  for (const option of specification.options) {
-									const spec = specificationsData.find(s => s.id == option.value);
-									if (spec) {
-									  const isAllowed = allowedCodes.includes(spec.code);
-									  option.disabled = !isAllowed;
-									  option.hidden = !isAllowed;
-									}
-								  }
-								  specification.disabled = false;
-								  const firstAllowed = specificationsData.find(s => allowedCodes.includes(s.code));
-								  if (firstAllowed) specification.value = firstAllowed.id;
-								}
-							
-								function resetSpecificationOptions() {
-								  for (const option of specification.options) {
-									option.disabled = false;
-									option.hidden = false;
-								  }
-								  specification.disabled = false;
-								}
-							
-								function updateDiplomeFinal(codeType, specCode, nomValue, codeSerieValue) {
-								  let result = "";
-							
-								  if (codeType === "LIC") {
-									result = "Licence en " + nomValue;
-								  } else if (codeType === "MAS") {
-									result = "Master en " + nomValue;
-								  } else if (codeType === "PRIM") {
-									result = "CEP";
-								  } else if (codeType === "PRE") {
-									result = "";
-								  } else if (codeType === "SEC1") {
-									if (specCode === "GN") {
-									  result = "BEPC";
-									} else if (specCode === "TH") {
-									  result = "CAP en " + nomValue;
-									}
-								  } else if (codeType === "SEC2") {
-									if (specCode === "GN") {
-									  result = "Bac " + codeSerieValue;
-									} else if (specCode === "TH") {
-									  result = "Bac en " + nomValue + " " + codeSerieValue;
-									}
-								  } else {
-									result = "Attestation de " + nomValue;
-								  }
-							
-								  diplomeFinal.value = result;
-								}
-							
-								function updateCodeSerieVisibility(show) {
-								  codeSerieGroup.style.display = show ? "block" : "none";
-								}
-							
-								function updateStructureClasses(codeType, specCode, nomValue, codeSerieValue, selectedType) {
-								  let classes = [];
-							
-								  if (codeType === "SEC1") {
-									if (specCode === "GN") {
-									  classes = ["6e", "5e", "4e", "3e"];
-									} else if (specCode === "TH") {
-									  classes = ["6e", "5e", "4e", "3e"].map(n => n + " " + nomValue);
-									}
-								  } else if (codeType === "SEC2") {
-									if (specCode === "GN") {
-									  classes = ["2nde", "1ère", "Tle"].map(n => n + " " + codeSerieValue);
-									} else if (specCode === "TH") {
-									  classes = ["2nde", "1ère", "Tle"].map(n => n + " " + codeSerieValue + " " + nomValue);
-									}
-								  } else if (codeType === "PRO") {
-									classes = [nomValue + " " + 1,]
-								  } else {
-									// Pour les autres types, on utilise la liste des classes fournie dans selectedType
-									classes = selectedType.liste_classe;
-								  }
-							
-								  structureClasses.value = JSON.stringify(classes);
-								  console.log("📚 Nouvelles classes :", classes);
-								}
-							
-								typeFormation.addEventListener("change", function () {
-								  const selectedId = parseInt(this.value);
-								  const selectedType = typeFormationsData.find(item => item.id === selectedId);
-							
-								  resetSpecificationOptions();
-								  updateCodeSerieVisibility(false); // cacher par défaut
-							
-								  if (!selectedType) return;
-							
-								  const codeType = selectedType.code;
-								  const nomValue = nom.value;
-							
-								  let currentSpecCode = null;
-								  structureClasses.disabled = true;
-								  diplomeFinal.disabled = true; // toujours grisé
-							
-								  // Gérer la spécification et options
-								  if (codeType === "LIC") {
-									const spec = setSpecificationByCode("UN", true);
-									currentSpecCode = spec.code;
-								  } else if (codeType === "MAS") {
-									const spec = setSpecificationByCode("UN", true);
-									currentSpecCode = spec.code;
-								  } else if (codeType === "PRIM" || codeType === "PR") {
-									const spec = setSpecificationByCode("GN", true);
-									currentSpecCode = spec.code;
-								  } else if (codeType === "PRO") {
-									const spec = setSpecificationByCode("FO", true);
-									currentSpecCode = spec.code;
-									diplomeFinal.disabled = false;
-									structureClasses.disabled = false;
-								  } else if (codeType === "SEC1") {
-									restrictSpecificationOptions(["GN", "TH"]);
-									currentSpecCode = getSpecByCode("GN").code; // valeur par défaut
-								  } else if (codeType === "SEC2") {
-									restrictSpecificationOptions(["GN", "TH"]);
-									updateCodeSerieVisibility(true);
-									currentSpecCode = getSpecByCode("GN").code; // valeur par défaut
-								  }
-							
-								  updateDiplomeFinal(codeType, currentSpecCode, nom.value, codeSerie.value);
-								  updateStructureClasses(codeType, currentSpecCode, nom.value, codeSerie.value, selectedType);
-							
-								  console.log("🎯 Type :", codeType);
-								});
-							
-								nom.addEventListener("input", function () {
-								  const selectedId = parseInt(typeFormation.value);
-								  const selectedType = typeFormationsData.find(item => item.id === selectedId);
-								  if (!selectedType) return;
-								  const codeType = selectedType.code;
-								  const spec = specificationsData.find(s => s.id == specification.value);
-								  updateDiplomeFinal(codeType, spec.code, nom.value, codeSerie.value);
-								  updateStructureClasses(codeType, spec.code, nom.value, codeSerie.value, selectedType);
-								});
-							
-								codeSerie.addEventListener("input", function () {
-								  const selectedId = parseInt(typeFormation.value);
-								  const selectedType = typeFormationsData.find(item => item.id === selectedId);
-								  if (!selectedType) return;
-								  const codeType = selectedType.code;
-								  const spec = specificationsData.find(s => s.id == specification.value);
-								  updateDiplomeFinal(codeType, spec.code, nom.value, codeSerie.value);
-								  updateStructureClasses(codeType, spec.code, nom.value, codeSerie.value, selectedType);
-								});
-							
-								specification.addEventListener("change", function () {
-								  const selectedId = parseInt(typeFormation.value);
-								  const selectedType = typeFormationsData.find(item => item.id === selectedId);
-								  if (!selectedType) return;
-								  const codeType = selectedType.code;
-								  const spec = specificationsData.find(s => s.id == this.value);
-								  updateDiplomeFinal(codeType, spec.code, nom.value, codeSerie.value);
-								  updateStructureClasses(codeType, spec.code, nom.value, codeSerie.value, selectedType);
-								});
-							
-								const form = document.getElementById("parcoursForm");
-								form.addEventListener("submit", function () {
-								  // Avant d’envoyer, on réactive les champs désactivés
-								  diplomeFinal.disabled = false;
-								  structureClasses.disabled = false;
-								  specification.disabled = false;
-							
-								  console.log("📤 Envoi du formulaire...");
-								  console.log("Structure des classes :", structureClasses.value);
-								  console.log("Diplôme final :", diplomeFinal.value);
-								});
-							  });
-							</script>
-					 
-
-					 <script>
-					  <!--    if (typeFormation) {-->
-<!--      typeFormation.addEventListener("change", function () {-->
-<!--        console.log("=== Changement du Type de formation ===");-->
-<!--        console.log("Type de formation :", typeFormation.value);-->
-<!--        console.log("Nom :", nom ? nom.value : "Non trouvé");-->
-<!--        console.log("Spécification :", specification ? specification.value : "Non trouvé");-->
-<!--        console.log("Code Série :", codeSerie ? codeSerie.value : "Non trouvé");-->
-<!--        console.log("Structure des classes :", structureClasses ? structureClasses.value : "Non trouvé");-->
-<!--        console.log("Diplôme final :", diplomeFinal ? diplomeFinal.value : "Non trouvé");-->
-<!--      });-->
-<!--    }-->
-  });
-					 </script>
-
-
-
-
-                   {% elif model_type == 'annee' %}
-					 <div class="card-body">
-					   <form method="post" class="needs-validation" novalidate>
-						 {% csrf_token %}
-					 
-						 <!-- Date de début -->
-						 <div class="row mb-3">
-						   <label class="col-sm-2 col-form-label" for="date_debut">Date de début</label>
-						   <div class="col-sm-10">
-							 <input type="date"
-									id="date_debut"
-									name="{{ form.date_debut.html_name }}"
-									class="form-control"
-									value="{{ form.date_debut.value|default:'' }}"
-									required>
-							 {% for error in form.date_debut.errors %}
-							   <div class="text-danger small">⚠️ {{ error }}</div>
-							 {% endfor %}
-						   </div>
-						 </div>
-					 
-						 <!-- Durée -->
-						 <div class="row mb-3">
-						   <label class="col-sm-2 col-form-label" for="duree">Durée (en années)</label>
-						   <div class="col-sm-10">
-							 <select id="duree" class="form-select">
-							   {% for i in annee_durees %}
-								<option value="{{ i }}" {% if i == 1 %}selected{% endif %}>{{ i }} an{% if i > 1 %}s{% endif %}</option>
-							  {% endfor %}
-							 </select>
-						   </div>
-						 </div>
-					 
-						 <!-- Nom (calculé automatiquement) -->
-						 <div class="row mb-3">
-						   <label class="col-sm-2 col-form-label" for="{{ form.nom.id_for_label }}">Nom</label>
-						   <div class="col-sm-10">
-							 <input type="text"
-									id="{{ form.nom.id_for_label }}"
-									name="{{ form.nom.html_name }}"
-									class="form-control"
-									placeholder="Ex : 2024-2025"
-									readonly
-									required
-									value="{{ form.nom.value|default:'' }}">
-							 {% for error in form.nom.errors %}
-							   <div class="text-danger small">⚠️ {{ error }}</div>
-							 {% endfor %}
-						   </div>
-						 </div>
-					 
-						 <!-- Date de fin (calculée automatiquement) -->
-						 <div class="row mb-3">
-						   <label class="col-sm-2 col-form-label" for="{{ form.date_fin.id_for_label }}">Date de fin</label>
-						   <div class="col-sm-10">
-							 <input type="date"
-									id="{{ form.date_fin.id_for_label }}"
-									name="{{ form.date_fin.html_name }}"
-									class="form-control"
-									readonly
-									required
-									value="{{ form.date_fin.value|default:'' }}">
-							 {% for error in form.date_fin.errors %}
-							   <div class="text-danger small">⚠️ {{ error }}</div>
-							 {% endfor %}
-						   </div>
-						 </div>
-						
-						 <!-- Création automatique des classes standards -->
-						  <div class="row mb-3">
-							<label class="col-sm-2 col-form-label" for="{{ form.classes_standards_creees.id_for_label }}">
-							  Ne pas créer automatiquement les classes pour cette année ?
-							</label>
-							<div class="col-sm-10">
-							  <div class="form-check mt-2">
-								{{ form.classes_standards_creees }}
-								<label class="form-check-label" for="{{ form.classes_standards_creees.id_for_label }}">
-								  Oui / Non
-								</label>
-							  </div>
-							  {% for error in form.classes_standards_creees.errors %}
-								<div class="text-danger small">⚠️ {{ error }}</div>
-							  {% endfor %}
-							</div>
-						  </div>
-					 
-					 
-						 <!-- Submit -->
-						 <div class="row justify-content-end">
-						   <div class="col-sm-9 offset-sm-3">
-							 <button type="submit" class="btn btn-primary">
-							   <i class="bx bx-save"></i> Enregistrer
-							 </button>
-						   </div>
-						 </div>
-					   </form>
-					 </div>
-					 
-					 <!-- Script -->
-					 <script>
-					   document.addEventListener("DOMContentLoaded", function () {
-						 const dateDebut = document.getElementById("date_debut");
-						 const dateFin = document.getElementById("{{ form.date_fin.id_for_label }}");
-						 const nom = document.getElementById("{{ form.nom.id_for_label }}");
-						 const duree = document.getElementById("duree");
-					 
-						 function updateFinEtNom() {
-						   const debut = new Date(dateDebut.value);
-						   const nbAnnees = parseInt(duree.value);
-					 
-						   if (dateDebut.value && !isNaN(nbAnnees)) {
-							 const fin = new Date(debut);
-							 fin.setFullYear(fin.getFullYear() + nbAnnees);
-					 
-							 // Format YYYY-MM-DD
-							 const finFormatted = fin.toISOString().split('T')[0];
-							 dateFin.value = finFormatted;
-					 
-							 // Nom type : 2024-2025
-							 const nomFormatted = `${debut.getFullYear()}-${debut.getFullYear() + nbAnnees}`;
-							 nom.value = nomFormatted;
-						   }
-						 }
-					 
-						 dateDebut.addEventListener("change", updateFinEtNom);
-						 duree.addEventListener("change", updateFinEtNom);
-					   });
-					 </script>
-
-
-                        {% elif model_type == 'classe' %}
-                            <div class="card-body">
-                            <form method="post" class="needs-validation" novalidate>
-                              {% csrf_token %}
-                                <!-- Champ : Formation -->
-                                <div class="row mb-3">
-                                  <label class="col-sm-2 col-form-label" for="{{ form.formation.id_for_label }}">Formation</label>
-                                  <div class="col-sm-10">
-                                    {{ form.formation|add_class:"form-select" }}
-                                    {% for error in form.formation.errors %}
-                                      <div class="text-danger small">⚠️ {{ error }}</div>
-                                    {% endfor %}
-                                  </div>
-                                </div>
-
-                                <!-- Champ : Année académique -->
-                                <div class="row mb-3">
-                                  <label class="col-sm-2 col-form-label" for="{{ form.annee_academique.id_for_label }}">Année académique</label>
-                                  <div class="col-sm-10">
-                                    {{ form.annee_academique|add_class:"form-select" }}
-                                    {% for error in form.annee_academique.errors %}
-                                      <div class="text-danger small">⚠️ {{ error }}</div>
-                                    {% endfor %}
-                                  </div>
-                                </div>
-
-                                <!-- Champ : Nom de la classe -->
-                                <div class="row mb-3">
-                                  <label class="col-sm-2 col-form-label" for="{{ form.nom.id_for_label }}">Nom de la classe</label>
-                                  <div class="col-sm-10">
-                                    {{ form.nom|add_class:"form-control" }}
-                                    {% for error in form.nom.errors %}
-                                      <div class="text-danger small">⚠️ {{ error }}</div>
-                                    {% endfor %}
-                                  </div>
-                                </div>
-
-                                <!-- Champ : Ordre -->
-                                <div class="row mb-3">
-                                  <label class="col-sm-2 col-form-label" for="{{ form.ordre.id_for_label }}">Ordre</label>
-                                  <div class="col-sm-10">
-                                    {{ form.ordre|add_class:"form-control" }}
-                                    {% for error in form.ordre.errors %}
-                                      <div class="text-danger small">⚠️ {{ error }}</div>
-                                    {% endfor %}
-                                  </div>
-                                </div>
-
-                              <div class="row justify-content-end">
-                                <div class="col-sm-9 offset-sm-3">
-                                  <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                </div>
-                              </div>
-                            </form>
-                            </div>
-                        {% else %}
-                            <div class="tab-content">
-                              <div class="tab-pane fade show active">
-                                  <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant.</div>
-                              </div>
-                          </div>
-                          {% endif %}
-
-                    </div>
-                  </div>
-                  
-					 <div class="fixed-action-buttons">
-						 <a href="{% url 'formation:universal-list' model_type %}" class="btn btn-list">
-							 <span class="tf-icons bx bx-list-ul"></span>&nbsp;  Listes
-						 </a>
-					 </div>
-                      {% else %}
-                      <div class="tab-content">
-                          <div class="tab-pane fade show active">
-                              <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant.</div>
-                          </div>
-                      </div>
-                      {% endif %}
+ <div class="col-xl-12">
+   <div class="d-sm-flex align-items-center justify-content-between">
+	 <h6 class="text-muted">{{ titre_page }}</h6>
+	 <nav aria-label="breadcrumb" class="d-none d-sm-block">
+		  <ol class="breadcrumb">
+			{% for item in breadcrumb %}
+			  {% if item.is_last %}
+				<li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+			  {% elif item.is_first %}
+				<li class="breadcrumb-item">{{ item.name }} </li>
+			  {% else %}
+				<li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+			  {% endif %}
+			{% endfor %}
+		  </ol>
+	  </nav>
+	</div>
+   <div class="nav-align-top mb-4">
+	 <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+	 <li class="nav-item">
+		 <a class="nav-link {% if model_type == 'formation' %}active{% endif %}"
+			href="{% url 'formation:universal-create' 'formation' %}">
+			 <i class="tf-icons bx bx-book-alt"></i> Formations
+		 </a>
+	 </li>
+	 <li class="nav-item">
+		 <a class="nav-link {% if model_type == 'parcours' %}active{% endif %}"
+			href="{% url 'formation:universal-create' 'parcours' %}">
+			 <i class="tf-icons bx bx-map"></i> Parcours
+		 </a>
+	 </li>
+	 <li class="nav-item">
+		 <a class="nav-link {% if model_type == 'annee' %}active{% endif %}"
+			href="{% url 'formation:universal-create' 'annee' %}">
+			 <i class="tf-icons bx bx-calendar"></i> Années Académiques
+		 </a>
+	 </li>
+	 <li class="nav-item">
+		 <a class="nav-link {% if model_type == 'classe' %}active{% endif %}"
+			href="{% url 'formation:universal-create' 'classe' %}">
+			 <i class="tf-icons bx bx-group"></i> Classes
+		 </a>
+	 </li>
+ </ul>
+	   {% if role %}
+ <div class="tab-content">
+	 <div class="tab-pane fade show active">
+	   <!-- FORMULAIRE DYNAMIQUE -->
+		 {% if model_type == 'formation' %}
+			 {% include "Formation/Formulaire/formation.html" %}
+		 {% elif model_type == 'parcours' %}
+			 {% include "Formation/Formulaire/parcours.html" %}
+		 {% elif model_type == 'annee' %}
+			 {% include "Formation/Formulaire/annee.html" %}
+		 {% elif model_type == 'classe' %}
+			 {% include "Formation/Formulaire/classe.html" %}
+		 {% else %}
+			 <div class="tab-content">
+			   <div class="tab-pane fade show active">
+				   <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant.</div>
+			   </div>
+		   </div>
+	  	{% endif %}
+	 </div>
+   </div>
+   
+	  <div class="fixed-action-buttons">
+		  <a href="{% url 'formation:universal-list' model_type %}" class="btn btn-list">
+			  <span class="tf-icons bx bx-list-ul"></span>&nbsp;  Listes
+		  </a>
+	  </div>
+	   {% else %}
+	   <div class="tab-content">
+		   <div class="tab-pane fade show active">
+			   <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant.</div>
+		   </div>
+	   </div>
+	   {% endif %}
 
 {% endblock %}

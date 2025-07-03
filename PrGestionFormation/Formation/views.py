@@ -264,6 +264,3 @@ class UniversalDetailView(DetailView):
             context['parcours'] = obj.formation.parcours if obj.formation and obj.formation.parcours else "Non défini"
 
         return context
-
-
-
