@@ -21,7 +21,7 @@
  <!-- Date et heure d'inscription (affichage uniquement) -->
  <div class="col-md-6 mb-3">
 	  <label class="form-label">Date et heure d'inscription</label>
-	  <div class="col-sm-10">
+	  <div class="col-sm-12">
 		  <div class="input-group input-group-merge">
 			  <span class="input-group-text"><i class="bx bx-calendar"></i></span>
 			  <input type="text"
@@ -39,7 +39,7 @@
   <!-- Matricule (affichage uniquement) -->
   <div class="col-md-6 mb-3">
 	  <label class="form-label" for="id_matricule">Matricule</label>
-	  <div class="col-sm-10">
+	  <div class="col-sm-12">
 		<div class="input-group input-group-merge">
 		  <span class="input-group-text"><i class="bx bx-id-card"></i></span>
 		  <input type="text" class="form-control" id="id_matricule"
@@ -53,7 +53,7 @@
    <!-- Nom -->
   <div class="col-md-6 mb-3">
 	  <label class="form-label" for="{{ utilisateur_form.last_name.id_for_label }}">Nom</label>
-	  <div class="col-sm-10">
+	  <div class="col-sm-12">
 		<div class="input-group input-group-merge">
 		  <span class="input-group-text"><i class="bx bx-user-circle"></i></span>
 		  <input type="text"
@@ -72,7 +72,7 @@
   <!-- Prénom -->
   <div class="col-md-6 mb-3">
 	  <label class="form-label" for="{{ utilisateur_form.first_name.id_for_label }}">Prénom</label>
-	  <div class="col-sm-10">
+	  <div class="col-sm-12">
 		<div class="input-group input-group-merge">
 		  <span class="input-group-text"><i class="bx bx-user"></i></span>
 		  <input type="text"
@@ -94,7 +94,7 @@
 	<div class="col-md-6 mb-3">
 	  <label class="form-label">Date de Naissance</label>
 		{% if fonction == "Modification d'Utilisateur" %} <p> {{ utilisateur_form.date_nais.value }}</p> {% endif %}
-	  <div class="col-sm-10">
+	  <div class="col-sm-12">
 		  <div class="input-group input-group-merge">
 			  <span class="input-group-text"><i class="bx bx-calendar"></i></span>
 			  <input type="date"
@@ -113,7 +113,7 @@
  
  <div class="col-md-6 mb-3">
 	 <label class="form-label" for="{{ utilisateur_form.genre.id_for_label }}">Genre</label>
-	 <div class="col-sm-10">
+	 <div class="col-sm-12">
 		 <div class="input-group input-group-merge">
 			 <span class="input-group-text"><i class="bx bx-body"></i></span>
 			 <select id="{{ utilisateur_form.genre.id_for_label }}"
@@ -139,7 +139,7 @@
   <!-- Email -->
   <div class="col-md-6 mb-3">
 	  <label class="form-label" for="{{ utilisateur_form.email.id_for_label }}">Email</label>
-	  <div class="col-sm-10">
+	  <div class="col-sm-12">
 		<div class="input-group input-group-merge">
 		  <span class="input-group-text"><i class="bx bx-envelope"></i></span>
 		  <input type="email"
@@ -160,7 +160,7 @@
  <!-- Sélecteur de pays -->
  <div class="col-md-6 mb-3">
    <label class="form-label" for="country">Pays</label>
-   <div class="col-sm-10">
+   <div class="col-sm-12">
 	 <select id="country" class="form-select" onchange="updatePhonePlaceholderAndMaxLength()">
 	   <!-- Frontaliers du Burkina Faso -->
 	   <optgroup label="Pays frontaliers du Burkina">
@@ -230,7 +230,7 @@
    <!-- Téléphone -->
    <div class="col-md-6 mb-3">
 	 <label class="form-label" for="{{ utilisateur_form.telephone.id_for_label }}">Téléphone</label>
-	 <div class="col-sm-10">
+	 <div class="col-sm-12">
 	   <div class="input-group input-group-merge">
 		 <span class="input-group-text" id="country-code">+225</span>
 		 <input type="tel"
@@ -293,7 +293,7 @@
 	 <!-- Mot de passe -->
 	   <div class="col-md-6 mb-3">
 		   <label class="form-label" for="{{ utilisateur_form.password1.id_for_label }}">Mot de passe</label>
-		<div class="col-sm-10">
+		<div class="col-sm-12">
 			<div class="input-group input-group-merge">
 				<span class="input-group-text"><i class="bx bx-lock"></i></span>
 				<input type="password"
@@ -348,7 +348,7 @@
 	<!-- Confirmation du mot de passe -->
 	<div class="col-md-6 mb-3">
 		<label class="form-label" for="{{ utilisateur_form.password2.id_for_label }}">Confirmation</label>
-		<div class="col-sm-10">
+		<div class="col-sm-12">
 			<div class="input-group input-group-merge">
 				<span class="input-group-text"><i class="bx bx-lock-alt"></i></span>
 				<input type="password"

@@ -95,21 +95,39 @@ class ChangerMotDePasseView(LoginRequiredMixin, PasswordChangeView):
 
 
 
+
+
 @method_decorator(login_required, name='dispatch')
 class ModifierMotDePasseUtilisateurView(View):
     template_name = 'Utilisateur/Modification_Motdepasse/changer_mot_de_passe_admin.html'
 
     def get(self, request, utilisateur_id):
         utilisateur = get_object_or_404(Utilisateur, id=utilisateur_id)
+        path = request.path.strip('/').split('/')
+        cumulative_path = ''
+        breadcrumb = []
+        for i, part in enumerate(path):
+            cumulative_path += '/' + part
+            print('name :', part.capitalize())
+            print('url :', cumulative_path)
+            breadcrumb.append({
+                'name': part.capitalize(),
+                'url': cumulative_path,
+                'is_first': i == 0,
+                'is_last': i == len(path) - 1
+            })
         return render(request, self.template_name, {
             'utilisateur': utilisateur,
-            'titre_page': 'Réinitialisation mot de passe'
+            'titre_page': 'Réinitialisation mot de passe',
+            'breadcrumb':breadcrumb,
+            'data':data
         })
 
     def post(self, request, utilisateur_id):
         utilisateur = get_object_or_404(Utilisateur, id=utilisateur_id)
         nouveau_mdp = request.POST.get('nouveau_mot_de_passe')
         confirmation = request.POST.get('confirmation')
+
 
         if not nouveau_mdp or not confirmation:
             messages.error(request, "Veuillez remplir tous les champs.")
@@ -120,13 +138,14 @@ class ModifierMotDePasseUtilisateurView(View):
             utilisateur.doit_changer_mot_de_passe = True
             utilisateur.save()
             messages.success(request, "Le mot de passe a été mis à jour avec succès.")
-            return redirect('liste_utilisateurs')  # À adapter selon ton projet
-
+            return redirect(reverse('utilisateur:utilisateur_detail', kwargs={
+                'role': utilisateur.role.lower(),
+                'pk': utilisateur.id
+            }))
         return render(request, self.template_name, {
             'utilisateur': utilisateur,
-            'titre_page': 'Réinitialisation mot de passe'
+            'titre_page': 'Réinitialisation mot de passe',
         })
-
 
 
 
