@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h4>Réinitialiser le mot de passe pour {{ utilisateur.get_full_name }} ({{ utilisateur.matricule }})</h4>
+
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="nouveau_mot_de_passe" class="form-label">Nouveau mot de passe</label>
+      <input type="password" name="nouveau_mot_de_passe" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="confirmation" class="form-label">Confirmer le mot de passe</label>
+      <input type="password" name="confirmation" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Mettre à jour</button>
+  </form>
+</div>
+{% endblock %}

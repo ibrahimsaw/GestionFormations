@@ -23,6 +23,13 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView
+# views.py
+from django.views import View
+from django.contrib.auth.hashers import make_password
+
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+
 
 
 # Create your views here.
@@ -84,6 +91,42 @@ class ChangerMotDePasseView(LoginRequiredMixin, PasswordChangeView):
         self.request.user.doit_changer_mot_de_passe = False
         self.request.user.save()
         return super().form_valid(form)
+
+
+
+
+@method_decorator(login_required, name='dispatch')
+class ModifierMotDePasseUtilisateurView(View):
+    template_name = 'Utilisateur/Modification_Motdepasse/changer_mot_de_passe_admin.html'
+
+    def get(self, request, utilisateur_id):
+        utilisateur = get_object_or_404(Utilisateur, id=utilisateur_id)
+        return render(request, self.template_name, {
+            'utilisateur': utilisateur,
+            'titre_page': 'Réinitialisation mot de passe'
+        })
+
+    def post(self, request, utilisateur_id):
+        utilisateur = get_object_or_404(Utilisateur, id=utilisateur_id)
+        nouveau_mdp = request.POST.get('nouveau_mot_de_passe')
+        confirmation = request.POST.get('confirmation')
+
+        if not nouveau_mdp or not confirmation:
+            messages.error(request, "Veuillez remplir tous les champs.")
+        elif nouveau_mdp != confirmation:
+            messages.error(request, "Les mots de passe ne correspondent pas.")
+        else:
+            utilisateur.password = make_password(nouveau_mdp)
+            utilisateur.doit_changer_mot_de_passe = True
+            utilisateur.save()
+            messages.success(request, "Le mot de passe a été mis à jour avec succès.")
+            return redirect('liste_utilisateurs')  # À adapter selon ton projet
+
+        return render(request, self.template_name, {
+            'utilisateur': utilisateur,
+            'titre_page': 'Réinitialisation mot de passe'
+        })
+
 
 
 

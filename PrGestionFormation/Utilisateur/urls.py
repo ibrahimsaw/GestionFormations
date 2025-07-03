@@ -7,6 +7,7 @@ urlpatterns = [
     # Vos URLs ici
     path('', login_view, name='login'),
     path('changer-mot-de-passe/', ChangerMotDePasseView.as_view(), name='changer_mot_de_passe'),
+    path('utilisateur/<int:utilisateur_id>/changer-mot-de-passe/', ModifierMotDePasseUtilisateurView.as_view(), name='modifier_mot_de_passe_utilisateur'),
 
     path('bienvenu', Bienvenu.as_view(), name='bienvenu'),
 

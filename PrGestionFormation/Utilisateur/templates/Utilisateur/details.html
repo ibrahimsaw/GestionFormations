@@ -53,11 +53,11 @@
                               accept="image/png, image/jpeg"
                             />
                           </label>
-                          <button type="button" class="btn btn-outline-secondary account-image-reset mb-4">
-                            <i class="bx bx-reset d-block d-sm-none"></i>
-                            <span class="d-none d-sm-block">Réinitialiser</span>
-                          </button>
-
+                          <button type="button" class="btn btn-outline-secondary account-image-reset mb-4"
+								   onclick="window.location.href='{% url 'utilisateur:modifier_mot_de_passe_utilisateur' agent.utilisateur.id %}';">
+							   <i class="bx bx-reset d-block d-sm-none"></i>
+							   <span class="d-none d-sm-block">Réinitialiser Mot de passe</span>
+						   </button>
                           <p class="text-muted mb-0">Formats JPG, GIF ou PNG autorisés. Taille maximale : 800 Ko.</p>
                         </div>
                       </div>
@@ -67,7 +67,6 @@
                       <form id="formAccountSettings" method="POST" onsubmit="return false">
                         <div class="mt-2">
                           <a href="{% url 'utilisateur:utilisateur_modifier' role=agent.utilisateur.role|lower pk=agent.utilisateur.pk %}" class="btn btn-success me-2">Modifier</a>
-
                         </div>
                         <div class="row">
                           <div class="mb-3 col-md-6">
