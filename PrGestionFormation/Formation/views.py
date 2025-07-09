@@ -63,7 +63,7 @@ class FormationBaseView(BaseContextView):
                 'label': 'Création',
                 'template': self.template_form,
                 'bouton':'Créer le compte',
-                'titre_page': f"Création {type_name}" if type_name != "Nom inconnu" else "Création"
+                'titre_page': f"Création de {type_name}" if type_name != "Nom inconnu" else "Création"
             },
             'universal-list': {
                 'label': 'Liste',
@@ -92,6 +92,7 @@ class FormationBaseView(BaseContextView):
 
         self.page = config['label']
         selected_template = config['template']
+        print("template :",selected_template)
         self.bouton = config['bouton']
         self.titre_page = configtitre_page['titre_page']
         role = self.model_type
@@ -118,6 +119,7 @@ class FormationBaseView(BaseContextView):
         self.message += f"[dispatch] Action détectée : {self.page}\n"
         self.message += f"[dispatch] Template sélectionné : {selected_template}\n"
 
+        print("model_type :",self.model_type)
         if self.model_type not in self.model_mapping:
             print('path :',self.path,)
             self.message += "[dispatch] Type inconnu, chargement erreur.\n"
@@ -205,7 +207,6 @@ class FormationListView(FormationBaseView, ListView):
         context = super().get_context_data(**kwargs)
         _,_, titre, _ = self.model_mapping[self.model_type]
         context['titre'] = titre
-        context['role'] = self.model_type
         return context
 
 
@@ -326,21 +327,11 @@ class FormationDetailView(FormationBaseView,DetailView):
         return context
 
 
-class FormationCreateView(BaseContextView, CreateView):
+class FormationCreateView(FormationBaseView, CreateView):
     template_name = 'Formation/formulaire.html'
-    model_type = None
 
-    model_mapping = {
-        'formation': (Formation, FormationForm, "Formation"),
-        'parcours': (Parcours, ParcoursForm, "Parcours"),
-        'annee': (AnneeAcademique, AnneeAcademiqueForm, "Année Académique"),
-        'classe': (Classe, ClasseForm, "Classe"),
-    }
 
     def dispatch(self, request, *args, **kwargs):
-        self.model_type = kwargs.get('type')
-        if self.model_type not in self.model_mapping:
-            return render(request, 'Formation/formulaire.html', {'data': data})
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_class(self):
@@ -386,11 +377,6 @@ class FormationCreateView(BaseContextView, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        _, _, titre = self.model_mapping[self.model_type]
-        context['titre_formulaire'] = titre
-        context['role'] = self.model_type
-        context['model_type'] = self.model_type
-        context['fonction'] = "Création de " + titre
         context['bouttonvalide'] = "Créer"
         context['annee_durees'] = range(1, 11)
         type_formations = list(TypeFormation.objects.values('id', 'code', 'nom', 'liste_classe'))
