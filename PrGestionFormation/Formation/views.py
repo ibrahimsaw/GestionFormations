@@ -326,6 +326,83 @@ class FormationDetailView(FormationBaseView,DetailView):
         return context
 
 
+class FormationCreateView(BaseContextView, CreateView):
+    template_name = 'Formation/formulaire.html'
+    model_type = None
+
+    model_mapping = {
+        'formation': (Formation, FormationForm, "Formation"),
+        'parcours': (Parcours, ParcoursForm, "Parcours"),
+        'annee': (AnneeAcademique, AnneeAcademiqueForm, "Année Académique"),
+        'classe': (Classe, ClasseForm, "Classe"),
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        self.model_type = kwargs.get('type')
+        if self.model_type not in self.model_mapping:
+            return render(request, 'Formation/formulaire.html', {'data': data})
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        return self.model_mapping[self.model_type][1]
+
+    def get_queryset(self):
+        return self.model_mapping[self.model_type][0].objects.all()
+
+    def form_valid(self, form):
+        print("✅ Formulaire valide pour :", self.model_type)
+
+        # ✅ Afficher les champs soumis dans la console
+        print("📩 Données POST reçues :")
+        for key, value in self.request.POST.items():
+            print(f"   → {key}: {value}")
+
+        print("📋 Champs nettoyés (cleaned_data) :")
+        for field, value in form.cleaned_data.items():
+            print(f"   ✔ {field}: {value}")
+
+        # Traitement par défaut
+        response = super().form_valid(form)
+        instance = form.instance
+
+        # Logique post-validation spécifique
+        if self.model_type == 'formation' and instance.avec_classes:
+            annee_active = AnneeAcademique.objects.filter(classes_standards_creees=True).first()
+            if annee_active:
+                print("🛠 Création automatique des classes pour la formation")
+                instance.creer_classes(annee_active)
+
+        elif self.model_type == 'annee' and self.request.POST.get('creer_classes') == 'on':
+            print("🛠 Création des classes standards pour l'année")
+            instance.creer_classes_standards()
+
+        return response
+
+    def get_success_url(self):
+        return reverse('formation:universal-detail', kwargs={
+            'type': self.model_type,
+            'pk': self.object.pk
+        })
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        _, _, titre = self.model_mapping[self.model_type]
+        context['titre_formulaire'] = titre
+        context['role'] = self.model_type
+        context['model_type'] = self.model_type
+        context['fonction'] = "Création de " + titre
+        context['bouttonvalide'] = "Créer"
+        context['annee_durees'] = range(1, 11)
+        type_formations = list(TypeFormation.objects.values('id', 'code', 'nom', 'liste_classe'))
+        specification = list(Specification.objects.values('id', 'code', 'nom'))
+        context['specifications_json'] = json.dumps(specification)
+        context['type_formations_json'] = json.dumps(type_formations)
+
+        return context
+
+
+
+
 
 
 class UniversalCreateView(BaseContextView, CreateView):
