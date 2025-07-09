@@ -219,16 +219,16 @@
 							</a>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
+                            <div class="table-responsive scrollbar">
+                                <table class="table table-bordered table-striped fs-10 mb-0">
                                     <thead>
                                         <tr>
-										 	<th>Id</th>
-                                            <th>Matricule</th>
-                                            <th>Nom complet</th>
-                                            <th>Rôle</th>
-                                            <th>Permissions</th>
-                                            <th>Actions</th>
+										 	<th class="text-900 sort">Id</th>
+                                            <th class="text-900 sort">Matricule</th>
+                                            <th class="text-900 sort">Nom complet</th>
+                                            <th class="text-900 sort">Rôle</th>
+                                            <th class="text-900 sort">Permissions</th>
+                                            <th class="text-900 sort">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -247,8 +247,8 @@
                                                 </td>
                                                 <td>
                                                     <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
-                                                       class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-edit"></i> Gérer
+                                                       class="btn btn-sm btn-primary">
+													 	<i class="bx bx-plus-circle"></i>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -360,7 +360,7 @@
 								 <!-- Pied -->
 								 <div class="card-footer bg-white border-top text-center">
 									 <a href="{% url 'Permissions_Manager:modifier_fonction' fonction.id %}"
-										class="btn btn-sm btn-outline-primary rounded-pill px-4">
+										class="btn btn-sm btn-primary rounded-pill px-4">
 										 <i class="fas fa-pen me-1"></i>Modifier
 									 </a>
 								 </div>
@@ -385,15 +385,15 @@
                     
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
+                            <div class="table-responsive scrollbar">
+                                <table class="table table-bordered table-striped fs-10 mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Application</th>
-                                            <th>Modèle</th>
-                                            <th>Permission</th>
-                                            <th>Code</th>
-                                            <th>Actions</th>
+                                            <th class="text-900 sort">Application</th>
+                                            <th class="text-900 sort">Modèle</th>
+                                            <th class="text-900 sort">Permission</th>
+                                            <th class="text-900 sort">Code</th>
+                                            <th class="text-900 sort">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -405,8 +405,8 @@
                                             <td><code>{{ perm.codename }}</code></td>
                                             <td>
                                                 <a href="{% url 'Permissions_Manager:permission_detail' perm.id %}"
-                                                   class="btn btn-sm btn-outline-secondary">
-                                                    <i class="fas fa-edit"></i> Détail
+                                                   class="btn btn-sm btn-secondary">
+                                                    <i class="bx bx-edit-alt"></i>
                                                 </a>
                                             </td>
                                         </tr>

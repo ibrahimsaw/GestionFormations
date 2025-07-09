@@ -133,46 +133,6 @@ class GererPermissionsUtilisateurView(BaseContextView, LoginRequiredMixin, Permi
 
         agent_admin.save()
 
-
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     user = kwargs.get('user') or self.request.user
-    #
-    #     # Permissions par groupe
-    #     permissions_by_group = {
-    #         group.name: group.permissions.all()
-    #         for group in user.groups.all()
-    #     }
-    #
-    #     # Permissions individuelles regroupées par modèle
-    #     grouped_permissions = defaultdict(list)
-    #     action_labels = {
-    #         'add': 'Ajouter',
-    #         'change': 'Modifier',
-    #         'delete': 'Supprimer',
-    #         'view': 'Voir',
-    #     }
-    #
-    #     for perm in user.user_permissions.all():
-    #         model = perm.content_type.model  # ex: frais
-    #         app = perm.content_type.app_label  # ex: finance
-    #         codename_parts = perm.codename.split('_')
-    #         if len(codename_parts) >= 2:
-    #             action = codename_parts[0]
-    #             label = action_labels.get(action, perm.name)
-    #             grouped_permissions[(app, model)].append(label)
-    #
-    #     # Ajouter au contexte
-    #     context.update({
-    #         'user': user,
-    #         'form': kwargs.get('form'),
-    #         'active_tab': kwargs.get('active_tab', 'users'),
-    #         'permissions_by_group': permissions_by_group,
-    #         'grouped_user_permissions': grouped_permissions,
-    #     })
-    #     return context
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = kwargs.get('user') or self.request.user
