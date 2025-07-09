@@ -1,8 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container py-3">
-  <div class="card shadow-sm border-0">
+<div class="d-sm-flex align-items-center justify-content-between">
+<h6 class="text-muted">{{ titre_page }}</h6>
+<nav aria-label="breadcrumb" class="d-none d-sm-block">
+	 <ol class="breadcrumb">
+	   {% for item in breadcrumb %}
+		 {% if item.is_last %}
+		   <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+		 {% elif item.is_first %}
+		   <li class="breadcrumb-item">{{ item.name }} </li>
+		 {% else %}
+		   <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+		 {% endif %}
+	   {% endfor %}
+	 </ol>
+ </nav>
+</div>
+
+<div class="card shadow-sm border-0">
     <div class="card-body">
       {% if model_type == 'parcours' %}
         <h3 class="mb-4 fw-semibold border-bottom pb-2">Parcours : {{ parcours.nom }}</h3>
@@ -171,14 +187,13 @@
       <a href="{% url 'formation:universal-list' 'model_type' %}" class="btn btn-outline-secondary">← Retour</a>
     </div>
   </div>
-</div>
 
-<div class="d-flex justify-content-end gap-2 my-3">
-  <a href="{% url 'formation:universal-list' 'model_type' %}" class="btn btn-sm btn-outline-dark">
-    <i class="bi bi-list"></i> Liste
-  </a>
-  <a href="{% url 'formation:universal-create' 'model_type' %}" class="btn btn-sm btn-outline-primary">
-    <i class="bi bi-plus"></i> Ajouter
-  </a>
+<div class="fixed-action-buttons">
+ 	<a href="{% url 'formation:universal-create' model_type %}" class="btn btn-add">
+	   <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+   </a>
+	<a href="{% url 'formation:universal-list' model_type %}" class="btn btn-list">
+		<span class="tf-icons bx bx-list-ul"></span>&nbsp;  Listes
+	</a>
 </div>
 {% endblock %}

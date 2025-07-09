@@ -8,8 +8,7 @@ urlpatterns = [
     path('maintenance/', Bienvenu.as_view(), name='maintenance'),
     path('ajouter/', UniversalCreateView.as_view(), name='universal-create'),
     path('ajouter/<str:type>/', UniversalCreateView.as_view(), name='universal-create'),
-    path('liste/', UniversalListView.as_view(), name='universal-list'),
-    path('liste/<str:type>/', UniversalListView.as_view(), name='universal-list'),
-    path('detail/<str:type>/<int:pk>/', UniversalDetailView.as_view(), name='universal-detail'),
-
+    path('liste/', FormationListView.as_view(), name='universal-list'),
+    path('liste/<str:type>/', FormationListView.as_view(), name='universal-list'),
+    path('detail/<str:type>/<int:pk>/', FormationDetailView.as_view(), name='universal-detail'),
 ]
