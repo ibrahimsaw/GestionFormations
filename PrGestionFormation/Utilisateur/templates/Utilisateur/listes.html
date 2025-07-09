@@ -59,44 +59,47 @@
   <div class="nav-align-top mb-4">
 		{% include "Utilisateur/Formulaires/nav.html" %}
 	  {% if role_utilisateur %}
-   
-<div class="tab-content">
-	<div class="tab-pane fade show active">
-		<h5 class="card-header">Table {{ titre_page }} </h5>
+		<div class="tab-content">
+			<div class="tab-pane fade show active">
+			 <div class="text-center">
+		  <div class="alert bg-primary">
+			<h5 class="mb-0 text-white">Table {{ titre_page }}</h5>
+		  </div>
+		</div>
 		<div class="table-responsive scrollbar">
 		  <table id="tableau" class="table table-bordered table-striped fs-10 mb-0">
 			<thead class="bg-200">
 			  <tr>
-				  <th>pk</th>
-				  <th>Matricule</th>
-				  <th>Date d'inscription</th>
-				  <th>Nom et Prénom</th>
+				  <th class="text-900 sort">pk</th>
+				  <th class="text-900 sort">Matricule</th>
+				  <th class="text-900 sort">Date d'inscription</th>
+				  <th class="text-900 sort">Nom et Prénom</th>
 <!--				  <th>Prénom</th>-->
-				  <th>Genre</th>
+				  <th class="text-900 sort">Genre</th>
 <!--				  <th>Date de Naissance</th>-->
 <!--				  <th>Email</th>-->
 <!--				  <th>Telephone</th>-->
 			   
 			   {% if role_utilisateur == 'Utilisateur' %}
-				  <th>Role</th>
+				  <th class="text-900 sort">Role</th>
 			   {% endif %}
 				  {% if titre_formulaire == "Administrateur Système" %}
-				  <th>Superuser</th>
+				  <th class="text-900 sort">Superuser</th>
 					{% endif %}
 				  {% if titre_formulaire == "Agent d'Administration" %}
-				  <th>Fonction</th>
+				  <th class="text-900 sort">Fonction</th>
 					{% endif %}
 				  {% if titre_formulaire == "Parent d'étudiant" %}
-					<th>Enfants</th>
+					<th class="text-900 sort">Enfants</th>
 					{% endif %}
 				  {% if titre_formulaire == "Étudiant" %}
-					<th>Classe</th>
+					<th class="text-900 sort">Classe</th>
 					{% endif %}
 				  {% if titre_formulaire == "Enseignant" %}
-					<th>Spécialités</th>
-				  <th>Autres Spécialités</th>
+					<th class="text-900 sort">Spécialités</th>
+				  <th class="text-900 sort">Autres Spécialités</th>
 					{% endif %}
-				  <th>Action</th>
+				  <th class="text-900 sort">Action</th>
 			  </tr>
 			</thead>
 			  <tbody class="table-border-bottom-0">
@@ -108,7 +111,7 @@
 					  {% elif agent.pk %}
 					  {{ agent.pk }}
 					{% else %}
-					  <div class="alert alert-warning">---</div>
+					  <div class="text-warning"> --- </div>
 					{% endif %}
 
 
@@ -126,7 +129,7 @@
 						{% elif agent.matricule %}
 							{{ agent.matricule }}
 						{% else %}
-							<div class="alert-warning d-inline">---</div>
+							<<div class="text-warning"> --- </div>
 						{% endif %}
 					</a>
 
@@ -139,18 +142,18 @@
 					  {% elif agent.date_inscription %}
 					  {{ agent.date_inscription }}
 					{% else %}
-					  <div class="alert alert-warning"> --- </div>
+					  <div class="text-warning"> --- </div>
 					{% endif %}
 				  </td>
 
 				  <td>
 					  {% if agent.utilisateur.iget_full_name %}
 						{{ agent.utilisateur.iget_full_name }}
-					  {% elif agent.iget_full_namee %}
+					  {% elif agent.iget_full_name %}
 						{{ agent.iget_full_name }}
 					  {% else %}
 						<div class="text-center">
-						  <div class="alert alert-warning d-inline"> --- </div>
+						  <div class="text-warning"> --- </div>
 						</div>
 				   
 					  {% endif %}
@@ -171,7 +174,7 @@
 						{{ agent.genre }}
 					  {% else %}
 						<div class="text-center">
-						  <div class="alert alert-warning d-inline"> --- </div>
+						  <div class="text-warning"> --- </div>
 						</div>
 					  {% endif %}
 					</td>
@@ -209,7 +212,7 @@
 					  {% elif agent.role %}
 						{{ agent.get_role_display_name }}
 					  {% else %}
-						<div class="alert alert-warning d-inline">Rôle manquant</div>
+						<div class="text-warning"> --- </div>
 					  {% endif %}
 					</td>
 				 {% endif %}
@@ -239,7 +242,7 @@
 								 {% endfor %}
 							 </div>
 						 {% else %}
-							 <span class="text-muted"> --- </span>
+							 <span class=" text-warning text-muted"> --- </span>
 						 {% endif %}
 					 </th>
 				 {% endif %}
@@ -252,7 +255,7 @@
 							<div>{{ etudiant.utilisateur.matricule }} {{ etudiant.utilisateur.last_name }} {{ etudiant.utilisateur.first_name }}</div>
 						{% empty %}
 							<div class="text-center">
-							   <div class="alert alert-warning d-inline"> --- </div>
+							   <div class="text-warning"> --- </div>
 							 </div>
 						{% endfor %}
 					</th>
@@ -263,7 +266,7 @@
 							<div>{{ specialite }}</div>
 						{% empty %}
 							<div class="text-center">
-							  <div class="alert alert-warning d-inline"> --- </div>
+							  <div class="text-warning"> --- </div>
 							</div>
 						{% endfor %}
 					</th>
@@ -272,7 +275,7 @@
 							{{ agent.autres_specialites }}
 						{% else %}
 							<div class="text-center">
-							  <div class="alert alert-warning d-inline"> --- </div>
+							  <div class="text-warning"> --- </div>
 							</div>
 						{% endif %}
 					</td>

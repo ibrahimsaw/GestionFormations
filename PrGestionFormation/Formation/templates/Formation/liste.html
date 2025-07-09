@@ -84,29 +84,30 @@
 	  {% if model_type %}
 <div class="tab-content">
 	<div class="tab-pane fade show active">
-		<h5 class="card-header">Table {{ titre_page }} </h5>
-		<div class="table-responsive text-nowrap">
-		  <table class="table">
-			<thead>
+		<div class="text-center">
+		  <div class="alert bg-primary">
+			<h5 class="mb-0 text-white">Table {{ titre_page }}</h5>
+		  </div>
+		</div>
+	 	<div class="table-responsive scrollbar">
+		  <table id="tableau" class="table table-bordered table-striped fs-10 mb-0">
+			<thead class="bg-200">
 				<tr>
+				 	<th class="text-900 sort">Nom</th>
 					{% if model_type == 'formation' %}
-					<th>Nom</th>
-					<th>Parcours</th>
-					<th>Durée</th>
+					<th class="text-900 sort">Parcours</th>
+					<th class="text-900 sort">Durée</th>
 					{% elif model_type == 'parcours' %}
-					<th>Nom</th>
-					<th>Type</th>
-					<th>Diplôme</th>
+					<th class="text-900 sort">Type</th>
+					<th class="text-900 sort">Diplôme</th>
 					{% elif model_type == 'annee' %}
-					<th>Nom</th>
-					<th>Date Début</th>
-					<th>Date Fin</th>
+					<th class="text-900 sort">Date Début</th>
+					<th class="text-900 sort">Date Fin</th>
 					{% elif model_type == 'classe' %}
-					<th>Nom</th>
-					<th>Formation</th>
-					<th>Année</th>
+					<th class="text-900 sort">Formation</th>
+					<th class="text-900 sort">Année</th>
 					{% endif %}
-					<th>Actions</th>
+					<th class="text-900 sort">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -118,7 +119,7 @@
 					<td>{{ item.duree }} mois</td>
 					{% elif model_type == 'parcours' %}
 					<td>{{ item.nom }}</td>
-					<td>{{ item.get_type_formation_display }}</td>
+					<td>{{ item.type_formation }}</td>
 					<td>{{ item.diplome_final }}</td>
 					{% elif model_type == 'annee' %}
 					<td>{{ item.nom }}</td>
@@ -129,21 +130,30 @@
 					<td>{{ item.formation }}</td>
 					<td>{{ item.annee_academique }}</td>
 					{% endif %}
-					<td>
-						<!-- Bouton Détails -->
-						<a href="{% url 'formation:universal-detail' model_type item.pk %}" class="btn btn-sm btn-info">Détails</a>
-
-						<!-- Bouton Modifier -->
-						<a href="#" class="btn btn-sm btn-warning">Modifier</a>
-
-						<!-- Bouton Supprimer -->
-						<a href="#" class="btn btn-sm btn-danger"
-						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
-							Supprimer
+					<td class="text-end">
+					  <div class="d-flex justify-content-end">
+						<!-- Détails -->
+						<a href="{% url 'formation:universal-detail' model_type item.pk %}"
+						   class="btn btn-link p-0 me-2" title="Détails">
+						  <i class="bx bx-show text-info fs-4"></i>
 						</a>
+					
+						<!-- Modifier -->
+						<a href="#"
+						   class="btn btn-link p-0 me-2" title="Modifier">
+						  <i class="bx bx-edit text-warning fs-4"></i>
+						</a>
+					
+						<!-- Supprimer -->
+						<a href="#"
+						   class="btn btn-link p-0" title="Supprimer"
+						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+						  <i class="bx bx-trash text-danger fs-4"></i>
+						</a>
+					  </div>
 					</td>
-
 				</tr>
+				
 				{% endfor %}
 			</tbody>
 		</table>

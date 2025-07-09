@@ -21,8 +21,11 @@
 <div class="card shadow-sm border-0">
     <div class="card-body">
       {% if model_type == 'parcours' %}
-        <h3 class="mb-4 fw-semibold border-bottom pb-2">Parcours : {{ parcours.nom }}</h3>
-
+	 	<div class="text-center">
+		  <div class="alert bg-primary">
+			<h5 class="mb-0 text-white">Parcours : {{ parcours.nom }}</h5>
+		  </div>
+		</div>
         <div class="row g-3 mb-4">
           {% if parcours.type_formation.nom %}
             <div class="col-12 col-sm-6">
@@ -96,7 +99,11 @@
         {% endfor %}
 
       {% elif model_type == 'formation' %}
-        <h4 class="fw-semibold mb-3">Formation : {{ obj }}</h4>
+	 <div class="text-center">
+		  <div class="alert bg-primary">
+			<h5 class="mb-0 text-white">Formation : {{ obj }}</h5>
+		  </div>
+		</div>
         <p>Parcours : {{ obj.parcours }}</p>
 
         {% for groupe in classes %}
@@ -119,7 +126,11 @@
         {% endfor %}
 
       {% elif model_type == 'annee' %}
-        <h4 class="fw-semibold">Année académique : {{ annee }}</h4>
+	 <div class="text-center">
+		  <div class="alert bg-primary">
+			<h5 class="mb-0 text-white">Année académique : {{ annee }}</h5>
+		  </div>
+		</div>
         <p>Total étudiants : {{ nb_etudiants_total }}</p>
 
         {% for bloc in formations_et_classes %}
@@ -142,7 +153,11 @@
         {% endfor %}
 
       {% elif model_type == 'classe' %}
-        <h4 class="fw-semibold">Classe : {{ obj.nom }}</h4>
+	 <div class="text-center">
+		  <div class="alert bg-primary">
+			<h5 class="mb-0 text-white">Classe : {{ obj.nom }}</h5>
+		  </div>
+		</div>
         <p>Formation : {{ formation }}</p>
         <p>Parcours : {{ parcours }}</p>
         <p>Année académique : {{ annee }}</p>
