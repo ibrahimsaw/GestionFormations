@@ -3,350 +3,377 @@
 {% load dict_extras %}
 {% load form_tags %}
 {% block content %}
-                <div class="col-xl-12">
-				  <div class="row g-3 mb-4 align-items-center justify-content-between">
-				   <div class="d-sm-flex align-items-center justify-content-between">
-					<h6 class="text-muted">{{ titre_page }}</h6>
-					<nav aria-label="breadcrumb" class="d-none d-sm-block">
-					   <ol class="breadcrumb">
-						 {% for item in breadcrumb %}
-						   {% if item.is_last %}
-							 <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
-						   {% elif item.is_first %}
-							 <li class="breadcrumb-item">{{ item.name }}</li>
-						   {% else %}
-							 <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
-						   {% endif %}
-						 {% endfor %}
-					   </ol>
-				   </nav>
-				   </div>
-				    <div class="col-auto">
-					     <div class="page-utilities">
-						    <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
-							    <div class="col-auto">
-                                    <form method="get" class="table-search-form row gx-1 align-items-center">
-                                        <div class="col-auto">
-                                            <input type="text" id="search-orders" name="q" class="form-control search-orders" placeholder="Rechercher..." value="{{ request.GET.q }}">
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" class="btn app-btn-secondary">Rechecher</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="col-auto">
-                                    <select name="periode" class="form-select w-auto" onchange="this.form.submit()">
-                                        <option value="" {% if not request.GET.periode %}selected{% endif %}>Tout</option>
-                                        <option value="semaine" {% if request.GET.periode == "semaine" %}selected{% endif %}>Cette semaine</option>
-                                        <option value="mois" {% if request.GET.periode == "mois" %}selected{% endif %}>Ce mois</option>
-                                        <option value="3mois" {% if request.GET.periode == "3mois" %}selected{% endif %}>3 derniers mois</option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <a class="btn app-btn-secondary" onclick="telechargerPDF('Table {{ titre_page }}')">
-                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                            <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                                        </svg>
-                                        Télécharger en pdf
-                                    </a>
-                                </div>
-						    </div><!--//row-->
-					    </div><!--//table-utilities-->
-				    </div><!--//col-auto-->
-			    </div><!--//row-->
-                  <div class="nav-align-top mb-4">
-						{% include "Utilisateur/Formulaires/nav.html" %}
-                      {% if role_utilisateur %}
-                <div class="tab-content">
-                    <div class="tab-pane fade show active">
-                        <h5 class="card-header">Table {{ titre_page }} </h5>
-                        <div class="table-responsive text-nowrap">
-                          <table id="tableau" class="table">
-                            <thead>
-                              <tr>
-                                  <th>pk</th>
-                                  <th>Matricule</th>
-                                  <th>Date d'inscription</th>
-                                  <th>Nom</th>
-                                  <th>Prénom</th>
-							      <th>Genre</th>
-                                  <th>Date de Naissance</th>
-                                  <th>Email</th>
-                                  <th>Telephone</th>
-                                  <th>Role</th>
-                                  {% if titre_formulaire == "Administrateur Système" %}
-                                  <th>Superuser</th>
-                                    {% endif %}
-                                  {% if titre_formulaire == "Agent d'Administration" %}
-                                  <th>Fonction</th>
-                                    {% endif %}
-                                  {% if titre_formulaire == "Parent d'étudiant" %}
-                                    <th>Enfants</th>
-                                    {% endif %}
-                                  {% if titre_formulaire == "Étudiant" %}
-                                    <th>Classe</th>
-                                    {% endif %}
-                                  {% if titre_formulaire == "Enseignant" %}
-                                    <th>Spécialités</th>
-                                  <th>Autres Spécialités</th>
-                                    {% endif %}
-                                  <th>Action</th>
-                              </tr>
-                            </thead>
-                              <tbody class="table-border-bottom-0">
-                                {% for agent in agents %}
-                                <tr>
-                                    <td>
-                                    {% if agent.utilisateur.pk %}
-                                      {{ agent.utilisateur.pk }}
-                                      {% elif agent.pk %}
-                                      {{ agent.pk }}
-                                    {% else %}
-                                      <div class="alert alert-warning">Non pk</div>
-                                    {% endif %}
+
+<div class="col-xl-12">
+  <div class="row g-3 mb-4 align-items-center justify-content-between">
+   <div class="d-sm-flex align-items-center justify-content-between">
+	<h6 class="text-muted">{{ titre_page }}</h6>
+	<nav aria-label="breadcrumb" class="d-none d-sm-block">
+	   <ol class="breadcrumb">
+		 {% for item in breadcrumb %}
+		   {% if item.is_last %}
+			 <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+		   {% elif item.is_first %}
+			 <li class="breadcrumb-item">{{ item.name }}</li>
+		   {% else %}
+			 <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+		   {% endif %}
+		 {% endfor %}
+	   </ol>
+   </nav>
+   </div>
+	<div class="col-auto">
+		 <div class="page-utilities">
+			<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
+				<div class="col-auto">
+					<form method="get" class="table-search-form row gx-1 align-items-center">
+						<div class="col-auto">
+							<input type="text" id="search-orders" name="q" class="form-control search-orders" placeholder="Rechercher..." value="{{ request.GET.q }}">
+						</div>
+						<div class="col-auto">
+							<button type="submit" class="btn app-btn-secondary">Rechecher</button>
+						</div>
+					</form>
+				</div>
+				<div class="col-auto">
+					<select name="periode" class="form-select w-auto" onchange="this.form.submit()">
+						<option value="" {% if not request.GET.periode %}selected{% endif %}>Tout</option>
+						<option value="semaine" {% if request.GET.periode == "semaine" %}selected{% endif %}>Cette semaine</option>
+						<option value="mois" {% if request.GET.periode == "mois" %}selected{% endif %}>Ce mois</option>
+						<option value="3mois" {% if request.GET.periode == "3mois" %}selected{% endif %}>3 derniers mois</option>
+					</select>
+				</div>
+				<div class="col-auto">
+					<a class="btn app-btn-secondary" onclick="telechargerPDF('Table {{ titre_page }}')">
+						<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+							<path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+						</svg>
+						Télécharger en pdf
+					</a>
+				</div>
+			</div><!--//row-->
+		</div><!--//table-utilities-->
+	</div><!--//col-auto-->
+</div><!--//row-->
+  <div class="nav-align-top mb-4">
+		{% include "Utilisateur/Formulaires/nav.html" %}
+	  {% if role_utilisateur %}
+   
+<div class="tab-content">
+	<div class="tab-pane fade show active">
+		<h5 class="card-header">Table {{ titre_page }} </h5>
+		<div class="table-responsive text-nowrap">
+		  <table id="tableau" class="table">
+			<thead>
+			  <tr>
+				  <th>pk</th>
+				  <th>Matricule</th>
+				  <th>Date d'inscription</th>
+				  <th>Nom et Prénom</th>
+<!--				  <th>Prénom</th>-->
+				  <th>Genre</th>
+<!--				  <th>Date de Naissance</th>-->
+<!--				  <th>Email</th>-->
+<!--				  <th>Telephone</th>-->
+			   
+			   {% if role_utilisateur == 'Utilisateur' %}
+				  <th>Role</th>
+			   {% endif %}
+				  {% if titre_formulaire == "Administrateur Système" %}
+				  <th>Superuser</th>
+					{% endif %}
+				  {% if titre_formulaire == "Agent d'Administration" %}
+				  <th>Fonction</th>
+					{% endif %}
+				  {% if titre_formulaire == "Parent d'étudiant" %}
+					<th>Enfants</th>
+					{% endif %}
+				  {% if titre_formulaire == "Étudiant" %}
+					<th>Classe</th>
+					{% endif %}
+				  {% if titre_formulaire == "Enseignant" %}
+					<th>Spécialités</th>
+				  <th>Autres Spécialités</th>
+					{% endif %}
+				  <th>Action</th>
+			  </tr>
+			</thead>
+			  <tbody class="table-border-bottom-0">
+				{% for agent in agents %}
+				<tr>
+					<td>
+					{% if agent.utilisateur.pk %}
+					  {{ agent.utilisateur.pk }}
+					  {% elif agent.pk %}
+					  {{ agent.pk }}
+					{% else %}
+					  <div class="alert alert-warning">---</div>
+					{% endif %}
 
 
-                                  </td>
-                                    <td>
-                                        <a href="
-                                        	{% if role_utilisateur == 'Utilisateur' %}
-                                                {% url 'utilisateur:utilisateur_detail' role=agent.role|lower pk=agent.pk %}
-                                             {% else %}
-                                                {% url 'utilisateur:utilisateur_detail' role=agent.utilisateur.role|lower pk=agent.pk %}
-                                             {% endif %}"
-                                       class="text-decoration-none">
+				  </td>
+					<td>
+						<a href="
+							{% if role_utilisateur == 'Utilisateur' %}
+								{% url 'utilisateur:utilisateur_detail' role=agent.role|lower pk=agent.pk %}
+							 {% else %}
+								{% url 'utilisateur:utilisateur_detail' role=agent.utilisateur.role|lower pk=agent.pk %}
+							 {% endif %}"
+					   class="text-decoration-none">
+						{% if agent.utilisateur.matricule %}
+							{{ agent.utilisateur.matricule }}
+						{% elif agent.matricule %}
+							{{ agent.matricule }}
+						{% else %}
+							<div class="alert-warning d-inline">---</div>
+						{% endif %}
+					</a>
 
-                                        <i class="fab fa-angular fa-lg text-danger me-3"></i>
-
-                                        {% if agent.utilisateur.matricule %}
-                                            {{ agent.utilisateur.matricule }}
-                                        {% elif agent.matricule %}
-                                            {{ agent.matricule }}
-                                        {% else %}
-                                            <div class="alert alert-warning d-inline">Aucun matricule</div>
-                                        {% endif %}
-                                    </a>
-
-                                    </td>
+					</td>
 
 
-                                  <td>
-                                    {% if agent.utilisateur.date_inscription %}
-                                      {{ agent.utilisateur.date_inscription }}
-                                      {% elif agent.date_inscription %}
-                                      {{ agent.date_inscription }}
-                                    {% else %}
-                                      <div class="alert alert-warning">Non inscrit</div>
-                                    {% endif %}
-                                  </td>
+				  <td>
+					{% if agent.utilisateur.date_inscription %}
+					  {{ agent.utilisateur.date_inscription }}
+					  {% elif agent.date_inscription %}
+					  {{ agent.date_inscription }}
+					{% else %}
+					  <div class="alert alert-warning"> --- </div>
+					{% endif %}
+				  </td>
 
-                                  <td>
-                                      {% if agent.utilisateur.last_name %}
-                                        {{ agent.utilisateur.last_name }}
-                                      {% elif agent.last_name %}
-                                        {{ agent.last_name }}
-                                      {% else %}
-                                        <div class="alert alert-warning d-inline">Nom manquant</div>
-                                      {% endif %}
-                                    </td>
-                                    <td>
-                                      {% if agent.utilisateur.first_name %}
-                                        {{ agent.utilisateur.first_name }}
-                                      {% elif agent.first_name %}
-                                        {{ agent.first_name }}
-                                      {% else %}
-                                        <div class="alert alert-warning d-inline">Prénom manquant</div>
-                                      {% endif %}
-                                    </td>
-								 	<td>
-                                      {% if agent.utilisateur.genre %}
-                                        {{ agent.utilisateur.genre }}
-                                      {% elif agent.genre %}
-                                        {{ agent.genre }}
-                                      {% else %}
-                                        <div class="alert alert-warning d-inline">genre manquant</div>
-                                      {% endif %}
-                                    </td>
-                                    <td>
-                                      {% if agent.utilisateur.date_nais %}
-                                        {{ agent.utilisateur.date_nais }}
-                                      {% elif agent.date_nais %}
-                                        {{ agent.date_nais }}
-                                      {% else %}
-                                        <div class="alert alert-warning d-inline">Date de naissance manquante</div>
-                                      {% endif %}
-                                    </td>
-                                    <td>
-                                      {% if agent.utilisateur.email %}
-                                        {{ agent.utilisateur.email }}
-                                      {% elif agent.email %}
-                                        {{ agent.email }}
-                                      {% else %}
-                                        <div class="alert alert-warning d-inline">Email manquant</div>
-                                      {% endif %}
-                                    </td>
-                                    <td>
-                                      {% if agent.utilisateur.telephone %}
-                                        {{ agent.utilisateur.telephone }}
-                                      {% elif agent.telephone %}
-                                        {{ agent.telephone }}
-                                      {% else %}
-                                        <div class="alert alert-warning d-inline">Téléphone manquant</div>
-                                      {% endif %}
-                                    </td>
-                                    <td>
-                                      {% if agent.utilisateur.role %}
-                                        {{ agent.utilisateur.get_role_display_name }}
-                                      {% elif agent.role %}
-                                        {{ agent.get_role_display_name }}
-                                      {% else %}
-                                        <div class="alert alert-warning d-inline">Rôle manquant</div>
-                                      {% endif %}
-                                    </td>
-                                    {% if titre_formulaire == "Administrateur Système" %}
-                                    <th>
-                                        {% if agent.utilisateur.is_superuser %}
-                                            ✅
-                                        {% else %}
-                                            ❌
-                                        {% endif %}
-                                    </th>
-                                {% endif %}
-
-                                    {% if titre_formulaire == "Agent d'Administration" %}
-									 <th>
-										 {% if agent.fonctions.all %}
-											 <div style="display: flex; flex-direction: column; gap: 4px;">
-												 {% for fonction in agent.fonctions.all %}
-													 <span style="display: inline-flex; align-items: center; gap: 6px;">
-														 <i class="bx bx-briefcase-alt" style="color: #696cff;"></i>
-														 {{ fonction.nom }}
-														 {% if fonction.code %}
-															 <small style="color: #8592a3;">({{ fonction.code }})</small>
-														 {% endif %}
-													 </span>
-												 {% endfor %}
-											 </div>
-										 {% else %}
-											 <span class="text-muted">Aucune fonction</span>
-										 {% endif %}
-									 </th>
-								 {% endif %}
-                                    {% if titre_formulaire == "Étudiant" %}
-                                    <th>{{ agent.classe_actuelle }}</th>
-                                    {% endif %}
-                                    {% if titre_formulaire == "Parent d'étudiant" %}
-                                    <th>
-                                        {% for etudiant in agent.enfants.all %}
-                                            <div>{{ etudiant.utilisateur.matricule }} {{ etudiant.utilisateur.last_name }} {{ etudiant.utilisateur.first_name }}</div>
-                                        {% empty %}
-                                            <div class="alert alert-warning">
-                                                Aucun étudiant disponible pour association.
-                                            </div>
-                                        {% endfor %}
-                                    </th>
-                                    {% endif %}
-                                    {% if titre_formulaire == "Enseignant" %}
-                                    <th>
-                                        {% for specialite in agent.specialites.all %}
-                                            <div>{{ specialite }}</div>
-                                        {% empty %}
-                                            <div class="alert alert-warning">
-                                                Aucun étudiant disponible pour association.
-                                            </div>
-                                        {% endfor %}
-                                    </th>
-                                    <td>
-                                        {% if agent.autres_specialites%}
-                                            {{ agent.autres_specialites }}
-                                        {% else %}
-                                            <div class="alert alert-warning">
-                                                Pas Autres Spécialités
-                                            </div>
-                                        {% endif %}
-                                    </td>
-
-                                    {% endif %}
-
-                                    <td>
-                                        <!-- Bouton Détails -->
-                                        <a href="{% if role_utilisateur == 'Utilisateur' %}
-                                            #
-                                         {% else %}
-                                            {% url 'utilisateur:utilisateur_detail' role=agent.utilisateur.role|lower pk=agent.pk %}
-                                         {% endif %}" class="btn btn-sm btn-info">Détails</a>
-
-                                        <!-- Bouton Modifier -->
-                                        <a href="#" class="btn btn-sm btn-warning">Modifier</a>
-
-                                        <!-- Bouton Supprimer -->
-                                        <a href="#" class="btn btn-sm btn-danger"
-                                           onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
-                                            Supprimer
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5">Aucun agent enregistré.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                          </table>
-						 <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
-                            {% if is_paginated %}
-                                <nav class="app-pagination">
-                                    <ul class="pagination justify-content-center">
-                                        {% if page_obj.has_previous %}
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                                            </li>
-                                        {% else %}
-                                            <li class="page-item disabled">
-                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                                            </li>
-                                        {% endif %}
-
-                                        {% for num in paginator.page_range %}
-                                            {% if page_obj.number == num %}
-                                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
-                                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                                            {% endif %}
-                                        {% endfor %}
-
-                                        {% if page_obj.has_next %}
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                                            </li>
-                                        {% else %}
-                                            <li class="page-item disabled">
-                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
-                                            </li>
-                                        {% endif %}
-                                    </ul>
-                                </nav>
-                            {% endif %}
-                        </div>
-
-                        </div>
-                    </div>
-                </div>
+				  <td>
+					  {% if agent.utilisateur.iget_full_name %}
+						{{ agent.utilisateur.iget_full_name }}
+					  {% elif agent.iget_full_namee %}
+						{{ agent.iget_full_name }}
+					  {% else %}
+						<div class="text-center">
+						  <div class="alert alert-warning d-inline"> --- </div>
+						</div>
 				   
-				     <div class="fixed-action-buttons">
-						  <a href="{% url 'utilisateur:utilisateur_create' model_type %}" class="btn btn-add">
-							  <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
-						  </a>
+					  {% endif %}
+					</td>
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.first_name %}-->
+<!--						{{ agent.utilisateur.first_name }}-->
+<!--					  {% elif agent.first_name %}-->
+<!--						{{ agent.first_name }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">---</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+					<td>
+					  {% if agent.utilisateur.genre %}
+						{{ agent.utilisateur.genre }}
+					  {% elif agent.genre %}
+						{{ agent.genre }}
+					  {% else %}
+						<div class="text-center">
+						  <div class="alert alert-warning d-inline"> --- </div>
+						</div>
+					  {% endif %}
+					</td>
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.date_nais %}-->
+<!--						{{ agent.utilisateur.date_nais }}-->
+<!--					  {% elif agent.date_nais %}-->
+<!--						{{ agent.date_nais }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">Date de naissance manquante</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.email %}-->
+<!--						{{ agent.utilisateur.email }}-->
+<!--					  {% elif agent.email %}-->
+<!--						{{ agent.email }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">Email manquant</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.telephone %}-->
+<!--						{{ agent.utilisateur.telephone }}-->
+<!--					  {% elif agent.telephone %}-->
+<!--						{{ agent.telephone }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">Téléphone manquant</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+				 {% if role_utilisateur == 'Utilisateur' %}
+					<td>
+					  {% if agent.utilisateur.role %}
+						{{ agent.utilisateur.get_role_display_name }}
+					  {% elif agent.role %}
+						{{ agent.get_role_display_name }}
+					  {% else %}
+						<div class="alert alert-warning d-inline">Rôle manquant</div>
+					  {% endif %}
+					</td>
+				 {% endif %}
+
+					{% if titre_formulaire == "Administrateur Système" %}
+					<th>
+						{% if agent.utilisateur.is_superuser %}
+							✅
+						{% else %}
+							❌
+						{% endif %}
+					</th>
+				{% endif %}
+
+					{% if titre_formulaire == "Agent d'Administration" %}
+					 <th>
+						 {% if agent.fonctions.all %}
+							 <div style="display: flex; flex-direction: column; gap: 4px;">
+								 {% for fonction in agent.fonctions.all %}
+									 <span style="display: inline-flex; align-items: center; gap: 6px;">
+										 <i class="bx bx-briefcase-alt" style="color: #696cff;"></i>
+										 {{ fonction.nom }}
+										 {% if fonction.code %}
+											 <small style="color: #8592a3;">({{ fonction.code }})</small>
+										 {% endif %}
+									 </span>
+								 {% endfor %}
+							 </div>
+						 {% else %}
+							 <span class="text-muted"> --- </span>
+						 {% endif %}
+					 </th>
+				 {% endif %}
+					{% if titre_formulaire == "Étudiant" %}
+					<th>{{ agent.classe_actuelle }}</th>
+					{% endif %}
+					{% if titre_formulaire == "Parent d'étudiant" %}
+					<th>
+						{% for etudiant in agent.enfants.all %}
+							<div>{{ etudiant.utilisateur.matricule }} {{ etudiant.utilisateur.last_name }} {{ etudiant.utilisateur.first_name }}</div>
+						{% empty %}
+							<div class="text-center">
+							   <div class="alert alert-warning d-inline"> --- </div>
+							 </div>
+						{% endfor %}
+					</th>
+					{% endif %}
+					{% if titre_formulaire == "Enseignant" %}
+					<th>
+						{% for specialite in agent.specialites.all %}
+							<div>{{ specialite }}</div>
+						{% empty %}
+							<div class="text-center">
+							  <div class="alert alert-warning d-inline"> --- </div>
+							</div>
+						{% endfor %}
+					</th>
+					<td>
+						{% if agent.autres_specialites%}
+							{{ agent.autres_specialites }}
+						{% else %}
+							<div class="text-center">
+							  <div class="alert alert-warning d-inline"> --- </div>
+							</div>
+						{% endif %}
+					</td>
+
+					{% endif %}
+
+					<td class="text-end">
+					  <div class="d-flex justify-content-end">
+						<!-- Détails -->
+						<a href="{% if role_utilisateur == 'Utilisateur' %}
+								  #
+								 {% else %}
+								  {% url 'utilisateur:utilisateur_detail' role=agent.utilisateur.role|lower pk=agent.pk %}
+								 {% endif %}"
+						   class="btn btn-link p-0 me-2" title="Détails">
+						  <i class="bx bx-show text-info fs-4"></i>
+						</a>
+					
+						<!-- Modifier -->
+						<a href="{% if role_utilisateur == 'Utilisateur' %}
+								  #
+								 {% else %}
+								  {% url 'utilisateur:utilisateur_modifier' role=agent.utilisateur.role|lower pk=agent.pk %}
+								 {% endif %}"
+						   class="btn btn-link p-0 me-2" title="Modifier">
+						  <i class="bx bx-edit text-warning fs-4"></i>
+						</a>
+					
+						<!-- Supprimer -->
+						<a href="{% if role_utilisateur == 'Utilisateur' %}
+								  #
+								 {% else %}
+								  {% url 'utilisateur:utilisateur_supprimer' role=agent.utilisateur.role|lower pk=agent.pk %}
+								 {% endif %}"
+						   class="btn btn-link p-0" title="Supprimer"
+						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+						  <i class="bx bx-trash text-danger fs-4"></i>
+						</a>
 					  </div>
-                      {% else %}
-                      <div class="tab-content">
-                          <div class="tab-pane fade show active">
-                              <div class="alert alert-info"> {{ erreur }} </br> Choisissez une option en cliquant sur le bouton correspondant.</div>
-                          </div>
-                      </div>
-                      {% endif %}
-                      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="5">Aucun agent enregistré.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		  </table>
+		 <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
+			{% if is_paginated %}
+				<nav class="app-pagination">
+					<ul class="pagination justify-content-center">
+						{% if page_obj.has_previous %}
+							<li class="page-item">
+								<a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+							</li>
+						{% endif %}
+
+						{% for num in paginator.page_range %}
+							{% if page_obj.number == num %}
+								<li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+							{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+								<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+							{% endif %}
+						{% endfor %}
+
+						{% if page_obj.has_next %}
+							<li class="page-item">
+								<a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+							</li>
+						{% endif %}
+					</ul>
+				</nav>
+			{% endif %}
+		</div>
+
+		</div>
+	</div>
+</div>
+ 
+ <div class="fixed-action-buttons">
+	  <a href="{% url 'utilisateur:utilisateur_create' model_type %}" class="btn btn-add">
+		  <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+	  </a>
+  </div>
+  {% else %}
+  <div class="tab-content">
+	  <div class="tab-pane fade show active">
+		  <div class="alert alert-info"> {{ erreur }} </br> Choisissez une option en cliquant sur le bouton correspondant.</div>
+	  </div>
+  </div>
+  {% endif %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
@@ -406,11 +433,4 @@
         pdf.save("tableau.pdf");
     }
 </script>
-
-
-
-
-<!-- Bloc pour injecter le formulaire -->
-
-
 {% endblock %}

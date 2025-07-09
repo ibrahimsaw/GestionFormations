@@ -133,6 +133,9 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}".strip()
 
+    def iget_full_name(self):
+        return f"{self.last_name} {self.first_name}".strip()
+
     def get_role_display_name(self):
         """Retourne le nom d'affichage complet du rôle"""
         return self.get_role_display()
