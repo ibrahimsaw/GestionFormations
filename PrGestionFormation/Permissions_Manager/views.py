@@ -23,22 +23,106 @@ from collections import defaultdict
 def get_group_permission_count(user):
     return Permission.objects.filter(group__user=user).distinct().count()
 
+class GestionPermissionsBaseView(BaseContextView):
+    """Classe de base pour toutes les vues utilisateur avec gestion des templates dynamiques."""
+
+    model_type = None
+    view_name = None
+    template_form = 'Formation/formulaire.html'
+    template_list = 'Formation/liste.html'
+    template_detail = 'Formation/detail.html'
+    # template_delete = 'Formation/confirm_delete.html'
+    message = ""
+    page = None
+    bouton = None
+    titre_page = None
+    entete = None
+    path = None
+    breadcrumb = []
+
+    def dispatch(self, request, *args, **kwargs):
+        self.message = getattr(self, 'message', '')
+        self.view_name = request.resolver_match.view_name.split(':')[-1]
+        self.model_type = kwargs.get('type')
+
+        self.message += f"[dispatch] View name: {self.view_name}\n"
+        self.message += f"[dispatch] Type reçu : {self.model_type}\n"
+
+        titre_mapping = {
+            'tableau_bord': "Tableau de bord",
+            'users': "Gestionnaire d'utilisateur",
+            'permissions': "Gestion des Permissions",
+            'fonction': "Gestion des Fonctions"
+        }
+
+        if self.view_name == "permission":
+            self.titre_page = titre_mapping.get(self.model_type)
+            self.entete= 'Gestion des Permissions',
+        if self.view_name == "gerer_permissions_utilisateur":
+            self.titre_page = "Gestion des Permissions de Utilisateur"
+            self.entete = 'Permissions',
+        if self.view_name == "creer_fonction":
+            self.titre_page = "Creation d'une Fonction d'Agent"
+            self.entete = "Créer une Fonction d'Agent"
+        if self.view_name == "modifier_fonction":
+            self.titre_page = "Modification d'une Fonction d'Agent"
+            self.entete = "Modifier une Fonction d'Agent"
+        if self.view_name == "permission_detail":
+            self.titre_page = "Détail d'une permission"
+            self.entete = "Détail de la permission"
 
 
-class GestionPermissionsView(BaseContextView,LoginRequiredMixin, PermissionRequiredMixin, View):
+
+
+        role = self.model_type
+        self.path = request.path
+        path = request.path.strip('/').split('/')
+        cumulative_path = ''
+        self.breadcrumb = []
+        for i,part in enumerate(path):
+            cumulative_path += '/' + part
+            print('name :', part.capitalize())
+            print('url :',cumulative_path)
+            self.breadcrumb.append({
+            'name': part.capitalize(),
+            'url': cumulative_path,
+            'is_first': i == 0,
+            'is_last': i == len(path) - 1
+            })
+        print("Chemin de la requête :", request.path)
+        print("Méthode HTTP :", request.method)
+        print("Nom de la vue :", request.resolver_match.view_name)
+        print("Paramètre GET 'name' :", request.GET.get('name'))
+        self.message += f"[dispatch] Action détectée : {self.page}\n"
+        print(self.message)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            'bouton' : self.bouton,
+            'path' : self.path,
+            'titre_page' : self.titre_page,
+            # 'role_utilisateur': type_name,
+            'model_type': self.model_type,
+            'navbar': navbar,  # Assure-toi que 'navbar' est bien défini globalement
+            'page': self.page,
+            'message_debug': self.message,  # Optionnel : pour affichage dans le template
+            'breadcrumb': self.breadcrumb,
+            'entete': self.entete,
+        })
+        return context
+
+
+
+class GestionPermissionsView(GestionPermissionsBaseView,LoginRequiredMixin, PermissionRequiredMixin, View):
     """
     Vue basée sur une classe pour la gestion des permissions
     """
     permission_required = 'utilisateur.view_utilisateur'
     template_name = 'Permissions_Manager/dashboard.html'
-    model_type = None
-    view_name = ""
-    message = ""
-    page = ""
-    bouton = ""
-    titre_page = ""
-    path = ""
-    breadcrumb = []
+
 
     def get_querysets(self):
         """Retourne tous les querysets nécessaires"""
@@ -66,69 +150,19 @@ class GestionPermissionsView(BaseContextView,LoginRequiredMixin, PermissionRequi
         }
 
     def dispatch(self, request, *args, **kwargs):
-        self.message = getattr(self, 'message', '')
-        self.view_name = request.resolver_match.view_name.split(':')[-1]
-        self.model_type = kwargs.get('type')
-
-        titre_mapping = {
-            'tableau_bord': "Tableau de bord",
-            'users': "Gestionnaire d'utilisateur",
-            'permissions': "Gestion des Permissions",
-            'fonction': "Gestion des Fonctions"
-        }
-
-        self.titre_page = titre_mapping.get(self.model_type)
-        self.message += f"[dispatch] View name: {self.view_name}\n"
-        self.message += f"[dispatch] Type reçu : {self.model_type}\n"
-        role = self.model_type
-        self.path = request.path
-        path = request.path.strip('/').split('/')
-        cumulative_path = ''
-        self.breadcrumb = []
-        for i, part in enumerate(path):
-            cumulative_path += '/' + part
-            print('name :', part.capitalize())
-            print('url :', cumulative_path)
-            self.breadcrumb.append({
-                'name': part.capitalize(),
-                'url': cumulative_path,
-                'is_first': i == 0,
-                'is_last': i == len(path) - 1
-            })
-        print("Chemin de la requête :", request.path)
-        print("Méthode HTTP :", request.method)
-        print("Nom de la vue :", request.resolver_match.view_name)
-        print("Paramètre GET 'name' :", request.GET.get('name'))
-
-        # type_name = self.get_type_name()
-        # suffix = 'es' if type_name.endswith('t') else 's'
-
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Prépare le contexte pour le template"""
         context = super().get_context_data(**kwargs)  # Toujours hériter en premier
 
-        # Debug : affichage du type de modèle
-        self.model_type = self.kwargs.get('type')
-        print(f"[get_context_data] model_type: {self.model_type}")
 
         # Chargement des données de base
         context.update(self.get_querysets())
 
         # Contexte statique ou provenant d'attributs d'instance
         context.update({
-            'bouton': getattr(self, 'bouton', None),
-            'path': getattr(self, 'path', None),
-            'titre_page': self.titre_page,
-            # 'role_utilisateur': type_name,  # Assure-toi que `type_name` est défini globalement
-            'model_type': self.model_type,
-            'navbar': globals().get('navbar', None),  # Précaution si 'navbar' n’est pas défini
-            'page': getattr(self, 'page', None),
-            'message_debug': getattr(self, 'message', ''),
-            'breadcrumb': getattr(self, 'breadcrumb', []),
             'active_tab': self.request.GET.get('tab', 'dashboard'),
-            'page_title': 'Gestion des Permissions',
         })
 
         # Calcul des permissions par utilisateur
@@ -163,15 +197,16 @@ class GestionPermissionsView(BaseContextView,LoginRequiredMixin, PermissionRequi
 
 
 
-
-
-class GererPermissionsUtilisateurView(BaseContextView, LoginRequiredMixin, PermissionRequiredMixin, View):
+class GererPermissionsUtilisateurView(GestionPermissionsBaseView, LoginRequiredMixin, PermissionRequiredMixin, View):
     """
     Vue pour gérer les permissions d'un utilisateur spécifique
     """
     permission_required = 'utilisateur.change_utilisateur'
     template_name = 'Permissions_Manager/gerer_utilisateur.html'
     form_class = UserRolePermissionForm
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_user(self, user_id):
         return get_object_or_404(
@@ -222,7 +257,6 @@ class GererPermissionsUtilisateurView(BaseContextView, LoginRequiredMixin, Permi
             'user': user,
             'form': kwargs.get('form'),
             'fonctions_avec_permissions' : fonctions,
-            'active_tab': kwargs.get('active_tab', 'users')
         })
         return context
 
@@ -257,13 +291,16 @@ class GererPermissionsUtilisateurView(BaseContextView, LoginRequiredMixin, Permi
 
 
 
-class GererFonctionView(BaseContextView,LoginRequiredMixin, PermissionRequiredMixin, View):
+class GererFonctionView(GestionPermissionsBaseView,LoginRequiredMixin, PermissionRequiredMixin, View):
     """
     Vue pour créer ou modifier une fonction d'agent
     """
     permission_required = 'auth.change_permission'
     template_name = 'Permissions_Manager/gerer_fonction.html'
     form_class = AssignFonctionForm
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_fonction(self, fonction_id):
         if fonction_id:
@@ -285,9 +322,6 @@ class GererFonctionView(BaseContextView,LoginRequiredMixin, PermissionRequiredMi
             'active_tab': 'fonctions',
         }
         context.update(super().get_context_data(**kwargs))
-        print("[get_context_data] Contexte envoyé :")
-        for key, value in context.items():
-            print(f"    {key}: {value}")
         return render(request, self.template_name, context)
 
     def post(self, request, fonction_id=None, *args, **kwargs):
@@ -453,7 +487,7 @@ class SupprimerFonctionView(BaseContextView,LoginRequiredMixin, PermissionRequir
 #             'active_tab': 'permissions'
 #         })
 
-class DetailPermissionView(BaseContextView, LoginRequiredMixin, PermissionRequiredMixin, View):
+class DetailPermissionView(GestionPermissionsBaseView, LoginRequiredMixin, PermissionRequiredMixin, View):
     """
     Vue pour afficher les détails d'une permission avec formulaire en lecture seule
     """
@@ -467,6 +501,10 @@ class DetailPermissionView(BaseContextView, LoginRequiredMixin, PermissionRequir
             pk=permission_id
         )
 
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
     def get(self, request, permission_id, *args, **kwargs):
         permission = self.get_permission(permission_id)
         form = self.form_class(instance=permission)
@@ -478,7 +516,7 @@ class DetailPermissionView(BaseContextView, LoginRequiredMixin, PermissionRequir
         context = {
             'form': form,
             'permission': permission,
-            'active_tab': 'permissions'
+            'active_tab': 'permissions',
         }
         context.update(super().get_context_data(**kwargs))
 
