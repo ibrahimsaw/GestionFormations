@@ -31,6 +31,14 @@ class GestionPermissionsView(BaseContextView,LoginRequiredMixin, PermissionRequi
     """
     permission_required = 'utilisateur.view_utilisateur'
     template_name = 'Permissions_Manager/dashboard.html'
+    model_type = None
+    view_name = ""
+    message = ""
+    page = ""
+    bouton = ""
+    titre_page = ""
+    path = ""
+    breadcrumb = []
 
     def get_querysets(self):
         """Retourne tous les querysets nécessaires"""
@@ -57,27 +65,87 @@ class GestionPermissionsView(BaseContextView,LoginRequiredMixin, PermissionRequi
             'content_types': ContentType.objects.all()  # Pour le formulaire de permission
         }
 
-    def get_context_data(self, **kwargs):
-        """Prépare le contexte pour le template"""
-        context = self.get_querysets()
-        context['active_tab'] = self.request.GET.get('tab', 'dashboard')
-        context['page_title'] = 'Gestion des Permissions'
-        context.update(kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        self.message = getattr(self, 'message', '')
+        self.view_name = request.resolver_match.view_name.split(':')[-1]
+        self.model_type = kwargs.get('type')
 
-        # Calculer les permissions par utilisateur
-        permission_counts = {
-            user.id: Permission.objects.filter(group__user=user).distinct().count()
-            for role_users in context['users_by_role'].values()
-            for user in role_users
+        titre_mapping = {
+            'tableau_bord': "Tableau de bord",
+            'users': "Gestionnaire d'utilisateur",
+            'permissions': "Gestion des Permissions",
+            'fonction': "Gestion des Fonctions"
         }
 
-        # Ajouter group_permission_count à chaque utilisateur
-        for role_users in context['users_by_role'].values():
-            for user in role_users:
+        self.titre_page = titre_mapping.get(self.model_type)
+        self.message += f"[dispatch] View name: {self.view_name}\n"
+        self.message += f"[dispatch] Type reçu : {self.model_type}\n"
+        role = self.model_type
+        self.path = request.path
+        path = request.path.strip('/').split('/')
+        cumulative_path = ''
+        self.breadcrumb = []
+        for i, part in enumerate(path):
+            cumulative_path += '/' + part
+            print('name :', part.capitalize())
+            print('url :', cumulative_path)
+            self.breadcrumb.append({
+                'name': part.capitalize(),
+                'url': cumulative_path,
+                'is_first': i == 0,
+                'is_last': i == len(path) - 1
+            })
+        print("Chemin de la requête :", request.path)
+        print("Méthode HTTP :", request.method)
+        print("Nom de la vue :", request.resolver_match.view_name)
+        print("Paramètre GET 'name' :", request.GET.get('name'))
+
+        # type_name = self.get_type_name()
+        # suffix = 'es' if type_name.endswith('t') else 's'
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Prépare le contexte pour le template"""
+        context = super().get_context_data(**kwargs)  # Toujours hériter en premier
+
+        # Debug : affichage du type de modèle
+        self.model_type = self.kwargs.get('type')
+        print(f"[get_context_data] model_type: {self.model_type}")
+
+        # Chargement des données de base
+        context.update(self.get_querysets())
+
+        # Contexte statique ou provenant d'attributs d'instance
+        context.update({
+            'bouton': getattr(self, 'bouton', None),
+            'path': getattr(self, 'path', None),
+            'titre_page': self.titre_page,
+            # 'role_utilisateur': type_name,  # Assure-toi que `type_name` est défini globalement
+            'model_type': self.model_type,
+            'navbar': globals().get('navbar', None),  # Précaution si 'navbar' n’est pas défini
+            'page': getattr(self, 'page', None),
+            'message_debug': getattr(self, 'message', ''),
+            'breadcrumb': getattr(self, 'breadcrumb', []),
+            'active_tab': self.request.GET.get('tab', 'dashboard'),
+            'page_title': 'Gestion des Permissions',
+        })
+
+        # Calcul des permissions par utilisateur
+        users_by_role = context.get('users_by_role', {})
+        permission_counts = {
+            user.id: Permission.objects.filter(group__user=user).distinct().count()
+            for users in users_by_role.values()
+            for user in users
+        }
+
+        # Ajout des permissions à chaque utilisateur
+        for users in users_by_role.values():
+            for user in users:
                 user.group_permission_count = permission_counts.get(user.id, 0)
 
-        context.update(super().get_context_data(**kwargs))
-        print("[get_context_data] Contexte envoyé :")
+        # Debug final : aperçu du contexte
+        print("[get_context_data] Contexte final envoyé :")
         for key, value in context.items():
             print(f"    {key}: {value}")
 

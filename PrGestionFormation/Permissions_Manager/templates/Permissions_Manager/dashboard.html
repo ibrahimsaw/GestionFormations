@@ -5,426 +5,434 @@
 <div>
     <!-- Header avec breadcrumb -->
     <div class="d-sm-flex align-items-center justify-content-between">
-		 <h6 class="text-muted">Gestion des Permissions</h6>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Admin</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Permissions</li>
-            </ol>
-        </nav>
-    </div>
-
+	 <h6 class="text-muted">{{ titre_page }}</h6>
+	 <nav aria-label="breadcrumb" class="d-none d-sm-block">
+		  <ol class="breadcrumb">
+			{% for item in breadcrumb %}
+			  {% if item.is_last %}
+				<li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+			  {% elif item.is_first %}
+				<li class="breadcrumb-item">{{ item.name }} </li>
+			  {% else %}
+				<li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+			  {% endif %}
+			{% endfor %}
+		  </ol>
+	  </nav>
+	</div>
     <!-- Navigation tabs -->
-
-        <div class="py-3">
-            <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'dashboard' %}active{% endif %}"
-                            id="dashboard-tab" data-bs-toggle="tab"
-                            data-bs-target="#dashboard" type="button" role="tab">
-                        <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'users' %}active{% endif %}"
-                            id="users-tab" data-bs-toggle="tab"
-                            data-bs-target="#users" type="button" role="tab">
-                        <i class="fas fa-users me-2"></i>Utilisateurs
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'fonctions' %}active{% endif %}"
-                            id="functions-tab" data-bs-toggle="tab"
-                            data-bs-target="#functions" type="button" role="tab">
-                        <i class="fas fa-id-card me-2"></i>Fonctions
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if active_tab == 'permissions' %}active{% endif %}"
-                            id="permissions-tab" data-bs-toggle="tab"
-                            data-bs-target="#permissions" type="button" role="tab">
-                        <i class="fas fa-key me-2"></i>Permissions
-                    </a>
-                </li>
-            </ul>
-            <div class="tab-content" id="permissionsTabContent" style="padding: 0rem;">
-                <!-- Dashboard Tab -->
-                <div class="tab-pane fade {% if active_tab == 'dashboard' %}show active{% endif %}"
-                     id="dashboard" role="tabpanel">
-                    <div class="row g-4">
-                        <!-- Users by Role Card -->
-						<div class="col-lg-6">
-							<div class="card shadow-sm h-100">
-								<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-									<h5 class="mb-0 text-white">
-										<i class="fas fa-users-cog me-2"></i>Utilisateurs par Rôle
-									</h5>
-									<div class="dropdown">
-										<button class="btn btn-sm btn-light dropdown-toggle" type="button"
-												id="usersFilterDropdown" data-bs-toggle="dropdown">
-											<i class="fas fa-filter me-1"></i>Filtrer
-										</button>
-										<ul class="dropdown-menu dropdown-menu-end">
-											<li><a class="dropdown-item filter-option" href="#" data-role="all">Tous les rôles</a></li>
-											{% for role_name, users in users_by_role.items %}
-											<li><a class="dropdown-item filter-option" href="#" data-role="{{ role_name }}">{{ role_name }} ({{ users|length }})</a></li>
-											{% endfor %}
-										</ul>
-									</div>
+	 <div class="py-3">
+		 <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+			 <li class="nav-item">
+				<a class="nav-link {% if model_type == 'tableau_bord' %}active{% endif %}"
+				   href="{% url 'Permissions_Manager:permission' type='tableau_bord' %}">
+					<i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+				</a>
+<!--				 <a class="nav-link {% if active_tab == 'dashboard' %}active{% endif %}"-->
+<!--						 id="dashboard-tab" data-bs-toggle="tab"-->
+<!--						 data-bs-target="#dashboard" type="button" role="tab">-->
+<!--					 <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord-->
+<!--				 </a>-->
+			 </li>
+			 <li class="nav-item">
+				 <a class="nav-link {% if model_type == 'users' %}active{% endif %}"
+				 	href="{% url 'Permissions_Manager:permission' type='users' %}">
+					 <i class="fas fa-users me-2"></i>Utilisateurs
+				 </a>
+			 </li>
+			 <li class="nav-item">
+				 <a class="nav-link {% if model_type == 'fonction' %}active{% endif %}"
+						 href="{% url 'Permissions_Manager:permission' type='fonction' %}">
+					 <i class="fas fa-id-card me-2"></i>Fonctions
+				 </a>
+			 </li>
+			 <li class="nav-item">
+				 <a class="nav-link {% if model_type == 'permissions' %}active{% endif %}"
+						 href="{% url 'Permissions_Manager:permission' type='permissions' %}">
+					 <i class="fas fa-key me-2"></i>Permissions
+				 </a>
+			 </li>
+		 </ul>
+		 <div class="tab-content" id="permissionsTabContent" style="padding: 0rem;">
+			 <!-- Dashboard Tab -->
+			{% if model_type == 'tableau_bord' %}
+			   <div class="tab-pane fade show active">
+				   <div class="row g-4">
+					   <!-- Users by Role Card -->
+					   <div class="col-lg-6">
+						   <div class="card shadow-sm h-100">
+							   <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+								   <h5 class="mb-0 text-white">
+									   <i class="fas fa-users-cog me-2"></i>Utilisateurs par Rôle
+								   </h5>
+								   <div class="dropdown">
+									   <button class="btn btn-sm btn-light dropdown-toggle" type="button"
+											   id="usersFilterDropdown" data-bs-toggle="dropdown">
+										   <i class="fas fa-filter me-1"></i>Filtrer
+									   </button>
+									   <ul class="dropdown-menu dropdown-menu-end">
+										   <li><a class="dropdown-item filter-option" href="#" data-role="all">Tous les rôles</a></li>
+										   {% for role_name, users in users_by_role.items %}
+										   <li><a class="dropdown-item filter-option" href="#" data-role="{{ role_name }}">{{ role_name }} ({{ users|length }})</a></li>
+										   {% endfor %}
+									   </ul>
+								   </div>
+							   </div>
+							   <div class="card-body">
+								   <div class="table-responsive">
+									   <table class="table table-hover align-middle">
+										   <tbody>
+											   {% for role_name, users in users_by_role.items %}
+											   <tr class="role-header bg-light" data-role="{{ role_name }}">
+												   <td colspan="2">
+													   <strong>{{ role_name }}</strong>
+													   <span class="badge bg-secondary float-end">{{ users|length }}</span>
+												   </td>
+											   </tr>
+											   {% for user in users %}
+											   <tr class="user-row" data-role="{{ role_name }}">
+												   <td>
+													   <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
+														  class="text-decoration-none d-flex align-items-center">
+														   <div class="avatar bg-light rounded-circle me-3 d-flex align-items-center justify-content-center">
+															   <i class="fas fa-user text-primary"></i>
+														   </div>
+														   <div>
+															   {% if user.get_full_name %}
+															   <h6 class="mb-0">{{ user.get_full_name }}</h6>
+															   {% else %}
+															   <h6 class="mb-0">Nom non disponible</h6>
+															   {% endif %}
+															   <small class="text-muted">{{ user.matricule }}</small>
+														   </div>
+													   </a>
+												   </td>
+												   <td class="text-end">
+													   <span class="badge bg-info">{{ user.group_permission_count }}perm /{{ user.groups.count }} groupes</span>
+													   <span class="badge bg-warning ms-1">{{ user.user_permissions.count }} perm.</span>
+												   </td>
+											   </tr>
+											   {% endfor %}
+											   {% endfor %}
+										   </tbody>
+									   </table>
+								   </div>
+							   </div>
+						   </div>
+					   </div>
+					   
+					   <script>
+					   document.addEventListener('DOMContentLoaded', function() {
+						   const filterOptions = document.querySelectorAll('.filter-option');
+						   const roleHeaders = document.querySelectorAll('.role-header');
+						   const userRows = document.querySelectorAll('.user-row');
+						   
+						   filterOptions.forEach(option => {
+							   option.addEventListener('click', function(e) {
+								   e.preventDefault();
+								   const selectedRole = this.getAttribute('data-role');
+								   
+								   // Mettre à jour le texte du bouton de filtre
+								   document.querySelector('#usersFilterDropdown').innerHTML =
+									   `<i class="fas fa-filter me-1"></i> ${this.textContent}`;
+								   
+								   // Appliquer le filtre
+								   applyFilter(selectedRole);
+							   });
+						   });
+					   
+						   function applyFilter(role) {
+							   roleHeaders.forEach(header => {
+								   if (role === 'all' || header.getAttribute('data-role') === role) {
+									   header.style.display = '';
+									   
+									   // Afficher les utilisateurs correspondants
+									   const roleName = header.getAttribute('data-role');
+									   document.querySelectorAll(`.user-row[data-role="${roleName}"]`).forEach(row => {
+										   row.style.display = '';
+									   });
+								   } else {
+									   header.style.display = 'none';
+									   
+									   // Masquer les utilisateurs correspondants
+									   const roleName = header.getAttribute('data-role');
+									   document.querySelectorAll(`.user-row[data-role="${roleName}"]`).forEach(row => {
+										   row.style.display = 'none';
+									   });
+								   }
+							   });
+						   }
+					   });
+					   </script>
+					
+					   <!-- Functions Card -->
+					   <div class="col-lg-6">
+						   <div class="card shadow-sm h-100">
+							   <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+								   <h5 class="mb-0 text-white">
+									   <i class="fas fa-id-card-alt me-2"></i>Fonctions d'Agent
+								   </h5>
+								   <a href="{% url 'Permissions_Manager:creer_fonction' %}"
+									  class="btn btn-sm btn-light">
+									   <i class="fas fa-plus me-1"></i>Ajouter
+								   </a>
+							   </div>
+							   <div class="card-body">
+								   {% if fonctions %}
+								   <div class="list-group list-group-flush">
+									   {% for fonction in fonctions %}
+									   <a href="{% url 'Permissions_Manager:modifier_fonction' fonction.id %}"
+										  class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+										   <div>
+											   <h6 class="mb-1">{{ fonction.nom }}</h6>
+											   {% if fonction.description %}
+											   <small class="text-muted">{{ fonction.description|truncatechars:60 }}</small>
+											   {% endif %}
+										   </div>
+										   <div>
+											   <span class="badge bg-primary rounded-pill">{{ fonction.permissions_list|length }}</span>
+											   <i class="fas fa-chevron-right ms-2 text-muted"></i>
+										   </div>
+									   </a>
+									   {% endfor %}
+								   </div>
+								   {% else %}
+								   <div class="text-center py-5">
+									   <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+									   <p class="text-muted mb-4">Aucune fonction créée</p>
+									   <a href="{% url 'Permissions_Manager:creer_fonction' %}"
+										  class="btn btn-primary">
+										   <i class="fas fa-plus me-2"></i>Créer une fonction
+									   </a>
+								   </div>
+								   {% endif %}
+							   </div>
+						   </div>
+					   </div>
+				   </div>
+			   </div>
+			{% elif model_type == 'users' %}
+			   <!-- Users Tab -->
+			   <div class="tab-pane fade show active">
+				   <div class="card shadow">
+					   <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+						   <h5 class="mb-0 text-white">
+							   <i class="fas fa-users me-2"></i>Tous les Utilisateurs
+						   </h5>
+						   <a href="{% url 'utilisateur:utilisateur_create' %}"
+							  class="btn btn-sm btn-light">
+							   <i class="fas fa-plus me-1"></i>Ajouter
+						   </a>
+					   </div>
+					   <div class="card-body">
+						   <div class="table-responsive scrollbar">
+							   <table class="table table-bordered table-striped fs-10 mb-0">
+								   <thead>
+									   <tr>
+										   <th class="text-900 sort">Id</th>
+										   <th class="text-900 sort">Matricule</th>
+										   <th class="text-900 sort">Nom complet</th>
+										   <th class="text-900 sort">Rôle</th>
+										   <th class="text-900 sort">Permissions</th>
+										   <th class="text-900 sort">Actions</th>
+									   </tr>
+								   </thead>
+								   <tbody>
+									   {% for role_name, users in users_by_role.items %}
+										   {% for user in users %}
+										   <tr>
+											   <td>{{ user.pk}}</td>
+												<td>{{ user.matricule }}</td>
+											   <td>{{ user.get_full_name }}</td>
+											   <td>
+												   <span class="badge bg-secondary">{{ user.get_role_display }}</span>
+											   </td>
+											   <td>
+												   <span class="badge bg-info">{{ user.groups.count }} groupes</span>
+												   <span class="badge bg-warning ms-1">{{ user.user_permissions.count }} perm.</span>
+											   </td>
+											   <td>
+												   <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
+													  class="btn btn-sm btn-primary">
+													   <i class="bx bx-plus-circle"></i>
+												   </a>
+											   </td>
+										   </tr>
+										   {% endfor %}
+									   {% endfor %}
+								   </tbody>
+							   </table>
+						   </div>
+					   </div>
+				   </div>
+			   </div>
+			{% elif model_type == 'fonction' %}
+			   <!-- Functions Tab -->
+				<div class="tab-pane fade show active">
+					<div class="d-flex justify-content-between mb-4 align-items-center">
+						<h5 class="mb-0 text-primary fw-bold">
+							<i class="fas fa-id-card me-2"></i>{{ titre_page }}
+						</h5>
+						<a href="{% url 'Permissions_Manager:creer_fonction' %}" class="btn btn-outline-primary ">
+							<i class="fas fa-plus me-2"></i>Nouvelle Fonction
+						</a>
+					</div>
+				
+					{% if fonctions %}
+					<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+						{% for fonction in fonctions %}
+						<div class="col">
+							<div class="card border-0 shadow-sm rounded-4 h-100">
+								<!-- En-tête -->
+								<div class="card-header bg-gradient bg-primary text-white d-flex align-items-center">
+									<i class="fas fa-user-shield me-2 fs-5"></i>
+									<h5 class="mb-0 text-white">{{ fonction.nom }}</h5>
 								</div>
+				
+								<!-- Corps -->
 								<div class="card-body">
-									<div class="table-responsive">
-										<table class="table table-hover align-middle">
-											<tbody>
-												{% for role_name, users in users_by_role.items %}
-												<tr class="role-header bg-light" data-role="{{ role_name }}">
-													<td colspan="2">
-														<strong>{{ role_name }}</strong>
-														<span class="badge bg-secondary float-end">{{ users|length }}</span>
-													</td>
-												</tr>
-												{% for user in users %}
-												<tr class="user-row" data-role="{{ role_name }}">
-													<td>
-														<a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
-														   class="text-decoration-none d-flex align-items-center">
-															<div class="avatar bg-light rounded-circle me-3 d-flex align-items-center justify-content-center">
-																<i class="fas fa-user text-primary"></i>
-															</div>
-															<div>
-																{% if user.get_full_name %}
-																<h6 class="mb-0">{{ user.get_full_name }}</h6>
-																{% else %}
-																<h6 class="mb-0">Nom non disponible</h6>
-																{% endif %}
-																<small class="text-muted">{{ user.matricule }}</small>
-															</div>
-														</a>
-													</td>
-													<td class="text-end">
-														<span class="badge bg-info">{{ user.group_permission_count }}perm /{{ user.groups.count }} groupes</span>
-														<span class="badge bg-warning ms-1">{{ user.user_permissions.count }} perm.</span>
-													</td>
-												</tr>
-												{% endfor %}
-												{% endfor %}
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
-						</div>
-						
-						<script>
-						document.addEventListener('DOMContentLoaded', function() {
-							const filterOptions = document.querySelectorAll('.filter-option');
-							const roleHeaders = document.querySelectorAll('.role-header');
-							const userRows = document.querySelectorAll('.user-row');
-							
-							filterOptions.forEach(option => {
-								option.addEventListener('click', function(e) {
-									e.preventDefault();
-									const selectedRole = this.getAttribute('data-role');
-									
-									// Mettre à jour le texte du bouton de filtre
-									document.querySelector('#usersFilterDropdown').innerHTML =
-										`<i class="fas fa-filter me-1"></i> ${this.textContent}`;
-									
-									// Appliquer le filtre
-									applyFilter(selectedRole);
-								});
-							});
-						
-							function applyFilter(role) {
-								roleHeaders.forEach(header => {
-									if (role === 'all' || header.getAttribute('data-role') === role) {
-										header.style.display = '';
-										
-										// Afficher les utilisateurs correspondants
-										const roleName = header.getAttribute('data-role');
-										document.querySelectorAll(`.user-row[data-role="${roleName}"]`).forEach(row => {
-											row.style.display = '';
-										});
-									} else {
-										header.style.display = 'none';
-										
-										// Masquer les utilisateurs correspondants
-										const roleName = header.getAttribute('data-role');
-										document.querySelectorAll(`.user-row[data-role="${roleName}"]`).forEach(row => {
-											row.style.display = 'none';
-										});
-									}
-								});
-							}
-						});
-						</script>
-					 
-                        <!-- Functions Card -->
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0 text-white">
-                                        <i class="fas fa-id-card-alt me-2"></i>Fonctions d'Agent
-                                    </h5>
-                                    <a href="{% url 'Permissions_Manager:creer_fonction' %}"
-                                       class="btn btn-sm btn-light">
-                                        <i class="fas fa-plus me-1"></i>Ajouter
-                                    </a>
-                                </div>
-                                <div class="card-body">
-                                    {% if fonctions %}
-                                    <div class="list-group list-group-flush">
-                                        {% for fonction in fonctions %}
-                                        <a href="{% url 'Permissions_Manager:modifier_fonction' fonction.id %}"
-                                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
-                                            <div>
-                                                <h6 class="mb-1">{{ fonction.nom }}</h6>
-                                                {% if fonction.description %}
-                                                <small class="text-muted">{{ fonction.description|truncatechars:60 }}</small>
-                                                {% endif %}
-                                            </div>
-                                            <div>
-                                                <span class="badge bg-primary rounded-pill">{{ fonction.permissions_list|length }}</span>
-                                                <i class="fas fa-chevron-right ms-2 text-muted"></i>
-                                            </div>
-                                        </a>
-                                        {% endfor %}
-                                    </div>
-                                    {% else %}
-                                    <div class="text-center py-5">
-                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted mb-4">Aucune fonction créée</p>
-                                        <a href="{% url 'Permissions_Manager:creer_fonction' %}"
-                                           class="btn btn-primary">
-                                            <i class="fas fa-plus me-2"></i>Créer une fonction
-                                        </a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Users Tab -->
-                <div class="tab-pane fade {% if active_tab == 'users' %}show active{% endif %}" id="users" role="tabpanel">
-                    <div class="card shadow">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 text-white">
-                                <i class="fas fa-users me-2"></i>Tous les Utilisateurs
-                            </h5>
-							<a href="{% url 'utilisateur:utilisateur_create' %}"
-							   class="btn btn-sm btn-light">
-								<i class="fas fa-plus me-1"></i>Ajouter
-							</a>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive scrollbar">
-                                <table class="table table-bordered table-striped fs-10 mb-0">
-                                    <thead>
-                                        <tr>
-										 	<th class="text-900 sort">Id</th>
-                                            <th class="text-900 sort">Matricule</th>
-                                            <th class="text-900 sort">Nom complet</th>
-                                            <th class="text-900 sort">Rôle</th>
-                                            <th class="text-900 sort">Permissions</th>
-                                            <th class="text-900 sort">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for role_name, users in users_by_role.items %}
-                                            {% for user in users %}
-                                            <tr>
-                                                <td>{{ user.pk}}</td>
-												 <td>{{ user.matricule }}</td>
-                                                <td>{{ user.get_full_name }}</td>
-                                                <td>
-                                                    <span class="badge bg-secondary">{{ user.get_role_display }}</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-info">{{ user.groups.count }} groupes</span>
-                                                    <span class="badge bg-warning ms-1">{{ user.user_permissions.count }} perm.</span>
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
-                                                       class="btn btn-sm btn-primary">
-													 	<i class="bx bx-plus-circle"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-				<!-- Functions Tab -->
-				 <div class="tab-pane fade {% if active_tab == 'fonctions' %}show active{% endif %}" id="functions" role="tabpanel">
-					 <div class="d-flex justify-content-between mb-4 align-items-center">
-						 <h5 class="mb-0 text-primary fw-bold">
-							 <i class="fas fa-id-card me-2"></i>Gestion des Fonctions
-						 </h5>
-						 <a href="{% url 'Permissions_Manager:creer_fonction' %}" class="btn btn-outline-primary ">
-							 <i class="fas fa-plus me-2"></i>Nouvelle Fonction
-						 </a>
-					 </div>
-				 
-					 {% if fonctions %}
-					 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-						 {% for fonction in fonctions %}
-						 <div class="col">
-							 <div class="card border-0 shadow-sm rounded-4 h-100">
-								 <!-- En-tête -->
-								 <div class="card-header bg-gradient bg-primary text-white d-flex align-items-center">
-									 <i class="fas fa-user-shield me-2 fs-5"></i>
-									 <h5 class="mb-0 text-white">{{ fonction.nom }}</h5>
-								 </div>
-				 
-								 <!-- Corps -->
-								 <div class="card-body">
-									 {% if fonction.description %}
-									 <p class="text-muted fst-italic">
-										 <i class="fas fa-info-circle me-1 text-secondary"></i>{{ fonction.description }}
-									 </p>
-									 {% endif %}
-								  <div class="d-flex flex-column flex-md-row gap-3 mt-3">
-										 <!-- Contrôles -->
-										 <div class="flex-fill bg-light text-dark p-3 rounded-3 border">
-											 <h6 class="fw-semibold mb-2 text-warning">
-												 <i class="bi bi-shield-check me-2"></i>Responsabilites
-											 </h6>
-											  <ul class="list-unstyled small" style="list-style-type: disc; padding-left: 1.2em;">
-												{% for resp in fonction.responsabilites %}
-												  <li class="mb-1">
-													{{ resp }}
-												  </li>
-												{% endfor %}
-											  </ul>
-										 </div>
-									 </div>
-				 
-									 <div class="d-flex flex-column flex-md-row gap-3 mt-3">
-										 <!-- Contrôles -->
-										 <div class="flex-fill bg-light text-dark p-3 rounded-3 border">
-											 <h6 class="fw-semibold mb-2 text-primary">
-												 <i class="bi bi-shield-check me-2"></i>Contrôles
-											 </h6>
-											  <ul class="list-unstyled small" style="list-style-type: disc; padding-left: 1.2em;">
-												{% for resp in fonction.controles %}
-												  <li class="mb-1">
-													{{ resp }}
-												  </li>
-												{% endfor %}
-											  </ul>
-										 </div>
-									 </div>
-								  <div class="d-flex flex-column flex-md-row gap-3 mt-3">
-										 <!-- Protocoles -->
-										 <div class="flex-fill bg-light text-dark p-3 rounded-3 border">
-											 <h6 class="fw-semibold mb-2 text-success">
-												 <i class="bi bi-clipboard-check me-2"></i>Protocoles
-											 </h6>
+									{% if fonction.description %}
+									<p class="text-muted fst-italic">
+										<i class="fas fa-info-circle me-1 text-secondary"></i>{{ fonction.description }}
+									</p>
+									{% endif %}
+								 <div class="d-flex flex-column flex-md-row gap-3 mt-3">
+										<!-- Contrôles -->
+										<div class="flex-fill bg-light text-dark p-3 rounded-3 border">
+											<h6 class="fw-semibold mb-2 text-warning">
+												<i class="bi bi-shield-check me-2"></i>Responsabilites
+											</h6>
 											 <ul class="list-unstyled small" style="list-style-type: disc; padding-left: 1.2em;">
-											   {% for resp in fonction.protocoles %}
+											   {% for resp in fonction.responsabilites %}
 												 <li class="mb-1">
 												   {{ resp }}
 												 </li>
 											   {% endfor %}
 											 </ul>
-										 </div>
-									 </div>
-				 
-									 <!-- Permissions -->
-									 <h6 class="fw-semibold text-primary mt-4">
-										 <i class="fas fa-lock me-2"></i>Permissions associées
-									 </h6>
-				 
-									 {% if fonction.permissions_list %}
-									 <div class="d-flex flex-wrap gap-2">
-										 {% for perm in fonction.permissions_list %}
-										 <span class="badge bg-white border text-dark shadow-sm rounded-pill px-3 py-2">
-											 <i class="fas fa-check-circle text-success me-1"></i>{{ perm.name }}
-											 <small class="text-muted">({{ perm.codename }})</small>
-										 </span>
-										 {% endfor %}
-									 </div>
-									 {% else %}
-									 <p class="text-muted small mt-2">
-										 <i class="fas fa-ban me-1 text-warning"></i>Aucune permission attribuée
-									 </p>
-									 {% endif %}
-								 </div>
-				 
-								 <!-- Pied -->
-								 <div class="card-footer bg-white border-top text-center">
-									 <a href="{% url 'Permissions_Manager:modifier_fonction' fonction.id %}"
-										class="btn btn-sm btn-primary rounded-pill px-4">
-										 <i class="fas fa-pen me-1"></i>Modifier
-									 </a>
-								 </div>
-							 </div>
-						 </div>
-						 {% endfor %}
-					 </div>
-					 {% else %}
-					 <div class="alert alert-info mt-4">
-						 <i class="fas fa-info-circle me-2"></i>Aucune fonction n'a été créée pour le moment.
-					 </div>
-					 {% endif %}
-				 </div>
-
-                <!-- Permissions Tab -->
-                <div class="tab-pane fade {% if active_tab == 'permissions' %}show active{% endif %}" id="permissions" role="tabpanel">
-                    <div class="d-flex justify-content-between mb-3">
-                        <h5 class="mb-0">
-                            <i class="fas fa-key me-2"></i>Gestion des Permissions
-                        </h5>
-                    </div>
-                    
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <div class="table-responsive scrollbar">
-                                <table class="table table-bordered table-striped fs-10 mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-900 sort">Application</th>
-                                            <th class="text-900 sort">Modèle</th>
-                                            <th class="text-900 sort">Permission</th>
-                                            <th class="text-900 sort">Code</th>
-                                            <th class="text-900 sort">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for perm in permissions %}
-                                        <tr>
-                                            <td>{{ perm.content_type.app_label }}</td>
-                                            <td>{{ perm.content_type.model }}</td>
-                                            <td>{{ perm.name }}</td>
-                                            <td><code>{{ perm.codename }}</code></td>
-                                            <td>
-                                                <a href="{% url 'Permissions_Manager:permission_detail' perm.id %}"
-                                                   class="btn btn-sm btn-secondary">
-                                                    <i class="bx bx-edit-alt"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td colspan="5" class="text-center text-muted py-4">
-                                                Aucune permission disponible
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-		 
+										</div>
+									</div>
+				
+									<div class="d-flex flex-column flex-md-row gap-3 mt-3">
+										<!-- Contrôles -->
+										<div class="flex-fill bg-light text-dark p-3 rounded-3 border">
+											<h6 class="fw-semibold mb-2 text-primary">
+												<i class="bi bi-shield-check me-2"></i>Contrôles
+											</h6>
+											 <ul class="list-unstyled small" style="list-style-type: disc; padding-left: 1.2em;">
+											   {% for resp in fonction.controles %}
+												 <li class="mb-1">
+												   {{ resp }}
+												 </li>
+											   {% endfor %}
+											 </ul>
+										</div>
+									</div>
+								 <div class="d-flex flex-column flex-md-row gap-3 mt-3">
+										<!-- Protocoles -->
+										<div class="flex-fill bg-light text-dark p-3 rounded-3 border">
+											<h6 class="fw-semibold mb-2 text-success">
+												<i class="bi bi-clipboard-check me-2"></i>Protocoles
+											</h6>
+											<ul class="list-unstyled small" style="list-style-type: disc; padding-left: 1.2em;">
+											  {% for resp in fonction.protocoles %}
+												<li class="mb-1">
+												  {{ resp }}
+												</li>
+											  {% endfor %}
+											</ul>
+										</div>
+									</div>
+				
+									<!-- Permissions -->
+									<h6 class="fw-semibold text-primary mt-4">
+										<i class="fas fa-lock me-2"></i>Permissions associées
+									</h6>
+				
+									{% if fonction.permissions_list %}
+									<div class="d-flex flex-wrap gap-2">
+										{% for perm in fonction.permissions_list %}
+										<span class="badge bg-white border text-dark shadow-sm rounded-pill px-3 py-2">
+											<i class="fas fa-check-circle text-success me-1"></i>{{ perm.name }}
+											<small class="text-muted">({{ perm.codename }})</small>
+										</span>
+										{% endfor %}
+									</div>
+									{% else %}
+									<p class="text-muted small mt-2">
+										<i class="fas fa-ban me-1 text-warning"></i>Aucune permission attribuée
+									</p>
+									{% endif %}
+								</div>
+				
+								<!-- Pied -->
+								<div class="card-footer bg-white border-top text-center">
+									<a href="{% url 'Permissions_Manager:modifier_fonction' fonction.id %}"
+									   class="btn btn-sm btn-primary rounded-pill px-4">
+										<i class="fas fa-pen me-1"></i>Modifier
+									</a>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+					{% else %}
+					<div class="alert alert-info mt-4">
+						<i class="fas fa-info-circle me-2"></i>Aucune fonction n'a été créée pour le moment.
+					</div>
+					{% endif %}
+				</div>
+			{% elif model_type == 'permissions' %}
+			   <!-- Permissions Tab -->
+			   <div class="tab-pane fade show active">
+				   <div class="d-flex justify-content-between mb-3">
+					   <h5 class="mb-0 text-primary fw-bold">
+							<i class="fas fa-id-card me-2"></i>{{ titre_page }}
+						</h5>
+				   </div>
+				   
+				   <div class="card shadow-sm">
+					   <div class="card-body">
+						   <div class="table-responsive scrollbar">
+							   <table class="table table-bordered table-striped fs-10 mb-0">
+								   <thead>
+									   <tr>
+										   <th class="text-900 sort">Application</th>
+										   <th class="text-900 sort">Modèle</th>
+										   <th class="text-900 sort">Permission</th>
+										   <th class="text-900 sort">Code</th>
+										   <th class="text-900 sort">Actions</th>
+									   </tr>
+								   </thead>
+								   <tbody>
+									   {% for perm in permissions %}
+									   <tr>
+										   <td>{{ perm.content_type.app_label }}</td>
+										   <td>{{ perm.content_type.model }}</td>
+										   <td>{{ perm.name }}</td>
+										   <td><code>{{ perm.codename }}</code></td>
+										   <td>
+											   <a href="{% url 'Permissions_Manager:permission_detail' perm.id %}"
+												  class="btn btn-sm btn-secondary">
+												   <i class="bx bx-edit-alt"></i>
+											   </a>
+										   </td>
+									   </tr>
+									   {% empty %}
+									   <tr>
+										   <td colspan="5" class="text-center text-muted py-4">
+											   Aucune permission disponible
+										   </td>
+									   </tr>
+									   {% endfor %}
+								   </tbody>
+							   </table>
+						   </div>
+					   </div>
+				   </div>
+			   </div>
+			{% endif %}
+		 </div>
+	  
 </div>
 
 <!-- Help Modal -->

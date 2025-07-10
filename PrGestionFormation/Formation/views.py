@@ -92,7 +92,6 @@ class FormationBaseView(BaseContextView):
 
         self.page = config['label']
         selected_template = config['template']
-        print("template :",selected_template)
         self.bouton = config['bouton']
         self.titre_page = configtitre_page['titre_page']
         role = self.model_type

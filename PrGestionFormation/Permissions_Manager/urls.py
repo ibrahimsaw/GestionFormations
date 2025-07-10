@@ -13,6 +13,7 @@ app_name = 'Permissions_Manager'
 
 urlpatterns = [
     path('', GestionPermissionsView.as_view(), name='permission'),
+    path('<str:type>/', GestionPermissionsView.as_view(), name='permission'),
     path('utilisateur/<int:user_id>/', GererPermissionsUtilisateurView.as_view(), name='gerer_permissions_utilisateur'),
     path('fonction/', GererFonctionView.as_view(), name='creer_fonction'),
     path('fonction/<int:fonction_id>/', GererFonctionView.as_view(), name='modifier_fonction'),
