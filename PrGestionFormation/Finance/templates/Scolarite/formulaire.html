@@ -3,9 +3,23 @@
 {% load form_tags %}
 
 {% block content %}
+ <div class="d-sm-flex align-items-center justify-content-between">
+	 <h6 class="text-muted">{{ titre_page }} {{ model_type }}</h6>
+	 <nav aria-label="breadcrumb" class="d-none d-sm-block">
+		  <ol class="breadcrumb">
+			{% for item in breadcrumb %}
+			  {% if item.is_last %}
+				<li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+			  {% elif item.is_first %}
+				<li class="breadcrumb-item">{{ item.name }} </li>
+			  {% else %}
+				<li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+			  {% endif %}
+			{% endfor %}
+		  </ol>
+	  </nav>
+	</div>
 
-<div class="card-body">
- <h5 class="card-title mb-0">{{ titre_formulaire }}</h5>
   <div class="nav-align-top mb-4">
         <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
           <li class="nav-item">
@@ -44,6 +58,11 @@
 			  </div>
 			{% endfor %}
 		  {% endif %}
+		     <div class="text-center">
+			   <div class="alert bg-primary">
+				 <h5 class="mb-0 text-white">Formulaire de {{ titre_page }}</h5>
+			   </div>
+			 </div>
 
             <form method="post" id="scolariteForm" enctype="multipart/form-data" novalidate>
               {% csrf_token %}
@@ -152,7 +171,7 @@
         </div>
        </div>
     </div>
-</div>
+
 
 
 <div class="fixed-action-buttons">

@@ -23,7 +23,13 @@ class ScolariteBaseView(BaseContextView):
     template_list = 'Scolarite/liste.html'
     template_detail = 'Scolarite/detail.html'
     template_delete = 'Scolarite/confirm_delete.html'
-
+    message = ""
+    page = ""
+    bouton = ""
+    titre_page = ""
+    path = ""
+    view_name = ""
+    breadcrumb = []
     model_mapping = {
         'frais': (Frais, FraisForm, "Frais"),
         'paiement': (Paiement, PaiementForm, "Paiement"),
@@ -31,59 +37,162 @@ class ScolariteBaseView(BaseContextView):
         'reinscription': (Inscription, InscriptionForm, "Réinscription"),
     }
 
-    def dispatch(self, request, *args, **kwargs):
-        view_name = request.resolver_match.view_name
-        # print(view_name)
-
-        if view_name == 'finance:scolarite-create':
-            tample = self.template_form
-        elif view_name == 'finance:scolarite-list':
-            tample = self.template_list
-        elif view_name == 'finance:scolarite-detail':
-            tample = self.template_detail
-        elif view_name == 'finance:scolarite-update':
-            tample = self.template_form
-        elif view_name == 'finance:scolarite-delete':
-            tample = self.template_delete
-        else:
-            tample = self.template_form
-        self.model_type = kwargs.get('type')
-        print(self.model_type)
-        if self.model_type not in self.model_mapping:
-            return render(request, tample, {'data': data, 'erreur': "Type inconnu."})
-        return super().dispatch(request, *args, **kwargs)
-
     def get_model_class(self):
         return self.model_mapping[self.model_type][0]
 
     def get_form_class(self):
         return self.model_mapping[self.model_type][1]
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        _, _, titre = self.model_mapping[self.model_type]
+        type_name = self.get_type_name()
+
         context.update({
-            'role' : self.model_type,
-            'titre_formulaire': f"{titre} - Formulaire",
-            'titre_liste': f"Liste des {titre}s",
-            'titre_detail': f"Détails {titre}",
-            'titre_suppression': f"Supprimer {titre}",
-            'fonction': f"Créer un {titre}",
-            'bouttonvalide': "Valider",
-            'model_type': self.model_type
+            'bouton' : self.bouton,
+            'path' : self.path,
+            'titre_page' : self.titre_page,
+            'role_utilisateur': type_name,
+            'model_type': self.model_type,
+            'navbar': navbar,  # Assure-toi que 'navbar' est bien défini globalement
+            'page': self.page,
+            'message_debug': self.message,  # Optionnel : pour affichage dans le template
+            'breadcrumb': self.breadcrumb,
         })
         return context
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     _, _, titre = self.model_mapping[self.model_type]
+    #     context.update({
+    #         'role' : self.model_type,
+    #         'titre_formulaire': f"{titre} - Formulaire",
+    #         'titre_liste': f"Liste des {titre}s",
+    #         'titre_detail': f"Détails {titre}",
+    #         'titre_suppression': f"Supprimer {titre}",
+    #         'fonction': f"Créer un {titre}",
+    #         'bouttonvalide': "Valider",
+    #         'model_type': self.model_type
+    #
+    #     })
+    #     return context
+
+    def get_type_name(self):
+        type_info = self.model_mapping.get(self.model_type)
+        if type_info:
+            type_name = type_info[-1]
+        else:
+            type_name = "Nom inconnu"
+            self.message += f"[get_type_name] Type non reconnu : {self.model_type}\n"
+
+        self.message += f"[get_type_name] Nom du type : {type_name}\n"
+        return type_name
+
+    def dispatch(self, request, *args, **kwargs):
+        self.message = getattr(self, 'message', '')
+        self.view_name = request.resolver_match.view_name.split(':')[-1]
+        self.model_type = kwargs.get('type')
+
+        self.message += f"[dispatch] View name: {self.view_name}\n"
+        self.message += f"[dispatch] Type reçu : {self.model_type}\n"
+
+        type_name = self.get_type_name()
+        suffix = 'es' if type_name.endswith('t') else 's'
+
+        # Configuration combinée : label + template
+        view_config = {
+            'scolarite-create': {
+                'label': 'Création',
+                'template': self.template_form,
+                'bouton':'Créer le compte',
+                'titre_page': f"Création un {type_name}" if type_name != "Nom inconnu" else "Création"
+            },
+            'scolarite-list': {
+                'label': 'Liste',
+                'template': self.template_list,
+                'bouton': '',
+                'titre_page': f"Liste des {type_name}{suffix}" if type_name != "Nom inconnu" else "Liste",
+            },
+            'scolarite-detail': {
+                'label': 'Détails',
+                'template': self.template_detail,
+                'bouton': '',
+                'titre_page': f"Détails d'un {type_name}" if type_name != "Nom inconnu" else "Détails",
+            },
+            'scolarite-update': {
+                'label': 'Modification',
+                'template': self.template_form,
+                'bouton': 'Enregistrer la modification',
+                'titre_page': f"Modification d'un {type_name}" if type_name != "Nom inconnu" else "Modification",
+            },
+            'scolarite-delete': {
+                'label': 'Suppression',
+                'template': self.template_delete,
+                'bouton': '',
+                'titre_page': f"Suppression d'un {type_name}" if type_name != "Nom inconnu" else "Suppression",
+            },
+        }
+
+        config = view_config.get(self.view_name, {
+            'label': 'Action inconnue',
+            'template': self.template_form,
+            'bouton': 'Valider',
+            'titre_page' : 'Page inconnu'
+        })
+
+        configtitre_page = view_config.get(self.view_name, {
+            'titre_page': config['label']
+        })
+
+        self.page = config['label']
+        selected_template = config['template']
+        self.bouton = config['bouton']
+        self.titre_page = configtitre_page['titre_page']
+        role = self.model_type
+        self.path = request.path
+        path = request.path.strip('/').split('/')
+        cumulative_path = ''
+        self.breadcrumb = []
+        for i,part in enumerate(path):
+            cumulative_path += '/' + part
+            print('name :', part.capitalize())
+            print('url :',cumulative_path)
+            self.breadcrumb.append({
+            'name': part.capitalize(),
+            'url': cumulative_path,
+            'is_first': i == 0,
+            'is_last': i == len(path) - 1
+            })
+        print("Chemin de la requête :", request.path)
+        print("Méthode HTTP :", request.method)
+        print("Nom de la vue :", request.resolver_match.view_name)
+        print("Paramètre GET 'name' :", request.GET.get('name'))
 
 
-from django.shortcuts import redirect
-from django.db import transaction
-from decimal import Decimal
+        self.message += f"[dispatch] Action détectée : {self.page}\n"
+        self.message += f"[dispatch] Template sélectionné : {selected_template}\n"
+
+        if self.model_type not in self.model_mapping:
+            print('path :',self.path,)
+            self.message += "[dispatch] Type inconnu, chargement erreur.\n"
+            return render(request, selected_template, {
+                'erreur': "Type inconnu.",
+                'message': self.message,
+                'page': self.page,
+                'data': data,
+                'titre_page': self.titre_page,
+                'page_title': self.page,
+                'path': self.path,
+            })
+        print(self.message)
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+
+
 
 class ScolariteCreateView(ScolariteBaseView, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
-        self.model_type = self.kwargs.get('type')  # Assure-toi que dans urls c’est 'type'
         return super().dispatch(request, *args, **kwargs)
 
     def get_template_names(self):
