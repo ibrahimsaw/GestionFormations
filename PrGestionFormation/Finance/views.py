@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
 from .models import *
 from .forms import *
+from Utilisateur.models import Etudiant
 from Formation.models import AnneeAcademique, Classe,Formation
 # from etablissements.views import BaseContextView, data
 from config.globals import *
@@ -102,7 +103,7 @@ class ScolariteBaseView(BaseContextView):
             'scolarite-create': {
                 'label': 'Création',
                 'template': self.template_form,
-                'bouton':'Créer le compte',
+                'bouton':'Enregistrer la Création',
                 'titre_page': f"Création un {type_name}" if type_name != "Nom inconnu" else "Création"
             },
             'scolarite-list': {
@@ -153,18 +154,18 @@ class ScolariteBaseView(BaseContextView):
         self.breadcrumb = []
         for i,part in enumerate(path):
             cumulative_path += '/' + part
-            print('name :', part.capitalize())
-            print('url :',cumulative_path)
+            # print('name :', part.capitalize())
+            # print('url :',cumulative_path)
             self.breadcrumb.append({
             'name': part.capitalize(),
             'url': cumulative_path,
             'is_first': i == 0,
             'is_last': i == len(path) - 1
             })
-        print("Chemin de la requête :", request.path)
-        print("Méthode HTTP :", request.method)
-        print("Nom de la vue :", request.resolver_match.view_name)
-        print("Paramètre GET 'name' :", request.GET.get('name'))
+        # print("Chemin de la requête :", request.path)
+        # print("Méthode HTTP :", request.method)
+        # print("Nom de la vue :", request.resolver_match.view_name)
+        # print("Paramètre GET 'name' :", request.GET.get('name'))
 
 
         self.message += f"[dispatch] Action détectée : {self.page}\n"
@@ -182,7 +183,6 @@ class ScolariteBaseView(BaseContextView):
                 'page_title': self.page,
                 'path': self.path,
             })
-        print(self.message)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -289,6 +289,55 @@ class ScolariteCreateView(ScolariteBaseView, CreateView):
 
         print("🔁 Redirection vers post parent")
         return super().post(request, *args, **kwargs)
+
+from django.http import JsonResponse
+
+
+def frais_par_etudiant(request):
+    etudiant_id = request.GET.get('etudiant_id')
+    if etudiant_id:
+        try:
+            etudiant = Etudiant.objects.get(utilisateur_id=etudiant_id)  # ✅ ici
+            classe = etudiant.classe_actuelle
+            print("classe :",classe)
+            frais_list = Frais.objects.filter(classe=classe).values('id', 'libelle', 'montant')
+            print("frais_list :", frais_list)
+            return JsonResponse(list(frais_list), safe=False)
+        except Etudiant.DoesNotExist:
+            return JsonResponse({'error': 'Étudiant non trouvé'}, status=404)
+    return JsonResponse({'error': 'ID manquant'}, status=400)
+
+
+# views.py
+from django.http import JsonResponse
+from .models import Paiement, Etudiant, Frais
+from django.db.models import Sum
+from decimal import Decimal
+
+def montant_restant_pour_frais(request):
+    etudiant_id = request.GET.get("etudiant_id")
+    frais_id = request.GET.get("frais_id")
+
+    try:
+        etudiant = Etudiant.objects.get(utilisateur_id=etudiant_id)
+        frais = Frais.objects.get(id=frais_id)
+
+        total_paye = Paiement.objects.filter(etudiant=etudiant, frais=frais).aggregate(
+            total=Sum("montant")
+        )["total"] or Decimal("0.00")
+
+        montant_restant = max(frais.montant - total_paye, Decimal("0.00"))
+
+        return JsonResponse({
+            "montant_restant": f"{montant_restant:.2f}"
+        })
+    except (Etudiant.DoesNotExist, Frais.DoesNotExist):
+        return JsonResponse({"error": "Etudiant ou frais introuvable"}, status=404)
+
+
+
+
+
 
 
 class ScolariteListView(ScolariteBaseView, ListView):

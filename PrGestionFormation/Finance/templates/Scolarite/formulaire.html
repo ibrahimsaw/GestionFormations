@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load form_tags %}
+{% load widget_tweaks %}
 
 {% block content %}
  <div class="d-sm-flex align-items-center justify-content-between">
@@ -146,7 +147,150 @@
                </div>
               
               {% elif model_type == 'paiement' %}
-               {{ form.as_p }}
+
+  <!-- Étudiant (Select2 + id forcé) -->
+  <div class="row mb-3">
+    <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant</label>
+    <div class="col-sm-10">
+      {{ form.etudiant|add_class:"form-select select2"|attr:"id:id_etudiant" }}
+      {% for error in form.etudiant.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Frais (remplissage dynamique) -->
+  <div class="row mb-3">
+    <label for="id_frais" class="col-sm-2 col-form-label">Frais</label>
+    <div class="col-sm-10">
+      <select name="frais" id="id_frais" class="form-select">
+        <option value="">Sélectionnez un étudiant d'abord</option>
+      </select>
+    </div>
+  </div>
+ 
+ <!-- Montant restant à payer (lecture seule) -->
+<div class="row mb-3">
+  <label for="id_montant_restant" class="col-sm-2 col-form-label">Reste à payer</label>
+  <div class="col-sm-10">
+    <input type="text" id="id_montant_restant" class="form-control" readonly placeholder="0.00 FCFA">
+  </div>
+</div>
+
+
+  <!-- Montant -->
+  <div class="row mb-3">
+    <label for="{{ form.montant.id_for_label }}" class="col-sm-2 col-form-label">Montant</label>
+    <div class="col-sm-10">
+      {{ form.montant|add_class:"form-control" }}
+      {% for error in form.montant.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Méthode -->
+  <div class="row mb-3">
+    <label for="{{ form.methode.id_for_label }}" class="col-sm-2 col-form-label">Méthode</label>
+    <div class="col-sm-10">
+      {{ form.methode|add_class:"form-select" }}
+      {% for error in form.methode.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Référence -->
+  <div class="row mb-3">
+    <label for="{{ form.reference.id_for_label }}" class="col-sm-2 col-form-label">Référence</label>
+    <div class="col-sm-10">
+      {{ form.reference|add_class:"form-control" }}
+      {% for error in form.reference.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const etudiantSelect = document.getElementById("id_etudiant");
+    const fraisSelect = document.getElementById("id_frais");
+
+    etudiantSelect.addEventListener("change", async function () {
+      const etudiantId = this.value;
+      console.log("🎓 Étudiant sélectionné :", etudiantId);
+
+      fraisSelect.innerHTML = '<option value="">Chargement...</option>';
+
+      if (!etudiantId) {
+        fraisSelect.innerHTML = '<option value="">Sélectionnez un étudiant d\'abord</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/finance/ajax/frais_par_etudiant/?etudiant_id=${etudiantId}`);
+        if (!response.ok) throw new Error("Erreur serveur");
+
+        const data = await response.json();
+
+        let options = '<option value="">-- Choisissez un frais --</option>';
+        data.forEach(frais => {
+          options += `<option value="${frais.id}">${frais.libelle} - ${frais.montant} FCFA</option>`;
+        });
+
+        fraisSelect.innerHTML = options;
+        console.log("📥 Frais mis à jour");
+      } catch (error) {
+        console.error("❌ Erreur AJAX :", error);
+        fraisSelect.innerHTML = '<option value="">Erreur lors du chargement</option>';
+      }
+    });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const etudiantSelect = document.getElementById("id_etudiant");
+    const fraisSelect = document.getElementById("id_frais");
+    const montantRestantInput = document.getElementById("id_montant_restant");
+
+    fraisSelect.addEventListener("change", async function () {
+      const fraisId = this.value;
+      const etudiantId = etudiantSelect.value;
+
+      if (!fraisId || !etudiantId) {
+        montantRestantInput.value = "";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/finance/ajax/montant_restant/?etudiant_id=${etudiantId}&frais_id=${fraisId}`);
+        if (!response.ok) throw new Error("Erreur serveur");
+
+        const data = await response.json();
+
+        if (data.montant_restant !== undefined) {
+          montantRestantInput.value = `${data.montant_restant} FCFA`;
+        } else {
+          montantRestantInput.value = "Erreur";
+        }
+      } catch (error) {
+        console.error("❌ Erreur montant restant :", error);
+        montantRestantInput.value = "Erreur";
+      }
+    });
+  });
+</script>
+
+
+
+
+
               {% elif model_type == 'inscription' %}
                {{ utilisateur_form.as_p }}
                {{ form.as_p }}
@@ -161,9 +305,9 @@
 				  </div>
 				</div>
 			  {% endif %}
-			 {% if bouttonvalide %}
+			 {% if bouton %}
 			   <button type="submit" class="btn btn-primary">
-				 <i class="bx bx-save"></i> {{ bouttonvalide }}
+				 <i class="bx bx-save"></i> {{ bouton }}
 			   </button>
 			 {% endif %}
             </form>

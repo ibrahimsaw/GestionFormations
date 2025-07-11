@@ -48,6 +48,14 @@
         </ul>
 
         <div class="tab-content">
+		 {% if messages %}
+			{% for message in messages %}
+			  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+				{{ message }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			  </div>
+			{% endfor %}
+		  {% endif %}
 		 <div class="text-center">
 			   <div class="alert bg-primary">
 				 <h5 class="mb-0 text-white">Formulaire de {{ titre_page }}</h5>
