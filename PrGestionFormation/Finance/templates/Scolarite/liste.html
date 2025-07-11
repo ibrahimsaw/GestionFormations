@@ -74,6 +74,7 @@
                         <th class="text-900 sort">Classe</th>
                       {% elif model_type == 'paiement' %}
                         <th class="text-900 sort">Étudiant</th>
+					 	<th class="text-900 sort">Frais</th>
                         <th class="text-900 sort">Montant</th>
                         <th class="text-900 sort">Date</th>
                       {% elif model_type == 'inscription' or model_type == 'reinscription' %}
@@ -89,13 +90,14 @@
                     <tr>
                       <td>{{ forloop.counter }}</td>
                       {% if model_type == 'frais' %}
-                        <td>{{ obj.libelle }} - {{ obj.classe }}</td>
+                        <td>{{ obj.libelle }}</td>
                         <td>{{ obj.montant|floatformat:2 }} FCFA</td>
-                        <td>{{ obj.classe.nom }}</td>
+                        <td>{{ obj.classe.formation.nom }} - {{ obj.classe.nom }} ({{ obj.classe.annee_academique }})</td>
                       {% elif model_type == 'paiement' %}
-                        <td>{{ obj.etudiant }}</td>
+                        <td>{{ obj.etudiant.utilisateur.matricule }}</td>
+					 	<td>{{ obj.frais.libelle }}</td>
                         <td>{{ obj.montant|floatformat:2 }} FCFA</td>
-                        <td>{{ obj.date|date:"d/m/Y" }}</td>
+                        <td>{{ obj.date_paiement|date:"d/m/Y H:s" }}</td>
                       {% elif model_type == 'inscription' or model_type == 'reinscription' %}
                         <td>{{ obj.etudiant }}</td>
                         <td>{{ obj.classe.nom }}</td>

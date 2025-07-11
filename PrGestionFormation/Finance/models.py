@@ -61,15 +61,23 @@ class Frais(models.Model):
 class Paiement(models.Model):
     class MethodePaiement(models.TextChoices):
         CB = 'CB', 'Carte Bancaire'
-        VIREMENT = 'VI', 'Virement'
         ESPECES = 'ES', 'Espèces'
+        MOBILE_MONEY = 'MM', 'Mobile Money (Orange Money, Moov Money , Telecel Monet)'
+        CHEQUE = 'CH', 'Chèque'
+        PAYPAL = 'PP', 'PayPal'
 
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='paiements')
     frais = models.ForeignKey(Frais, on_delete=models.CASCADE)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
     methode = models.CharField(max_length=2, choices=MethodePaiement.choices)
-    reference = models.CharField(max_length=50, unique=True)
+    reference = models.CharField(max_length=50, unique=True, blank=True)
     date_paiement = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.reference:
+            # Génère une valeur unique, exemple : "AUTO-<UUID>"
+            self.reference = f"AUTO-{uuid.uuid4().hex[:8].upper()}"
+        super().save(*args, **kwargs)
 
 class Document(models.Model):
     class TypeDocument(models.TextChoices):

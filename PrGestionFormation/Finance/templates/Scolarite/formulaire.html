@@ -148,6 +148,25 @@
               
               {% elif model_type == 'paiement' %}
 
+  <!-- Date de paiement (lecture seule) -->
+  <div class="row mb-3">
+	  <label for="id_date_paiement" class="col-sm-2 col-form-label">Date de paiement</label>
+	  <div class="col-sm-10">
+		  <div class="input-group input-group-merge">
+			  <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+			  <input type="text"
+					 class="form-control"
+					 value="{{ form.instance.date_paiement.value|date:'d/m/Y H:i:s' }}"
+					 placeholder="{{ date }}"
+					 readonly>
+		  </div>
+		  {% for error in utilisateur_form.date_inscription.errors %}
+			  <div class="text-danger small">⚠️ {{ error }}</div>
+		  {% endfor %}
+	  </div>
+  </div>
+
+
   <!-- Étudiant (Select2 + id forcé) -->
   <div class="row mb-3">
     <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant</label>
@@ -189,27 +208,81 @@
     </div>
   </div>
 
-  <!-- Méthode -->
-  <div class="row mb-3">
-    <label for="{{ form.methode.id_for_label }}" class="col-sm-2 col-form-label">Méthode</label>
-    <div class="col-sm-10">
-      {{ form.methode|add_class:"form-select" }}
-      {% for error in form.methode.errors %}
-        <div class="text-danger small">⚠️ {{ error }}</div>
-      {% endfor %}
-    </div>
+<!-- Méthode -->
+<div class="row mb-3">
+  <label for="{{ form.methode.id_for_label }}" class="col-sm-2 col-form-label">Méthode</label>
+  <div class="col-sm-10">
+    {{ form.methode|add_class:"form-select" }}
+    {% for error in form.methode.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
   </div>
+</div>
 
-  <!-- Référence -->
-  <div class="row mb-3">
-    <label for="{{ form.reference.id_for_label }}" class="col-sm-2 col-form-label">Référence</label>
-    <div class="col-sm-10">
-      {{ form.reference|add_class:"form-control" }}
-      {% for error in form.reference.errors %}
-        <div class="text-danger small">⚠️ {{ error }}</div>
-      {% endfor %}
-    </div>
+<!-- Référence (masqué si méthode = Espèces) -->
+<div class="row mb-3" id="reference_row">
+  <label for="{{ form.reference.id_for_label }}" class="col-sm-2 col-form-label">Référence</label>
+  <div class="col-sm-10">
+    {{ form.reference|add_class:"form-control" }}
+    {% for error in form.reference.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
   </div>
+</div>
+
+
+<!-- Script JS pour masquer dynamiquement -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const methodeSelect = document.getElementById("id_methode");
+    const referenceRow = document.getElementById("reference_row");
+
+    function toggleReferenceField() {
+      const selectedValue = methodeSelect.value;
+      if (selectedValue === "ES") {
+        referenceRow.style.display = "none";
+      } else {
+        referenceRow.style.display = "flex"; // ou "block" selon ton CSS
+      }
+    }
+
+    // Appel initial (utile en cas d’édition)
+    toggleReferenceField();
+
+    // Réagir au changement de méthode
+    methodeSelect.addEventListener("change", toggleReferenceField);
+  });
+
+document.addEventListener("DOMContentLoaded", function () {
+  const methodeSelect = document.getElementById("id_methode");
+  const referenceRow = document.getElementById("reference_row");
+  const referenceInput = document.getElementById("id_reference");
+
+  function generateReference() {
+    // Générer un identifiant aléatoire
+    const rand = Math.random().toString(36).substr(2, 8).toUpperCase();
+    return "ES-" + rand;
+  }
+
+  function toggleReferenceField() {
+    const selectedValue = methodeSelect.value;
+
+    if (selectedValue === "ES") {
+      referenceRow.style.display = "none"; // Cacher le champ
+      if (!referenceInput.value) {
+        referenceInput.value = generateReference(); // Générer si vide
+      }
+    } else {
+      referenceRow.style.display = "flex"; // Réafficher
+    }
+  }
+
+  methodeSelect.addEventListener("change", toggleReferenceField);
+  toggleReferenceField(); // Initialiser au chargement
+});
+</script>
+
+
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
