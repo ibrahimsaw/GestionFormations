@@ -1,4 +1,5 @@
 {% load widget_tweaks %}
+
 <!-- Libellé -->
 <div class="row mb-3">
   <label for="{{ form.libelle.id_for_label }}" class="col-sm-2 col-form-label">Libellé</label>
@@ -7,19 +8,16 @@
   </div>
 </div>
 
-<!-- Description (si "AUTRE") -->
-{% if form.libelle.value == "AUTRE" %}
-  <div class="row mb-3">
-    <label for="description" class="col-sm-2 col-form-label">Description</label>
-    <div class="col-sm-10">
-      <input type="text" name="description" id="description" class="form-control" placeholder="Saisir une description...">
-    </div>
+<!-- Description (affiché dynamiquement si "AUTRE") -->
+<div class="row mb-3" id="description_field" style="display: none;">
+  <label for="id_description" class="col-sm-2 col-form-label">Description</label>
+  <div class="col-sm-10">
+    <input type="text" name="description" id="id_description" class="form-control" placeholder="Saisir une description...">
   </div>
-{% endif %}
+</div>
 
 <!-- Champs conditionnels : année, formation, classes -->
 <div id="classe_fields" style="display: none;">
-  <!-- Champs cachés -->
   <input type="hidden" name="annee_id" id="hidden_annee">
   <input type="hidden" name="formation_id" id="hidden_formation">
 
@@ -94,9 +92,12 @@
     </div>
   </div>
 </div>
-			 <script>
+
+<script>
 document.addEventListener("DOMContentLoaded", function () {
   const libelleField = document.getElementById("id_libelle");
+  const descriptionField = document.getElementById("description_field");
+  const descriptionInput = document.getElementById("id_description");
   const classeFields = document.getElementById("classe_fields");
   const montantInput = document.getElementById("id_montant");
   const anneeSelect = document.getElementById("annee_select");
@@ -107,36 +108,21 @@ document.addEventListener("DOMContentLoaded", function () {
   const hiddenFormation = document.getElementById("hidden_formation");
   const applyBtn = document.getElementById("apply_global");
   const globalInput = document.getElementById("montant_global");
-  const descriptionField = document.getElementById("description_field");
 
-    function toggleDescription() {
-        if (libelleField.value === "AUTRE") {
-            descriptionField.style.display = "block";
-        } else {
-            descriptionField.style.display = "none";
-            // Facultatif : vider la valeur quand on cache
-            document.getElementById("id_description").value = "";
-        }
-    }
-
-    libelleField.addEventListener("change", toggleDescription);
-    toggleDescription();  // appel au chargement pour gérer l'état initial
-
-  function formatNumberInput(input) {
-    if (input.value) {
-      input.value = parseFloat(input.value.replace(",", ".")).toFixed(2);
+  function toggleDescription() {
+    if (libelleField.value === "AUTRE") {
+      descriptionField.style.display = "flex"; // ou "block"
+    } else {
+      descriptionField.style.display = "none";
+      if (descriptionInput) descriptionInput.value = "";
     }
   }
 
   function toggleFields() {
     const libelleChoisi = libelleField.value;
     const showClasseSection = [
-      "SCOLARITE",
-      "INSCRIPTION",
-      "LABO",
-      "ASSURANCE",
-      "BIBLIOTHEQUE",
-      "AUTRE"
+      "SCOLARITE", "INSCRIPTION", "LABO",
+      "ASSURANCE", "BIBLIOTHEQUE", "AUTRE"
     ].includes(libelleChoisi);
 
     classeFields.style.display = showClasseSection ? "block" : "none";
@@ -147,7 +133,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  libelleField.addEventListener("change", toggleFields);
+  libelleField.addEventListener("change", () => {
+    toggleDescription();
+    toggleFields();
+  });
+
+  toggleDescription(); // Initialiser à l'ouverture
   toggleFields();
 
   anneeSelect.addEventListener("change", async function () {
@@ -215,12 +206,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Avant envoi, s'assurer que les champs montant-classe ne soient pas disabled
-  form.addEventListener("submit", function () {
+  form?.addEventListener("submit", function () {
     document.querySelectorAll(".montant-classe").forEach(input => {
       input.disabled = false;
     });
   });
-
 });
 </script>
