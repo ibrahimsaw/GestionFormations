@@ -1,0 +1,93 @@
+{% load widget_tweaks %}
+<div class="row mb-3">
+  <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant (par matricule)</label>
+  <div class="col-sm-10">
+    <select id="id_etudiant" name="etudiant" class="form-select select2-matricule" style="width: 100%;">
+      <option value="">Rechercher par matricule</option>
+    </select>
+  </div>
+</div>
+
+<!-- Étudiant -->
+<div class="row mb-3">
+  <label for="{{ form.etudiant.id_for_label }}" class="col-sm-2 col-form-label">Étudiant</label>
+  <div class="col-sm-10">
+    {{ form.etudiant|add_class:"form-select" }}
+    {% for error in form.etudiant.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Parcours -->
+<div class="row mb-3">
+  <label for="{{ form.parcours.id_for_label }}" class="col-sm-2 col-form-label">Parcours</label>
+  <div class="col-sm-10">
+    {{ form.parcours|add_class:"form-select" }}
+    {% for error in form.parcours.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Année académique -->
+<div class="row mb-3">
+  <label for="{{ form.annee_academique.id_for_label }}" class="col-sm-2 col-form-label">Année académique</label>
+  <div class="col-sm-10">
+    {{ form.annee_academique|add_class:"form-select" }}
+    {% for error in form.annee_academique.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Classe -->
+<div class="row mb-3">
+  <label for="{{ form.classe.id_for_label }}" class="col-sm-2 col-form-label">Classe</label>
+  <div class="col-sm-10">
+    {{ form.classe|add_class:"form-select" }}
+    {% for error in form.classe.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Statut -->
+<div class="row mb-3">
+  <label for="{{ form.statut.id_for_label }}" class="col-sm-2 col-form-label">Statut</label>
+  <div class="col-sm-10">
+    {{ form.statut|add_class:"form-select" }}
+    {% for error in form.statut.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+<script>
+$(document).ready(function () {
+  $('.select2-matricule').select2({
+    placeholder: 'Entrez un matricule...',
+    minimumInputLength: 2,
+    ajax: {
+      url: '{% url "finance:etudiant-search-matricule" %}',
+      dataType: 'json',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term // terme tapé par l'utilisateur
+        };
+      },
+      processResults: function (data) {
+        return {
+          results: data.map(function (etu) {
+            return {
+              id: etu.id,
+              text: etu.matricule + " - " + etu.nom
+            };
+          })
+        };
+      },
+      cache: true
+    }
+  });
+});
+</script>

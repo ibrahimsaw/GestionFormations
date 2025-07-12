@@ -43,38 +43,6 @@ class ScolariteBaseView(BaseContextView):
 
     def get_form_class(self):
         return self.model_mapping[self.model_type][1]
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        type_name = self.get_type_name()
-
-        context.update({
-            'bouton' : self.bouton,
-            'path' : self.path,
-            'titre_page' : self.titre_page,
-            'role_utilisateur': type_name,
-            'model_type': self.model_type,
-            'navbar': navbar,  # Assure-toi que 'navbar' est bien défini globalement
-            'page': self.page,
-            'message_debug': self.message,  # Optionnel : pour affichage dans le template
-            'breadcrumb': self.breadcrumb,
-        })
-        return context
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     _, _, titre = self.model_mapping[self.model_type]
-    #     context.update({
-    #         'role' : self.model_type,
-    #         'titre_formulaire': f"{titre} - Formulaire",
-    #         'titre_liste': f"Liste des {titre}s",
-    #         'titre_detail': f"Détails {titre}",
-    #         'titre_suppression': f"Supprimer {titre}",
-    #         'fonction': f"Créer un {titre}",
-    #         'bouttonvalide': "Valider",
-    #         'model_type': self.model_type
-    #
-    #     })
-    #     return context
 
     def get_type_name(self):
         type_info = self.model_mapping.get(self.model_type)
@@ -185,9 +153,22 @@ class ScolariteBaseView(BaseContextView):
             })
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        type_name = self.get_type_name()
 
-
-
+        context.update({
+            'bouton': self.bouton,
+            'path': self.path,
+            'titre_page': self.titre_page,
+            'role_utilisateur': type_name,
+            'model_type': self.model_type,
+            'navbar': navbar,  # Assure-toi que 'navbar' est bien défini globalement
+            'page': self.page,
+            'message_debug': self.message,  # Optionnel : pour affichage dans le template
+            'breadcrumb': self.breadcrumb,
+        })
+        return context
 
 
 class ScolariteCreateView(ScolariteBaseView, CreateView):
@@ -334,6 +315,25 @@ def montant_restant_pour_frais(request):
     except (Etudiant.DoesNotExist, Frais.DoesNotExist):
         return JsonResponse({"error": "Etudiant ou frais introuvable"}, status=404)
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def search_etudiant_by_matricule(request):
+    q = request.GET.get('q', '')
+    results = []
+
+    if q:
+        queryset = Etudiant.objects.filter(utilisateur__matricule__icontains=q)[:10]
+        results = [{
+            'id': e.id,
+            'matricule': e.utilisateur.matricule,
+            'nom': str(e.utilisateur)
+        } for e in queryset]
+
+    return JsonResponse(results, safe=False)
+
 
 
 
@@ -346,6 +346,28 @@ class ScolariteListView(ScolariteBaseView, ListView):
 
     def get_queryset(self):
         return self.get_model_class().objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Génère le dictionnaire { "Inscrit": queryset, ... }
+        context['inscriptions_by_statut'] = {
+            label: Inscription.objects.filter(statut=code)
+            .select_related('etudiant', 'classe', 'annee_academique', 'parcours')
+            for code, label in Inscription.STATUT_CHOICES
+        }
+        context['frais_par_libelle'] = {
+            label: Frais.objects.filter(libelle=code)
+            .select_related('classe')
+            for code, label in Frais.LIBELLE_CHOICES
+        }
+        context['paiements_par_methode'] = {
+            label: Paiement.objects.filter(methode=code)
+            .select_related('etudiant', 'frais', 'frais__classe')
+            for code, label in Paiement.MethodePaiement.choices
+        }
+
+        return context
 
 
 class ScolariteDetailView(ScolariteBaseView, DetailView):
