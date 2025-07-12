@@ -43,6 +43,39 @@ class ScolariteBaseView(BaseContextView):
 
     def get_form_class(self):
         return self.model_mapping[self.model_type][1]
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        type_name = self.get_type_name()
+
+        context.update({
+            'bouton' : self.bouton,
+            'buttonName': self.bouton,
+            'path' : self.path,
+            'titre_page' : self.titre_page,
+            'role_utilisateur': type_name,
+            'model_type': self.model_type,
+            'navbar': navbar,  # Assure-toi que 'navbar' est bien défini globalement
+            'page': self.page,
+            'message_debug': self.message,  # Optionnel : pour affichage dans le template
+            'breadcrumb': self.breadcrumb,
+        })
+        return context
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     _, _, titre = self.model_mapping[self.model_type]
+    #     context.update({
+    #         'role' : self.model_type,
+    #         'titre_formulaire': f"{titre} - Formulaire",
+    #         'titre_liste': f"Liste des {titre}s",
+    #         'titre_detail': f"Détails {titre}",
+    #         'titre_suppression': f"Supprimer {titre}",
+    #         'fonction': f"Créer un {titre}",
+    #         'bouttonvalide': "Valider",
+    #         'model_type': self.model_type
+    #
+    #     })
+    #     return context
 
     def get_type_name(self):
         type_info = self.model_mapping.get(self.model_type)
@@ -153,22 +186,9 @@ class ScolariteBaseView(BaseContextView):
             })
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        type_name = self.get_type_name()
 
-        context.update({
-            'bouton': self.bouton,
-            'path': self.path,
-            'titre_page': self.titre_page,
-            'role_utilisateur': type_name,
-            'model_type': self.model_type,
-            'navbar': navbar,  # Assure-toi que 'navbar' est bien défini globalement
-            'page': self.page,
-            'message_debug': self.message,  # Optionnel : pour affichage dans le template
-            'breadcrumb': self.breadcrumb,
-        })
-        return context
+
+
 
 
 class ScolariteCreateView(ScolariteBaseView, CreateView):
@@ -368,7 +388,6 @@ class ScolariteListView(ScolariteBaseView, ListView):
         }
 
         return context
-
 
 class ScolariteDetailView(ScolariteBaseView, DetailView):
     def get_template_names(self):
