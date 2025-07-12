@@ -35,6 +35,7 @@ class ScolariteBaseView(BaseContextView):
         'frais': (Frais, FraisForm, "Frais"),
         'paiement': (Paiement, PaiementForm, "Paiement"),
         'inscription': (Inscription, EtudiantInscriptionForm, "Statut de l'inscription"),
+        'reinscription': (Inscription, InscriptionForm, "Réinscription"),
     }
 
     def get_model_class(self):
