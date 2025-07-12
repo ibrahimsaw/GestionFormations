@@ -28,6 +28,7 @@ urlpatterns = [
     path('finance/', include('Finance.urls')),
     path('permissions/', include('Permissions_Manager.urls')),
     path('formation/', include('Formation.urls',namespace='formation')),
+    path('select2/', include('django_select2.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

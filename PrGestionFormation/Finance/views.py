@@ -34,8 +34,7 @@ class ScolariteBaseView(BaseContextView):
     model_mapping = {
         'frais': (Frais, FraisForm, "Frais"),
         'paiement': (Paiement, PaiementForm, "Paiement"),
-        'inscription': (Inscription, EtudiantInscriptionForm, "Statut de l'inscription"),
-        'reinscription': (Inscription, InscriptionForm, "Réinscription"),
+        'reinscription': (Inscription, InscriptionForm, "Statut de l'inscription"),
     }
 
     def get_model_class(self):

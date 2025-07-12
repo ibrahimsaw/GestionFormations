@@ -784,7 +784,7 @@ class Etudiant(models.Model):
     )
 
     def __str__(self):
-        return str(self.utilisateur)
+        return f"{self.utilisateur.matricule} – {self.utilisateur.last_name} {self.utilisateur.first_name}"
 
     @property
     def classe_actuelle(self):

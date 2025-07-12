@@ -44,6 +44,21 @@ class InscriptionForm(forms.ModelForm):
             'date_inscription': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Retirer "inscrit" des choix de statut
+        self.fields['statut'].choices = [
+            (val, label)
+            for val, label in self.fields['statut'].choices
+            if val != Inscription.STATUT_INSCRIT
+        ]
+
+        # Appliquer Bootstrap à tous les champs
+        for champ, field in self.fields.items():
+            if champ != 'statut':
+                field.widget.attrs['class'] = 'form-control'
+
 
 class PaiementForm(forms.ModelForm):
     class Meta:

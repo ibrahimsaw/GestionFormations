@@ -110,16 +110,30 @@ class Notification(models.Model):
 
 
 class Inscription(models.Model):
-    STATUT_INSCRIT = 'inscrit'
-    STATUT_REINSCRIT = 'reinscrit'
-    STATUT_ABANDON = 'abandon'
-    STATUT_SUSPENDU = 'suspendu'
+    STATUT_INSCRIT = 'inscrit'  # Première inscription
+    STATUT_REINSCRIT = 'reinscrit'  # Réinscription normale
+    STATUT_ABANDON = 'abandon'  # L’étudiant a quitté définitivement
+    STATUT_SUSPENDU = 'suspendu'  # Suspendu temporairement (discipline ou santé)
+    STATUT_EXCLU = 'exclu'  # Exclusion disciplinaire
+    STATUT_DEMISSION = 'demission'  # A quitté volontairement l’établissement
+    STATUT_EN_ATTENTE = 'en_attente'  # En attente de validation de dossier
+    STATUT_TRANSFERT = 'transfert'  # Transféré vers un autre établissement
+    STATUT_DIPLOME = 'diplome'  # A terminé son cursus avec succès
+    STATUT_REDUIRE = 'redoublant'  # Redouble sa classe
+    STATUT_RESERVISTE = 'reserviste'  # A payé mais n’a pas encore finalisé l’inscription
 
     STATUT_CHOICES = [
         (STATUT_INSCRIT, 'Inscrit'),
         (STATUT_REINSCRIT, 'Réinscrit'),
         (STATUT_ABANDON, 'Abandon'),
         (STATUT_SUSPENDU, 'Suspendu'),
+        (STATUT_EXCLU, 'Exclu'),
+        (STATUT_DEMISSION, 'Démissionnaire'),
+        (STATUT_EN_ATTENTE, 'En attente de validation'),
+        (STATUT_TRANSFERT, 'Transféré'),
+        (STATUT_DIPLOME, 'Diplômé'),
+        (STATUT_REDUIRE, 'Redoublant'),
+        (STATUT_RESERVISTE, 'Réserviste'),
     ]
 
     etudiant = models.ForeignKey(

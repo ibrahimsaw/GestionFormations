@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'Formation',
     'Permissions_Manager',
     'widget_tweaks',
+    'django_select2',
 ]
 
 MIDDLEWARE = [
