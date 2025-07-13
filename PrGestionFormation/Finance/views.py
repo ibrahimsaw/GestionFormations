@@ -287,8 +287,33 @@ class ScolariteCreateView(ScolariteBaseView, CreateView):
             messages.success(request, f"{created_count} frais créés, {updated_count} frais mis à jour.")
             return redirect('finance:scolarite-list', type='frais')
 
-        print("🔁 Redirection vers post parent")
-        return super().post(request, *args, **kwargs)
+
+        elif self.model_type == 'reinscription':
+            form = self.get_form()
+            if form.is_valid():
+                inscription = form.save(commit=False)
+                print("📌 Statut sélectionné :", inscription.statut)
+                # 👇 Logique personnalisée selon le statut
+                if inscription.statut == Inscription.STATUT_REINSCRIT:
+
+                    print("🔁 Traitement pour réinscription")
+                    # Par exemple : changer de classe ou autre logique ici
+
+                elif inscription.statut == Inscription.STATUT_DIPLOME:
+                    print("🎓 L’étudiant est diplômé")
+                # Tu peux aussi ajouter d'autres logiques selon le statut
+                inscription.save()
+                self.object = inscription
+                return redirect(self.get_success_url())
+
+            else:
+                print("❌ Formulaire invalide")
+                print(form.errors)
+                return self.form_invalid(form)
+
+        else:
+            print("🔁 Redirection vers post parent")
+            return super().post(request, *args, **kwargs)
 
 from django.http import JsonResponse
 

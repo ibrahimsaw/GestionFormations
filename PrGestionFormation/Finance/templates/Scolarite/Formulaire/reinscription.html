@@ -1,46 +1,133 @@
 {% load widget_tweaks %}
-<!-- Barre de recherche (par matricule) -->
-<div class="row mb-3">
-  <label for="searchEtudiants" class="col-sm-2 col-form-label">Rechercher Étudiant</label>
-  <div class="col-sm-10">
-    <div class="input-group">
-      <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-      <input type="text" class="form-control" id="searchEtudiants" placeholder="Tapez un matricule...">
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <!-- Affichage des erreurs globales du formulaire -->
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      {% for error in form.non_field_errors %}
+        <div>⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Statut -->
+  <div class="row mb-3">
+    <label for="{{ form.statut.id_for_label }}" class="col-sm-2 col-form-label">Statut</label>
+    <div class="col-sm-10">
+      {{ form.statut|add_class:"form-select" }}
+      {% for error in form.statut.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
     </div>
   </div>
-</div>
 
-<!-- Étudiant (select filtré) -->
-<div class="row mb-3">
-  <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant</label>
-  <div class="col-sm-10">
-    {{ form.etudiant|add_class:"form-select" }}
-    {% for error in form.etudiant.errors %}
-      <div class="text-danger small">⚠️ {{ error }}</div>
-    {% endfor %}
+  <!-- Barre de recherche (par matricule) -->
+  <div class="row mb-3">
+    <label for="searchEtudiants" class="col-sm-2 col-form-label">Rechercher Étudiant</label>
+    <div class="col-sm-10">
+      <div class="input-group">
+        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" id="searchEtudiants" placeholder="Tapez un matricule...">
+      </div>
+    </div>
   </div>
-</div>
 
+  <!-- Étudiant (select filtré) -->
+  <div class="row mb-3">
+    <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant</label>
+    <div class="col-sm-10">
+      {{ form.etudiant|add_class:"form-select" }}
+      {% for error in form.etudiant.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Année académique -->
+  <div class="col-md-4 mb-3">
+    <label class="col-sm-12 col-form-label fw-semibold">Année académique</label>
+    <div class="col-sm-12">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text bg-light"><i class="bx bx-calendar-alt"></i></span>
+        <select id="id_annee" name="annee_academique" class="form-select">
+          {% for value, label in form.annee_academique.field.choices %}
+            <option value="{{ value }}" {% if form.annee_academique.value == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if form.annee_academique.errors %}
+        <div class="text-danger small mt-1">
+          {% for error in form.annee_academique.errors %}
+            <div>⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Parcours -->
+  <div class="col-md-4 mb-3">
+    <label class="col-sm-12 col-form-label fw-semibold">Parcours</label>
+    <div class="col-sm-12">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text bg-light"><i class="bx bx-book"></i></span>
+        <select id="id_parcours" name="parcours" class="form-select">
+          <option value="">---------</option>
+        </select>
+      </div>
+      {% if form.parcours.errors %}
+        <div class="text-danger small mt-1">
+          {% for error in form.parcours.errors %}
+            <div>⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Classe -->
+  <div class="col-md-4 mb-3">
+    <label class="col-sm-12 col-form-label fw-semibold">Classe</label>
+    <div class="col-sm-12">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text bg-light"><i class="bx bx-group"></i></span>
+        <select id="id_classe" name="classe" class="form-select">
+          <option value="">---------</option>
+        </select>
+      </div>
+      {% if form.classe.errors %}
+        <div class="text-danger small mt-1">
+          {% for error in form.classe.errors %}
+            <div>⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Bouton soumettre -->
+  <div class="text-center mt-4">
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+  </div>
+</form>
+
+<!-- JS pour recherche étudiant -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const searchInput = document.getElementById('searchEtudiants');
   const selectEtudiant = document.getElementById('id_etudiant');
-
-  // Sauvegarde originale des options
   const originalOptions = Array.from(selectEtudiant.options);
 
   searchInput.addEventListener('input', function () {
     const searchValue = this.value.toLowerCase().trim();
-
-    // Efface les options actuelles
     selectEtudiant.innerHTML = '';
 
-    // Remet uniquement les options correspondantes
     const filtered = originalOptions.filter(opt =>
       opt.text.toLowerCase().includes(searchValue)
     );
 
-    // Si aucune correspondance, on met une option vide
     if (filtered.length === 0) {
       const option = document.createElement('option');
       option.text = '-- Aucun résultat --';
@@ -53,74 +140,55 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<!-- Année académique -->
-<div class="row mb-3">
-  <label for="{{ form.annee_academique.id_for_label }}" class="col-sm-2 col-form-label">Année académique</label>
-  <div class="col-sm-10">
-    {{ form.annee_academique|add_class:"form-select" }}
-    {% for error in form.annee_academique.errors %}
-      <div class="text-danger small">⚠️ {{ error }}</div>
-    {% endfor %}
-  </div>
-</div>
-
-<!-- Parcours -->
-<div class="row mb-3">
-  <label for="{{ form.parcours.id_for_label }}" class="col-sm-2 col-form-label">Parcours</label>
-  <div class="col-sm-10">
-    {{ form.parcours|add_class:"form-select" }}
-    {% for error in form.parcours.errors %}
-      <div class="text-danger small">⚠️ {{ error }}</div>
-    {% endfor %}
-  </div>
-</div>
-
-<!-- Classe -->
-<div class="row mb-3">
-  <label for="{{ form.classe.id_for_label }}" class="col-sm-2 col-form-label">Classe</label>
-  <div class="col-sm-10">
-    {{ form.classe|add_class:"form-select" }}
-    {% for error in form.classe.errors %}
-      <div class="text-danger small">⚠️ {{ error }}</div>
-    {% endfor %}
-  </div>
-</div>
-
-<!-- Statut -->
-<div class="row mb-3">
-  <label for="{{ form.statut.id_for_label }}" class="col-sm-2 col-form-label">Statut</label>
-  <div class="col-sm-10">
-    {{ form.statut|add_class:"form-select" }}
-    {% for error in form.statut.errors %}
-      <div class="text-danger small">⚠️ {{ error }}</div>
-    {% endfor %}
-  </div>
-</div>
+<!-- JS pour chargement dynamique des parcours et classes -->
 <script>
-$(document).ready(function () {
-  $('.select2-matricule').select2({
-    placeholder: 'Entrez un matricule...',
-    minimumInputLength: 2,
-    ajax: {
-      url: '{% url "finance:etudiant-search-matricule" %}',
-      dataType: 'json',
-      delay: 250,
-      data: function (params) {
-        return {
-          q: params.term // terme tapé par l'utilisateur
-        };
-      },
-      processResults: function (data) {
-        return {
-          results: data.map(function (etu) {
-            return {
-              id: etu.id,
-              text: etu.matricule + " - " + etu.nom
-            };
-          })
-        };
-      },
-      cache: true
+document.addEventListener('DOMContentLoaded', function () {
+  const anneeSelect = document.getElementById('id_annee');
+  const parcoursSelect = document.getElementById('id_parcours');
+  const classeSelect = document.getElementById('id_classe');
+  let parcoursData = [];
+
+  function resetSelect(selectElement, placeholder = '---------') {
+    selectElement.innerHTML = '';
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = placeholder;
+    selectElement.appendChild(option);
+  }
+
+  anneeSelect.addEventListener('change', function () {
+    const anneeId = this.value;
+    resetSelect(parcoursSelect);
+    resetSelect(classeSelect);
+
+    if (!anneeId) return;
+
+    fetch("{% url 'utilisateur:get_parcours_options' %}?annee_academique=" + anneeId)
+      .then(response => response.json())
+      .then(data => {
+        parcoursData = data;
+        data.forEach(parcours => {
+          const option = new Option(parcours.nom, parcours.id);
+          parcoursSelect.add(option);
+        });
+      })
+      .catch(error => {
+        console.error("Erreur lors de la récupération des parcours :", error);
+      });
+  });
+
+  parcoursSelect.addEventListener('change', function () {
+    const parcoursId = this.value;
+    resetSelect(classeSelect);
+
+    if (!parcoursId) return;
+
+    const selectedParcours = parcoursData.find(p => p.id == parcoursId);
+    if (selectedParcours) {
+      selectedParcours.classes.forEach(classe => {
+        const option = new Option(classe.nom, classe.id);
+        classeSelect.add(option);
+      });
     }
   });
 });

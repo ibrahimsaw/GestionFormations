@@ -84,6 +84,7 @@ class Document(models.Model):
         COURS = 'CO', 'Support de cours'
         DEVOIR = 'DE', 'Devoir'
         ANNONCE = 'AN', 'Annonce'
+        INSCRIPTION= 'IN', 'Inscription'
 
     titre = models.CharField(max_length=200)
     fichier = models.FileField(upload_to='documents/')
@@ -149,6 +150,15 @@ class Inscription(models.Model):
         related_name="inscriptions"
     )
 
+    doucument = models.ForeignKey(
+        Document,
+        on_delete=models.CASCADE,
+        related_name="inscriptions",
+        blank=True,null=True
+    )
+
+    motif = models.TextField(blank=True, null=True)
+
     annee_academique = models.ForeignKey(
         AnneeAcademique,
         on_delete=models.CASCADE,
@@ -163,11 +173,15 @@ class Inscription(models.Model):
     )
 
     date_inscription = models.DateField(auto_now_add=True)
+    date_evenement = models.DateField(blank=True, null=True,
+                                      help_text="Date liée à l'événement (ex: exclusion, suspension, abandon, etc.)")
+    duree = models.PositiveIntegerField(blank=True, null=True, help_text="Durée en jours (ex: suspension)")
     statut = models.CharField(
         max_length=20,
         choices=STATUT_CHOICES,
         default='inscrit'
     )
+    resultat_annee_precedente = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         constraints = [
@@ -188,14 +202,20 @@ class Inscription(models.Model):
     def clean(self):
         """Validation des données avant enregistrement"""
         super().clean()
+        print("Statut :", self.statut)
 
-        # Vérifie que la classe correspond au parcours et à l'année académique
-        if not self.classe.formation.parcours == self.parcours:
-            raise ValidationError(
-                "La classe sélectionnée ne fait pas partie du parcours choisi."
-            )
+        if self.statut == self.STATUT_INSCRIT:
+            print("✅ Première inscription")
+            # Vérifie que la classe correspond au parcours et à l'année académique
+            print("Le parcours de la Classe :", self.classe.formation.parcours)
+            print("le Parcours :", self.parcours)
+            if not self.classe.formation.parcours == self.parcours:
+                raise ValidationError(
+                    "La classe sélectionnée ne fait pas partie du parcours choisi."
+                )
 
-        if not self.classe.annee_academique == self.annee_academique:
-            raise ValidationError(
-                "La classe sélectionnée ne fait pas partie de l'année académique choisie."
-            )
+            if not self.classe.annee_academique == self.annee_academique:
+                raise ValidationError(
+                    "La classe sélectionnée ne fait pas partie de l'année académique choisie."
+                )
+
