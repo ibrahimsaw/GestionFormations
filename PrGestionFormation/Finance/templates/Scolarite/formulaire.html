@@ -53,11 +53,13 @@
 			  </div>
 			{% endfor %}
 		  {% endif %}
+		    {% if model_type %}
 		     <div class="text-center">
 			   <div class="alert bg-primary">
 				 <h5 class="mb-0 text-white">Formulaire de {{ titre_page }}</h5>
 			   </div>
 			 </div>
+		   {% endif %}
             <form method="post" id="scolariteForm" enctype="multipart/form-data" novalidate>
               {% csrf_token %}
               {% if model_type == 'frais' %}

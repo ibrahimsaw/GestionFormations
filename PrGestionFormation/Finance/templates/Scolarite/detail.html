@@ -1,15 +1,291 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block content %}
-  <h2>{{ titre_detail }}</h2>
-  <p>{{ object }}</p>
-<div class="fixed-action-buttons">
-    <a href="{% url 'finance:scolarite-list' type=model_type %}" class="btn btn-list">
-        <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
-    </a>
-    <a href="{% url 'finance:scolarite-create' type=model_type %}" class="btn btn-add">
-        <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
-    </a>
-</div>
-  <a href="{% url 'finance:scolarite-update' type=model_type pk=object.pk %}">Modifier</a>
-  <a href="{% url 'finance:scolarite-delete' type=model_type pk=object.pk %}">Supprimer</a>
+
+    <!-- Header avec breadcrumb dynamique -->
+ <div class="d-sm-flex align-items-center justify-content-between">
+	 <h6 class="text-muted">{{ titre_page }} </h6>
+	 <nav aria-label="breadcrumb" class="d-none d-sm-block">
+		  <ol class="breadcrumb">
+			{% for item in breadcrumb %}
+			  {% if item.is_last %}
+				<li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+			  {% elif item.is_first %}
+				<li class="breadcrumb-item">{{ item.name }} </li>
+			  {% else %}
+				<li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+			  {% endif %}
+			{% endfor %}
+		  </ol>
+	  </nav>
+	</div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+       <a href="" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+        <div>
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="actionsMenu" data-bs-toggle="dropdown">
+                    <i class="bi bi-gear"></i> Actions
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="">
+                        <i class="bi bi-pencil me-2"></i>Modifier
+                    </a></li>
+                    <li><a class="dropdown-item" href="">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        {% if model_type == 'paiement' %}Nouveau paiement
+                        {% elif model_type == 'reinscription' %}Nouvelle réinscription
+                        {% else %}Ajouter{% endif %}
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="">
+                        <i class="bi bi-trash me-2"></i>Supprimer
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte principale -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                <div class="mb-2 mb-md-0">
+                    <h2 class="h5 mb-1">
+                        {% if model_type == 'paiement' %}
+                            Paiement #{{ object.reference }}
+                        {% elif model_type == 'reinscription' %}
+                            {{ object.etudiant }} (Réinscription)
+                        {% else %}
+                            {{ object.get_libelle_display }}
+                        {% endif %}
+                    </h2>
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <!-- Badge statut -->
+                        {% if model_type == 'paiement' %}
+                            <span class="badge bg-{% if object.methode == 'ES' %}warning{% elif object.methode == 'CB' %}success{% else %}info{% endif %}">
+                                {{ object.get_methode_display }}
+                            </span>
+                        {% elif model_type == 'reinscription' %}
+                            <span class="badge {% if object.statut == 'inscrit' %}bg-success
+                                              {% elif object.statut == 'reinscrit' %}bg-primary
+                                              {% elif object.statut == 'diplome' %}bg-info
+                                              {% elif object.statut == 'abandon' or object.statut == 'exclu' or object.statut == 'demission' %}bg-danger
+                                              {% else %}bg-warning{% endif %}">
+                                {{ object.get_statut_display }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-{% if object.recurrent %}success{% else %}info{% endif %}">
+                                {{ object.get_recurrent_display }}
+                            </span>
+                        {% endif %}
+
+                        <!-- Info complémentaire -->
+                        <small class="text-muted">
+                            <i class="bi
+                                {% if model_type == 'paiement' %}bi-person-fill
+                                {% elif model_type == 'reinscription' %}bi-calendar
+                                {% else %}bi-people-fill{% endif %} me-1"></i>
+                            {% if model_type == 'paiement' %}
+                                {{ object.etudiant }}
+                            {% elif model_type == 'reinscription' %}
+                                {{ object.date_inscription|date:"d/m/Y" }}
+                            {% else %}
+                                {{ object.classe }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                <div class="mt-2 mt-md-0">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <div class="text-end">
+                            <small class="text-muted d-block">
+                                {% if model_type == 'paiement' %}Montant payé
+                                {% elif model_type == 'reinscription' %}Année académique
+                                {% else %}Montant total{% endif %}
+                            </small>
+                            <span class="h3
+                                {% if model_type == 'reinscription' %}text-dark{% else %}text-primary{% endif %} fw-bold">
+                                {% if model_type == 'paiement' %}
+                                    {{ object.montant|floatformat:2 }} FCFA
+                                {% elif model_type == 'reinscription' %}
+                                    {{ object.annee_academique }}
+                                {% else %}
+                                    {{ object.get_montant_display }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Section spécifique à chaque modèle -->
+                    {% if model_type == 'paiement' %}
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="h6 text-muted mb-3">Détails du paiement</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-5">Frais concerné :</dt>
+                                    <dd class="col-sm-7">{{ object.frais }}</dd>
+                                    
+                                    <dt class="col-sm-5">Date paiement :</dt>
+                                    <dd class="col-sm-7">{{ object.date_paiement|date:"d/m/Y H:i" }}</dd>
+                                    
+                                    <dt class="col-sm-5">Référence :</dt>
+                                    <dd class="col-sm-7"><code>{{ object.reference }}</code></dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="h6 text-muted mb-3">Informations étudiant</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-5">Matricule :</dt>
+                                    <dd class="col-sm-7">{{ object.etudiant.matricule }}</dd>
+                                    
+                                    <dt class="col-sm-5">Classe :</dt>
+                                    <dd class="col-sm-7">{{ object.etudiant.classe }}</dd>
+                                    
+                                    <dt class="col-sm-5">Contact :</dt>
+                                    <dd class="col-sm-7">{{ object.etudiant.telephone|default:"-" }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    {% elif model_type == 'reinscription' %}
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="h6 text-muted mb-3">Informations académiques</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-5">Classe :</dt>
+                                    <dd class="col-sm-7">{{ object.classe }}</dd>
+                                    
+                                    <dt class="col-sm-5">Parcours :</dt>
+                                    <dd class="col-sm-7">{{ object.parcours }}</dd>
+                                    
+                                    <dt class="col-sm-5">Type formation :</dt>
+                                    <dd class="col-sm-7">{{ object.type_formation }}</dd>
+                                    
+                                    <dt class="col-sm-5">Résultat précédent :</dt>
+                                    <dd class="col-sm-7">{{ object.resultat_annee_precedente|default:"-" }}</dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="h6 text-muted mb-3">Détails statut</h5>
+                                <dl class="row">
+                                    {% if object.date_evenement %}
+                                    <dt class="col-sm-5">Date événement :</dt>
+                                    <dd class="col-sm-7">{{ object.date_evenement|date:"d/m/Y" }}</dd>
+                                    {% endif %}
+                                    
+                                    {% if object.duree %}
+                                    <dt class="col-sm-5">Durée :</dt>
+                                    <dd class="col-sm-7">{{ object.duree }} jours</dd>
+                                    {% endif %}
+                                    
+                                    {% if object.motif %}
+                                    <dt class="col-sm-5">Motif :</dt>
+                                    <dd class="col-sm-7">{{ object.motif|truncatechars:30 }}</dd>
+                                    {% endif %}
+                                </dl>
+                            </div>
+                        </div>
+
+                        {% if object.document %}
+                        <div class="border-top pt-3">
+                            <h5 class="h6 text-muted mb-3">Document associé</h5>
+                            <div class="d-flex align-items-center bg-light p-3 rounded">
+                                <i class="bi bi-file-earmark-text fs-3 me-3"></i>
+                                <div>
+                                    <a href="{{ object.document.fichier.url }}" class="d-block fw-bold">
+                                        {{ object.document.nom }}
+                                    </a>
+                                    <small class="text-muted">Uploadé le {{ object.document.date_upload|date:"d/m/Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        {% if object.description %}
+                        <div class="mb-4">
+                            <h5 class="h6 text-muted mb-3">Description</h5>
+                            <div class="p-3 bg-light rounded">
+                                <p class="mb-0">{{ object.description|linebreaksbr }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex flex-wrap gap-3 mb-3">
+                            <div class="border rounded p-3 flex-grow-1">
+                                <small class="text-muted d-block">Date création</small>
+                                <span class="fw-bold">{{ object.created_at|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <div class="border rounded p-3 flex-grow-1">
+                                <small class="text-muted d-block">Dernière modification</small>
+                                <span class="fw-bold">{{ object.updated_at|date:"d/m/Y H:i" }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <div class="sticky-md-top" style="top: 20px;">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h5 class="h6 text-muted mb-3">Actions rapides</h5>
+                                <div class="d-grid gap-2">
+                                    <a href=""
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>
+                                        {% if model_type == 'reinscription' %}Modifier statut{% else %}Modifier{% endif %}
+                                    </a>
+                                    <a href=""
+                                       class="btn btn-success btn-sm">
+                                        <i class="bi bi-plus-circle me-1"></i>
+                                        {% if model_type == 'paiement' %}Nouveau paiement
+                                        {% elif model_type == 'reinscription' %}Nouvelle réinscription
+                                        {% else %}Ajouter{% endif %}
+                                    </a>
+                                    {% if model_type == 'paiement' or model_type == 'reinscription' %}
+                                    <a href="#" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-printer me-1"></i>
+                                        {% if model_type == 'paiement' %}Imprimer reçu{% else %}Attestation{% endif %}
+                                    </a>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mt-4 pt-3 border-top">
+                                    <h5 class="h6 text-muted mb-3">
+                                        {% if model_type == 'reinscription' %}Statut académique{% else %}Statut{% endif %}
+                                    </h5>
+                                    <div class="alert
+                                        {% if model_type == 'paiement' %}alert-success
+                                        {% elif model_type == 'reinscription' %}
+                                            {% if object.statut == 'diplome' %}alert-success
+                                            {% elif object.statut == 'abandon' or object.statut == 'exclu' or object.statut == 'demission' %}alert-danger
+                                            {% else %}alert-info{% endif %}
+                                        {% else %}alert-info{% endif %} mb-0">
+                                        <i class="bi
+                                            {% if model_type == 'paiement' %}bi-check-circle-fill
+                                            {% elif model_type == 'reinscription' %}
+                                                {% if object.statut == 'diplome' %}bi-check-circle-fill
+                                                {% elif object.statut == 'abandon' or object.statut == 'exclu' or object.statut == 'demission' %}bi-x-circle-fill
+                                                {% else %}bi-info-circle-fill{% endif %}
+                                            {% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                                        {% if model_type == 'paiement' %}Paiement validé
+                                        {% elif model_type == 'reinscription' %}{{ object.get_statut_display }}
+                                        {% else %}Actif{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

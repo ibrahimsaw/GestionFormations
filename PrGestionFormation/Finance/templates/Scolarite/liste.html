@@ -34,12 +34,13 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if model_type == 'inscription' %}active{% endif %}"
-               href="{% url 'finance:scolarite-list' 'inscription' %}">
+            <a class="nav-link {% if model_type == 'reinscription' %}active{% endif %}"
+               href="{% url 'finance:scolarite-list' 'reinscription' %}">
               <i class="tf-icons bx bx-book"></i> Statut de l'inscription
             </a>
           </li>
         </ul>
+ {% if model_type %}
 <div class="col">
   <div class="card shadow-sm h-100">
     <!-- En-tête -->
@@ -239,6 +240,13 @@
     </div>
   </div>
 </div>
+   {% else %}
+  <div class="tab-content">
+	  <div class="tab-pane fade show active">
+		  <div class="alert alert-info"> Choisissez une option en cliquant sur le bouton correspondant.</div>
+	  </div>
+  </div>
+  {% endif %}
 
 <!-- Script de filtrage -->
 <script>
