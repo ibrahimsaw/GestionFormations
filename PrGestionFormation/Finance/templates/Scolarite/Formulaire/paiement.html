@@ -17,6 +17,17 @@
 	  </div>
   </div>
 
+<!-- Barre de recherche (par matricule) -->
+  <div class="row mb-3">
+    <label for="searchEtudiants" class="col-sm-2 col-form-label">Rechercher Étudiant</label>
+    <div class="col-sm-10">
+      <div class="input-group">
+        <span class="input-group-text bg-light"><i class="bx bx-search"></i></span>
+        <input type="text" class="form-control" id="searchEtudiants" placeholder="Tapez un matricule...">
+      </div>
+    </div>
+  </div>
+
 
   <!-- Étudiant (Select2 + id forcé) -->
   <div class="row mb-3">
@@ -28,6 +39,7 @@
       {% endfor %}
     </div>
   </div>
+
 
   <!-- Frais (remplissage dynamique) -->
   <div class="row mb-3">
@@ -84,6 +96,30 @@
 
 <!-- Script JS pour masquer dynamiquement -->
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const searchInput = document.getElementById('searchEtudiants');
+  const selectEtudiant = document.getElementById('id_etudiant');
+  const originalOptions = Array.from(selectEtudiant.options);
+
+  searchInput.addEventListener('input', function () {
+    const searchValue = this.value.toLowerCase().trim();
+    selectEtudiant.innerHTML = '';
+
+    const filtered = originalOptions.filter(opt =>
+      opt.text.toLowerCase().includes(searchValue)
+    );
+
+    if (filtered.length === 0) {
+      const option = document.createElement('option');
+      option.text = '-- Aucun résultat --';
+      option.disabled = true;
+      selectEtudiant.add(option);
+    } else {
+      filtered.forEach(option => selectEtudiant.add(option));
+    }
+  });
+});
+
 
   document.addEventListener("DOMContentLoaded", function () {
     const methodeSelect = document.getElementById("id_methode");
