@@ -57,7 +57,7 @@
                         {% if model_type == 'paiement' %}
                             Paiement #{{ object.reference }}
                         {% elif model_type == 'reinscription' %}
-                            {{ object.etudiant }} (Réinscription)
+                            {{ object.etudiant }}
                         {% else %}
                             {{ object.get_libelle_display }}
                         {% endif %}
@@ -132,7 +132,7 @@
                                 <h5 class="h6 text-muted mb-3">Détails du paiement</h5>
                                 <dl class="row">
                                     <dt class="col-sm-5">Frais concerné :</dt>
-                                    <dd class="col-sm-7">{{ object.frais }}</dd>
+                                    <dd class="col-sm-7">{{ object.frais.libelle }}</dd>
                                     
                                     <dt class="col-sm-5">Date paiement :</dt>
                                     <dd class="col-sm-7">{{ object.date_paiement|date:"d/m/Y H:i" }}</dd>
@@ -145,13 +145,16 @@
                                 <h5 class="h6 text-muted mb-3">Informations étudiant</h5>
                                 <dl class="row">
                                     <dt class="col-sm-5">Matricule :</dt>
-                                    <dd class="col-sm-7">{{ object.etudiant.matricule }}</dd>
+                                    <dd class="col-sm-7">{{ object.etudiant.utilisateur.matricule }}</dd>
+								 
+								 	<dt class="col-sm-5">Nom & Prénom :</dt>
+                                    <dd class="col-sm-7">{{ object.etudiant.utilisateur.get_full_name }}</dd>
                                     
                                     <dt class="col-sm-5">Classe :</dt>
-                                    <dd class="col-sm-7">{{ object.etudiant.classe }}</dd>
+                                    <dd class="col-sm-7">{{ object.etudiant.classe_actuelle }}</dd>
                                     
                                     <dt class="col-sm-5">Contact :</dt>
-                                    <dd class="col-sm-7">{{ object.etudiant.telephone|default:"-" }}</dd>
+                                    <dd class="col-sm-7">Tel:{{ object.etudiant.utilisateur.telephone|default:"-" }} email:{{ object.etudiant.utilisateur.email|default:"-" }}</dd>
                                 </dl>
                             </div>
                         </div>
