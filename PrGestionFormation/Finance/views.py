@@ -142,6 +142,7 @@ class ScolariteBaseView(BaseContextView):
         configtitre_page = view_config.get(self.view_name, {
             'titre_page': config['label']
         })
+        print("Titre page :", configtitre_page['titre_page'])
 
         self.page = config['label']
         selected_template = config['template']
@@ -207,6 +208,11 @@ class ScolariteCreateView(ScolariteBaseView, CreateView):
             context['annees'] = AnneeAcademique.objects.all()
             context['formations'] = []
             context['classes'] = []
+        if self.model_type == 'reinscription':
+            if self.request.method == 'POST':
+                context['formset'] = DocumentInscriptionFormSet(self.request.POST, self.request.FILES)
+            else:
+                context['formset'] = DocumentInscriptionFormSet()
         return context
 
     def get_success_url(self):
@@ -290,27 +296,20 @@ class ScolariteCreateView(ScolariteBaseView, CreateView):
 
         elif self.model_type == 'reinscription':
             form = self.get_form()
+            formset = DocumentInscriptionFormSet(request.POST, request.FILES)
             if form.is_valid():
                 inscription = form.save(commit=False)
-                print("📌 Statut sélectionné :", inscription.statut)
-                # 👇 Logique personnalisée selon le statut
-                if inscription.statut == Inscription.STATUT_REINSCRIT:
-
-                    print("🔁 Traitement pour réinscription")
-                    # Par exemple : changer de classe ou autre logique ici
-
-                elif inscription.statut == Inscription.STATUT_DIPLOME:
-                    print("🎓 L’étudiant est diplômé")
-                # Tu peux aussi ajouter d'autres logiques selon le statut
-                inscription.save()
-                self.object = inscription
-                return redirect(self.get_success_url())
-
+                formset = DocumentInscriptionFormSet(request.POST, request.FILES, instance=inscription)
+                if formset.is_valid():
+                    inscription.save()
+                    formset.save()
+                    self.object = inscription
+                    return redirect(self.get_success_url())
+                else:
+                    print("❌ Formset invalide :", formset.errors)
             else:
-                print("❌ Formulaire invalide")
-                print(form.errors)
+                print("❌ Formulaire invalide :", form.errors)
                 return self.form_invalid(form)
-
         else:
             print("🔁 Redirection vers post parent")
             return super().post(request, *args, **kwargs)

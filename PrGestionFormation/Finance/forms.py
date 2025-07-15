@@ -36,6 +36,13 @@ class FraisForm(forms.ModelForm):
                 raise forms.ValidationError("Format invalide. Exemple: 15000.50")
         return montant
 
+
+
+from django import forms
+from .models import Inscription, DocumentInscription
+from django.forms.models import inlineformset_factory
+
+
 class InscriptionForm(forms.ModelForm):
     class Meta:
         model = Inscription
@@ -54,10 +61,24 @@ class InscriptionForm(forms.ModelForm):
             if val != Inscription.STATUT_INSCRIT
         ]
 
-        # Appliquer Bootstrap à tous les champs
+        # Appliquer Bootstrap à tous les champs sauf statut
         for champ, field in self.fields.items():
             if champ != 'statut':
                 field.widget.attrs['class'] = 'form-control'
+
+
+# 🔄 Formulaire pour DocumentInscription (1..N)
+DocumentInscriptionFormSet = inlineformset_factory(
+    Inscription,
+    DocumentInscription,
+    fields=('type_document', 'fichier'),
+    extra=3,  # Nombre de formulaires vides à afficher par défaut
+    can_delete=True,
+    widgets={
+        'type_document': forms.Select(attrs={'class': 'form-select'}),
+        'fichier': forms.FileInput(attrs={'class': 'form-control'}),
+    }
+)
 
 
 class PaiementForm(forms.ModelForm):

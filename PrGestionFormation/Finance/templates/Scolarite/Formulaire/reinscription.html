@@ -1,19 +1,10 @@
 {% load widget_tweaks %}
-<form method="post" novalidate>
+<form method="post" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
-
-  <!-- Affichage des erreurs globales du formulaire -->
-  {% if form.non_field_errors %}
-    <div class="alert alert-danger">
-      {% for error in form.non_field_errors %}
-        <div>⚠️ {{ error }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
 
   <!-- Statut -->
   <div class="row mb-3">
-    <label for="{{ form.statut.id_for_label }}" class="col-sm-2 col-form-label">Statut</label>
+    <label for="id_statut" class="col-sm-2 col-form-label">Statut</label>
     <div class="col-sm-10">
       {{ form.statut|add_class:"form-select" }}
       {% for error in form.statut.errors %}
@@ -21,20 +12,31 @@
       {% endfor %}
     </div>
   </div>
-
-  <!-- Barre de recherche (par matricule) -->
-  <div class="row mb-3">
-    <label for="searchEtudiants" class="col-sm-2 col-form-label">Rechercher Étudiant</label>
+ 
+   <!-- Date de l'événement -->
+  <div class="row mb-3" id="id_date_evenement_section">
+    <label for="id_date_evenement" class="col-sm-2 col-form-label">Date de l'événement</label>
     <div class="col-sm-10">
-      <div class="input-group">
-        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-        <input type="text" class="form-control" id="searchEtudiants" placeholder="Tapez un matricule...">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+        {{ form.date_evenement|add_class:"form-control" | attr:"placeholder=JJ/MM/AAAA" }}
       </div>
     </div>
   </div>
 
-  <!-- Étudiant (select filtré) -->
+  <!-- Recherche Étudiant -->
   <div class="row mb-3">
+    <label for="searchEtudiants" class="col-sm-2 col-form-label">Rechercher un étudiant (matricule)</label>
+    <div class="col-sm-10">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" id="searchEtudiants" class="form-control" placeholder="Entrer un matricule...">
+      </div>
+    </div>
+  </div>
+
+  <!-- Étudiant -->
+  <div class="row mb-3" id="id_etudiant_section">
     <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant</label>
     <div class="col-sm-10">
       {{ form.etudiant|add_class:"form-select" }}
@@ -45,150 +47,230 @@
   </div>
 
   <!-- Année académique -->
-  <div class="col-md-4 mb-3">
-    <label class="col-sm-12 col-form-label fw-semibold">Année académique</label>
-    <div class="col-sm-12">
-      <div class="input-group input-group-merge">
-        <span class="input-group-text bg-light"><i class="bx bx-calendar-alt"></i></span>
-        <select id="id_annee" name="annee_academique" class="form-select">
-          {% for value, label in form.annee_academique.field.choices %}
-            <option value="{{ value }}" {% if form.annee_academique.value == value %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      {% if form.annee_academique.errors %}
-        <div class="text-danger small mt-1">
-          {% for error in form.annee_academique.errors %}
-            <div>⚠️ {{ error }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
+  <div class="row mb-3" id="id_annee_section">
+    <label for="id_annee_academique" class="col-sm-2 col-form-label">Année académique</label>
+    <div class="col-sm-10">
+      {{ form.annee_academique|add_class:"form-select" }}
+      {% for error in form.annee_academique.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
     </div>
   </div>
 
   <!-- Parcours -->
-  <div class="col-md-4 mb-3">
-    <label class="col-sm-12 col-form-label fw-semibold">Parcours</label>
-    <div class="col-sm-12">
-      <div class="input-group input-group-merge">
-        <span class="input-group-text bg-light"><i class="bx bx-book"></i></span>
-        <select id="id_parcours" name="parcours" class="form-select">
-          <option value="">---------</option>
-        </select>
-      </div>
-      {% if form.parcours.errors %}
-        <div class="text-danger small mt-1">
-          {% for error in form.parcours.errors %}
-            <div>⚠️ {{ error }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
+  <div class="row mb-3" id="id_parcours_section">
+    <label for="id_parcours" class="col-sm-2 col-form-label">Parcours</label>
+    <div class="col-sm-10">
+      {{ form.parcours|add_class:"form-select" }}
+      {% for error in form.parcours.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
     </div>
   </div>
 
   <!-- Classe -->
-  <div class="col-md-4 mb-3">
-    <label class="col-sm-12 col-form-label fw-semibold">Classe</label>
-    <div class="col-sm-12">
-      <div class="input-group input-group-merge">
-        <span class="input-group-text bg-light"><i class="bx bx-group"></i></span>
-        <select id="id_classe" name="classe" class="form-select">
-          <option value="">---------</option>
-        </select>
-      </div>
-      {% if form.classe.errors %}
-        <div class="text-danger small mt-1">
-          {% for error in form.classe.errors %}
-            <div>⚠️ {{ error }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
+  <div class="row mb-3" id="id_classe_section">
+    <label for="id_classe" class="col-sm-2 col-form-label">Classe</label>
+    <div class="col-sm-10">
+      {{ form.classe|add_class:"form-select" }}
+      {% for error in form.classe.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
     </div>
   </div>
 
-  <!-- Bouton soumettre -->
+  <!-- Résultat année précédente -->
+  <div class="row mb-3" id="id_resultat_section">
+    <label for="id_resultat_annee_precedente" class="col-sm-2 col-form-label">Résultat année précédente</label>
+    <div class="col-sm-10">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text"><i class="bx bx-check-circle"></i></span>
+        {{ form.resultat_annee_precedente|add_class:"form-control" }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Motif -->
+  <div class="row mb-3" id="id_motif_section">
+    <label for="id_motif" class="col-sm-2 col-form-label">Motif</label>
+    <div class="col-sm-10">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text"><i class="bx bx-info-circle"></i></span>
+        {{ form.motif|add_class:"form-control" }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Durée -->
+  <div class="row mb-3" id="id_duree_section">
+    <label for="id_duree" class="col-sm-2 col-form-label">Durée (en jours)</label>
+    <div class="col-sm-10">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text"><i class="bx bx-timer"></i></span>
+        {{ form.duree|add_class:"form-control" }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Établissement d’accueil -->
+  <div class="row mb-3" id="id_etablissement_section">
+    <label for="id_Etablissement_accuiel" class="col-sm-2 col-form-label">Établissement d’accueil</label>
+    <div class="col-sm-10">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text"><i class="bx bx-building"></i></span>
+        {{ form.Etablissement_accuiel|add_class:"form-control" }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents -->
+  <div class="mb-3" id="documents-section">
+    <h5 class="mb-3 fw-semibold">📎 Documents à fournir</h5>
+    {{ formset.management_form }}
+    {% for doc_form in formset %}
+      <div class="doc-block row mb-3 border rounded p-3" data-doc-type="{{ doc_form.type_document.value|default_if_none:'' }}">
+        <div class="col-md-6">
+          <label class="form-label">Type de document</label>
+          {{ doc_form.type_document|add_class:"form-select" }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Fichier</label>
+          {{ doc_form.fichier|add_class:"form-control" }}
+        </div>
+        {% if doc_form.DELETE %}
+        <div class="col-12 mt-2">
+          <label>{{ doc_form.DELETE }} Supprimer ce document</label>
+        </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Bouton de soumission -->
   <div class="text-center mt-4">
     <button type="submit" class="btn btn-primary">Enregistrer</button>
   </div>
 </form>
 
-<!-- JS pour recherche étudiant -->
+<!-- Scripts -->
+
+<!-- Recherche étudiant par matricule -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const searchInput = document.getElementById('searchEtudiants');
-  const selectEtudiant = document.getElementById('id_etudiant');
-  const originalOptions = Array.from(selectEtudiant.options);
+  const input = document.getElementById('searchEtudiants');
+  const select = document.getElementById('id_etudiant');
+  const options = Array.from(select.options);
 
-  searchInput.addEventListener('input', function () {
-    const searchValue = this.value.toLowerCase().trim();
-    selectEtudiant.innerHTML = '';
-
-    const filtered = originalOptions.filter(opt =>
-      opt.text.toLowerCase().includes(searchValue)
-    );
-
+  input.addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    select.innerHTML = '';
+    const filtered = options.filter(opt => opt.text.toLowerCase().includes(query));
+    filtered.forEach(opt => select.appendChild(opt));
     if (filtered.length === 0) {
-      const option = document.createElement('option');
-      option.text = '-- Aucun résultat --';
-      option.disabled = true;
-      selectEtudiant.add(option);
-    } else {
-      filtered.forEach(option => selectEtudiant.add(option));
+      const noOption = new Option('-- Aucun résultat --', '');
+      noOption.disabled = true;
+      select.add(noOption);
     }
   });
 });
 </script>
 
-<!-- JS pour chargement dynamique des parcours et classes -->
+<!-- Affichage dynamique des champs selon statut -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const anneeSelect = document.getElementById('id_annee');
-  const parcoursSelect = document.getElementById('id_parcours');
-  const classeSelect = document.getElementById('id_classe');
-  let parcoursData = [];
+  const statut = document.getElementById('id_statut');
 
-  function resetSelect(selectElement, placeholder = '---------') {
-    selectElement.innerHTML = '';
-    const option = document.createElement('option');
-    option.value = '';
-    option.textContent = placeholder;
-    selectElement.appendChild(option);
+  const fieldsMap = {
+    parcours: 'id_parcours_section',
+    annee: 'id_annee_section',
+    classe: 'id_classe_section',
+    resultat: 'id_resultat_section',
+    motif: 'id_motif_section',
+    evenement: 'id_date_evenement_section',
+    duree: 'id_duree_section',
+    etab: 'id_etablissement_section',
+    documents: 'documents-section'
+  };
+
+  function hideAllFields() {
+    for (const key in fieldsMap) {
+      const el = document.getElementById(fieldsMap[key]);
+      if (el) el.style.display = 'none';
+    }
   }
 
-  anneeSelect.addEventListener('change', function () {
-    const anneeId = this.value;
-    resetSelect(parcoursSelect);
-    resetSelect(classeSelect);
+  function showFields(keys) {
+    keys.forEach(key => {
+      const el = document.getElementById(fieldsMap[key]);
+      if (el) el.style.display = 'flex';
+    });
+  }
 
-    if (!anneeId) return;
-
-    fetch("{% url 'utilisateur:get_parcours_options' %}?annee_academique=" + anneeId)
-      .then(response => response.json())
-      .then(data => {
-        parcoursData = data;
-        data.forEach(parcours => {
-          const option = new Option(parcours.nom, parcours.id);
-          parcoursSelect.add(option);
-        });
-      })
-      .catch(error => {
-        console.error("Erreur lors de la récupération des parcours :", error);
-      });
-  });
-
-  parcoursSelect.addEventListener('change', function () {
-    const parcoursId = this.value;
-    resetSelect(classeSelect);
-
-    if (!parcoursId) return;
-
-    const selectedParcours = parcoursData.find(p => p.id == parcoursId);
-    if (selectedParcours) {
-      selectedParcours.classes.forEach(classe => {
-        const option = new Option(classe.nom, classe.id);
-        classeSelect.add(option);
-      });
+  function updateFields() {
+    hideAllFields();
+    const val = statut.value;
+    switch(val) {
+      case 'reinscrit':
+      case 'redoublant':
+        showFields(['evenement','parcours', 'annee', 'classe', 'resultat']);
+        break;
+      case 'abandon':
+      case 'exclu':
+        showFields(['evenement','motif', 'evenement']);
+        break;
+      case 'suspendu':
+        showFields([ 'motif', 'evenement', 'duree']);
+        break;
+      case 'en_attente':
+      case 'reserviste':
+        showFields(['documents']);
+        break;
+      case 'transfert':
+        showFields(['etab', 'motif', 'evenement']);
+        break;
+      case 'diplome':
+        showFields(['resultat']);
+        break;
+      default:
+        // Par défaut afficher juste l'année
+        showFields(['annee']);
+        break;
     }
-  });
+  }
+
+  statut.addEventListener('change', updateFields);
+  updateFields();
+});
+</script>
+
+<!-- Filtrage documents selon statut -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const statutField = document.getElementById("id_statut");
+
+  const documentsParStatut = {
+    reinscrit: ['formulaire', 'frais'],
+    abandon: [],
+    suspendu: [],
+    exclu: [],
+    en_attente: ['formulaire', 'naissance', 'cni', 'parent_identite'],
+    transfert: [],
+    diplome: [],
+    redoublant: ['formulaire'],
+    reserviste: ['formulaire', 'diplome', 'bulletin']
+  };
+
+  function filtrerDocuments() {
+    const selectedStatut = statutField.value;
+    const docsVisibles = documentsParStatut[selectedStatut] || [];
+
+    document.querySelectorAll('.doc-block').forEach(block => {
+      const docType = block.getAttribute('data-doc-type');
+      block.style.display = docsVisibles.includes(docType) ? 'flex' : 'none';
+    });
+  }
+
+  statutField.addEventListener('change', filtrerDocuments);
+  filtrerDocuments();
 });
 </script>

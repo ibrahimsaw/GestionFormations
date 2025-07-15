@@ -49,7 +49,7 @@ class GestionPermissionsBaseView(BaseContextView):
         self.message += f"[dispatch] Type reçu : {self.model_type}\n"
 
         titre_mapping = {
-            'tableau_bord': "Tableau de bord",
+            'tableau_bord': "Tableau de bord Permissions",
             'users': "Gestionnaire d'utilisateur",
             'permissions': "Gestion des Permissions",
             'fonction': "Gestion des Fonctions"

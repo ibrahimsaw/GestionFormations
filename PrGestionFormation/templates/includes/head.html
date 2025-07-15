@@ -28,6 +28,8 @@
   <link rel="stylesheet" href="{% static 'assets/vendor/css/theme-default.css' %}" class="template-customizer-theme-css" />
   <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
   <link rel="stylesheet" href="{% static 'assets/vendor/css/pages/page-auth.css' %}" />
+  <link rel="preload" href="{% static 'assets/vendor/fonts/boxicons/boxicons.woff2' %}" as="font" type="font/woff2" crossorigin="anonymous">
+
 
   <!-- Vendors CSS -->
   <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
@@ -90,16 +92,5 @@
 }
 
 </style>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Récupérer le nom sauvegardé
-  const nomBouton = localStorage.getItem('nom_bouton');
-  //console.log('Bouton sélectionné head :', buttonName);
 
-  if (nomBouton) {
-    document.getElementById('affichage_nom').innerText = nomBouton;
-  } else {
-    document.getElementById('affichage_nom').innerText = "Aucun bouton sélectionné.";
-  }
-});
-</script>
+

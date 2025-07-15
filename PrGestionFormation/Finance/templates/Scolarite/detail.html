@@ -154,7 +154,8 @@
                                     <dd class="col-sm-7">{{ object.etudiant.classe_actuelle }}</dd>
                                     
                                     <dt class="col-sm-5">Contact :</dt>
-                                    <dd class="col-sm-7">Tel:{{ object.etudiant.utilisateur.telephone|default:"-" }} email:{{ object.etudiant.utilisateur.email|default:"-" }}</dd>
+                                    <dd class="col-sm-7">Tel : {{ object.etudiant.utilisateur.telephone|default:"-" }}</dd>
+								 	<dd class="col-sm-15">email : {{ object.etudiant.utilisateur.email|default:"-" }}</dd>
                                 </dl>
                             </div>
                         </div>
