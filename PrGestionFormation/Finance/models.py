@@ -169,6 +169,8 @@ class Inscription(models.Model):
 
     parcours = models.ForeignKey(
         Parcours,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
         related_name="inscriptions"
     )
@@ -178,22 +180,27 @@ class Inscription(models.Model):
 
     annee_academique = models.ForeignKey(
         AnneeAcademique,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
         related_name="inscriptions"
     )
 
     classe = models.ForeignKey(
         Classe,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
         related_name="inscriptions"
     )
 
     date_inscription = models.DateField(auto_now_add=True)
-    date_evenement = models.DateField(
-        blank=True,
+    date_evenement = models.DateTimeField(
         null=True,
-        help_text="Date liée à l'événement (ex: exclusion, suspension, abandon, etc.)"
+        blank=True,
+        verbose_name="Date et heure de l'événement"
     )
+
     duree = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -208,14 +215,6 @@ class Inscription(models.Model):
 
     resultat_annee_precedente = models.CharField(max_length=100, blank=True, null=True)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['etudiant', 'annee_academique'],
-                name='unique_inscription_par_annee'
-            )
-        ]
-
     def __str__(self):
         return f"{self.etudiant} → {self.classe} ({self.annee_academique})"
 
@@ -225,18 +224,36 @@ class Inscription(models.Model):
         return self.parcours.type_formation
 
     def clean(self):
-        """Validation des données avant enregistrement"""
         super().clean()
-        print("Statut :", self.statut)
 
+        # Autres contraintes métier selon le statut
         if self.statut == self.STATUT_INSCRIT:
-            print("✅ Première inscription")
-            if not self.classe.formation.parcours == self.parcours:
-                raise ValidationError(
-                    "La classe sélectionnée ne fait pas partie du parcours choisi."
-                )
+            if self.classe.parcours != self.parcours:
+                raise ValidationError("⚠️ La classe sélectionnée ne correspond pas au parcours.")
+            if self.classe.annee_academique != self.annee_academique:
+                raise ValidationError("⚠️ La classe sélectionnée ne correspond pas à l’année académique.")
+            if Inscription.objects.exclude(pk=self.pk).filter(
+                    etudiant=self.etudiant,
+                    annee_academique=self.annee_academique
+            ).exists():
+                raise ValidationError("⚠️ Cet étudiant est déjà inscrit pour cette année académique.")
 
-            if not self.classe.annee_academique == self.annee_academique:
-                raise ValidationError(
-                    "La classe sélectionnée ne fait pas partie de l'année académique choisie."
-                )
+        elif self.statut in [self.STATUT_REINSCRIT, self.STATUT_REDUIRE, self.STATUT_DIPLOME]:
+            if not self.resultat_annee_precedente:
+                raise ValidationError("⚠️ Le résultat de l'année précédente est requis.")
+
+        elif self.statut in [self.STATUT_ABANDON, self.STATUT_EXCLU]:
+            if not self.motif:
+                raise ValidationError("⚠️ Le motif est requis.")
+            print("La date de l’événement :",self.date_evenement)
+            if not self.date_evenement:
+                raise ValidationError("⚠️ La date de l’événement est requis.")
+
+        elif self.statut == self.STATUT_SUSPENDU:
+            if not self.motif or not self.date_evenement or not self.duree:
+                raise ValidationError("⚠️ Le motif, la date et la durée sont requis pour une suspension.")
+
+        elif self.statut == self.STATUT_TRANSFERT:
+            if not self.Etablissement_accuiel or not self.motif or not self.date_evenement:
+                raise ValidationError("⚠️ Tous les champs de transfert doivent être renseignés.")
+

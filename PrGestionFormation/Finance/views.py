@@ -60,22 +60,6 @@ class ScolariteBaseView(BaseContextView):
         })
         return context
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     _, _, titre = self.model_mapping[self.model_type]
-    #     context.update({
-    #         'role' : self.model_type,
-    #         'titre_formulaire': f"{titre} - Formulaire",
-    #         'titre_liste': f"Liste des {titre}s",
-    #         'titre_detail': f"Détails {titre}",
-    #         'titre_suppression': f"Supprimer {titre}",
-    #         'fonction': f"Créer un {titre}",
-    #         'bouttonvalide': "Valider",
-    #         'model_type': self.model_type
-    #
-    #     })
-    #     return context
-
     def get_type_name(self):
         type_info = self.model_mapping.get(self.model_type)
         if type_info:
@@ -191,12 +175,25 @@ class ScolariteBaseView(BaseContextView):
 
 
 
+from decimal import Decimal
+from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.views.generic.edit import CreateView
+from django.core.exceptions import ValidationError
+
+from .models import Inscription, Frais, AnneeAcademique, Classe
+from .forms import DocumentInscriptionFormSet
+
 class ScolariteCreateView(ScolariteBaseView, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
+        # Permet de gérer les requêtes GET, POST, etc.
         return super().dispatch(request, *args, **kwargs)
 
     def get_template_names(self):
+        # Spécifie le template à utiliser dynamiquement
         return [self.template_form]
 
     def get_queryset(self):
@@ -204,15 +201,22 @@ class ScolariteCreateView(ScolariteBaseView, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Cas spécifique pour les FRAIS
         if self.model_type == 'frais':
-            context['annees'] = AnneeAcademique.objects.all()
-            context['formations'] = []
-            context['classes'] = []
-        if self.model_type == 'reinscription':
+            context.update({
+                'annees': AnneeAcademique.objects.all(),
+                'formations': [],
+                'classes': []
+            })
+
+        # Cas spécifique pour les INSCRIPTIONS (ex: reinscription)
+        elif self.model_type == 'reinscription':
             if self.request.method == 'POST':
                 context['formset'] = DocumentInscriptionFormSet(self.request.POST, self.request.FILES)
             else:
                 context['formset'] = DocumentInscriptionFormSet()
+
         return context
 
     def get_success_url(self):
@@ -224,95 +228,107 @@ class ScolariteCreateView(ScolariteBaseView, CreateView):
                 'pk': self.object.pk
             })
 
-
     def post(self, request, *args, **kwargs):
         self.object = None
 
+        # 🔹 Cas 1 : Création de FRAIS pour toutes les classes d’une formation donnée
         if self.model_type == 'frais':
-            print("📥 POST reçu pour les frais")
-            libelle = request.POST.get('libelle')
-            annee_id = request.POST.get('annee_id')
-            formation_id = request.POST.get('formation_id')
-            description = request.POST.get('description', '').strip() or None
-            recurrent = request.POST.get('recurrent') == 'on'
+            return self._handle_frais(request)
 
-            print(f"🔹 Libellé : {libelle}")
-            print(f"🔹 Année : {annee_id}, Formation : {formation_id}")
-            print(f"🔹 Description : {description}")
-            print(f"🔹 Récurrent : {recurrent}")
-
-            if not annee_id or not formation_id:
-                messages.error(request, "Veuillez sélectionner une année et une formation")
-                return self.form_invalid(self.get_form())
-
-            classes = Classe.objects.filter(
-                annee_academique_id=annee_id,
-                formation_id=formation_id
-            )
-
-            print(f"📚 {classes.count()} classes récupérées")
-
-            created_count = 0
-            updated_count = 0
-
-            with transaction.atomic():
-                for classe in classes:
-                    montant_str = request.POST.get(f'montant_{classe.id}')
-                    print(f"\n➡️ Classe : {classe.nom} | Montant : {montant_str}")
-
-                    if montant_str:
-                        try:
-                            montant = Decimal(montant_str.replace(',', '.'))
-                            if montant > Decimal('0'):
-                                frais = Frais.objects.filter(
-                                    libelle=libelle,
-                                    classe=classe,
-                                    description=description
-                                ).first()
-
-                                if frais:
-                                    print("✏️ Mise à jour d'un enregistrement existant")
-                                    frais.montant = montant
-                                    frais.recurrent = recurrent
-                                    frais.save()
-                                    updated_count += 1
-                                else:
-                                    print("➕ Création d'un nouvel enregistrement")
-                                    Frais.objects.create(
-                                        libelle=libelle,
-                                        montant=montant,
-                                        classe=classe,
-                                        recurrent=recurrent,
-                                        description=description
-                                    )
-                                    created_count += 1
-                        except Exception as e:
-                            print(f"⚠️ Erreur pour la classe {classe.nom} : {e}")
-                            continue
-
-            messages.success(request, f"{created_count} frais créés, {updated_count} frais mis à jour.")
-            return redirect('finance:scolarite-list', type='frais')
-
-
+        # 🔹 Cas 2 : Création d’une INSCRIPTION avec documents liés
         elif self.model_type == 'reinscription':
-            form = self.get_form()
-            formset = DocumentInscriptionFormSet(request.POST, request.FILES)
-            if form.is_valid():
-                inscription = form.save(commit=False)
-                formset = DocumentInscriptionFormSet(request.POST, request.FILES, instance=inscription)
-                if formset.is_valid():
-                    inscription.save()
-                    formset.save()
-                    self.object = inscription
-                    return redirect(self.get_success_url())
+            return self._handle_reinscription(request)
+
+        # 🔹 Autres cas délégués au parent
+        return super().post(request, *args, **kwargs)
+
+    # 🔧 Sous-méthode : Création des FRAIS
+    def _handle_frais(self, request):
+        libelle = request.POST.get('libelle')
+        annee_id = request.POST.get('annee_id')
+        formation_id = request.POST.get('formation_id')
+        description = request.POST.get('description', '').strip() or None
+        recurrent = request.POST.get('recurrent') == 'on'
+
+        if not annee_id or not formation_id:
+            messages.error(request, "Veuillez sélectionner une année et une formation.")
+            return self.form_invalid(self.get_form())
+
+        classes = Classe.objects.filter(
+            annee_academique_id=annee_id,
+            formation_id=formation_id
+        )
+
+        created_count = 0
+        updated_count = 0
+
+        with transaction.atomic():
+            for classe in classes:
+                montant_str = request.POST.get(f'montant_{classe.id}')
+                if not montant_str:
+                    continue
+
+                try:
+                    montant = Decimal(montant_str.replace(',', '.'))
+                    if montant <= 0:
+                        continue
+                except Exception as e:
+                    print(f"⚠️ Erreur de conversion montant pour {classe.nom} : {e}")
+                    continue
+
+                # Recherche s’il existe déjà un frais avec même libellé / classe / description
+                frais = Frais.objects.filter(
+                    libelle=libelle,
+                    classe=classe,
+                    description=description
+                ).first()
+
+                if frais:
+                    # Mise à jour
+                    frais.montant = montant
+                    frais.recurrent = recurrent
+                    frais.save()
+                    updated_count += 1
                 else:
-                    print("❌ Formset invalide :", formset.errors)
-            else:
-                print("❌ Formulaire invalide :", form.errors)
-                return self.form_invalid(form)
+                    # Création
+                    Frais.objects.create(
+                        libelle=libelle,
+                        montant=montant,
+                        classe=classe,
+                        recurrent=recurrent,
+                        description=description
+                    )
+                    created_count += 1
+
+        messages.success(
+            request,
+            f"{created_count} frais créés, {updated_count} mis à jour."
+        )
+        return redirect('finance:scolarite-list', type='frais')
+
+    # 🔧 Sous-méthode : Création d’une INSCRIPTION avec formset de documents
+    def _handle_reinscription(self, request):
+        form = self.get_form()
+        formset = DocumentInscriptionFormSet(request.POST, request.FILES)
+
+        if not form.is_valid():
+            print("❌ form Formulaire invalide :", form.errors)
+            return self.form_invalid(form)
+
+        inscription = form.save(commit=False)
+        formset = DocumentInscriptionFormSet(request.POST, request.FILES, instance=inscription)
+
+        if formset.is_valid():
+            inscription.save()
+            formset.save()
+            self.object = inscription
+            return redirect(self.get_success_url())
         else:
-            print("🔁 Redirection vers post parent")
-            return super().post(request, *args, **kwargs)
+            print("❌ Formset invalide :", formset.errors)
+
+            # 🔁 Repasser formset dans le contexte pour affichage
+            context = self.get_context_data(form=form, formset=formset)
+            return self.render_to_response(context)
 
 from django.http import JsonResponse
 

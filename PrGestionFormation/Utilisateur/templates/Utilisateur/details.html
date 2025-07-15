@@ -79,7 +79,7 @@
 							  <tr><th>Date de naissance</th><td>{{ agent.utilisateur.date_nais|date:'Y-m-d' }}</td></tr>
 							  <tr><th>Email</th><td>{{ agent.utilisateur.email|default:'Non défini' }}</td></tr>
 							  <tr><th>Téléphone</th><td>{{ agent.utilisateur.telephone|default:'Non défini' }}</td></tr>
-							  <tr><th>Rôle</th><td>{{ agent.utilisateur.get_role_display_name|default:'Non défini' }}</td></tr>
+							  <tr><th>Statut</th><td>{{ agent.utilisateur.get_role_display_name|default:'Non défini' }}</td></tr>
 							  <tr><th>Membre du personnel</th><td>{% if agent.utilisateur.is_staff %}Oui{% else %}Non{% endif %}</td></tr>
 							  <tr><th>Compte actif</th><td>{% if agent.utilisateur.is_active %}Oui{% else %}Non{% endif %}</td></tr>
 							  {% if agent.utilisateur.role == "ADMIN" %}

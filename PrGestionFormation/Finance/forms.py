@@ -1,8 +1,9 @@
 from django import forms
 from .models import *
 from Formation.models import Parcours,Classe,AnneeAcademique
-# from Utilisateur.models import
 from Utilisateur.forms import CustomUserCreationForm
+from django.core.exceptions import ValidationError
+from django.forms import inlineformset_factory
 
 
 
@@ -37,49 +38,77 @@ class FraisForm(forms.ModelForm):
         return montant
 
 
-
-from django import forms
-from .models import Inscription, DocumentInscription
-from django.forms.models import inlineformset_factory
-
-
 class InscriptionForm(forms.ModelForm):
     class Meta:
         model = Inscription
-        fields = '__all__'
+        fields = [
+            'statut',
+            'etudiant',
+            'annee_academique',
+            'parcours',
+            'classe',
+            'resultat_annee_precedente',
+            'motif',
+            'date_evenement',
+            'duree',
+            'Etablissement_accuiel',
+        ]
         widgets = {
-            'date_inscription': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'statut': forms.Select(attrs={'class': 'form-select'}),
+            'etudiant': forms.Select(attrs={'class': 'form-select select2'}),
+            'annee_academique': forms.Select(attrs={'class': 'form-select'}),
+            'parcours': forms.Select(attrs={'class': 'form-select'}),
+            'classe': forms.Select(attrs={'class': 'form-select'}),
+            'resultat_annee_precedente': forms.TextInput(attrs={'class': 'form-control'}),
+            'motif': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'date_evenement': forms.DateTimeInput(
+                format='%d/%m/%Y %H:%M',
+                attrs={
+                    'class': 'form-control datetimepicker',
+                    'placeholder': 'JJ/MM/AAAA HH:MM',
+                    'data-inputmask-alias': 'datetime',
+                    'data-inputmask-inputformat': 'dd/mm/yyyy HH:MM',
+                }
+            ),
+            'duree': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'Etablissement_accuiel': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Retirer "inscrit" des choix de statut
+        # Supprimer le statut "inscrit" s’il ne doit pas être choisi manuellement
         self.fields['statut'].choices = [
-            (val, label)
-            for val, label in self.fields['statut'].choices
+            (val, label) for val, label in self.fields['statut'].choices
             if val != Inscription.STATUT_INSCRIT
         ]
 
-        # Appliquer Bootstrap à tous les champs sauf statut
-        for champ, field in self.fields.items():
-            if champ != 'statut':
-                field.widget.attrs['class'] = 'form-control'
+        # Ajouter la classe Bootstrap à tous les champs (sécurité)
+        for name, field in self.fields.items():
+            field.widget.attrs.setdefault('class', 'form-control')
 
+    def clean(self):
+        cleaned_data = super().clean()
+        etudiant = cleaned_data.get('etudiant')
+        annee = cleaned_data.get('annee_academique')
+        statut = Inscription.STATUT_INSCRIT
+        statut_sel = cleaned_data.get('statut')
+        if statut == statut_sel :
+            if etudiant and annee:
+                if Inscription.objects.filter(etudiant=etudiant, annee_academique=annee).exists():
+                    raise ValidationError("⚠️ Cet étudiant est déjà inscrit pour cette année académique.")
 
-# 🔄 Formulaire pour DocumentInscription (1..N)
 DocumentInscriptionFormSet = inlineformset_factory(
     Inscription,
     DocumentInscription,
-    fields=('type_document', 'fichier'),
-    extra=3,  # Nombre de formulaires vides à afficher par défaut
+    fields=['type_document', 'fichier'],
+    extra=0,  # On génère via JS les documents nécessaires
     can_delete=True,
     widgets={
-        'type_document': forms.Select(attrs={'class': 'form-select'}),
+        'type_document': forms.Select(attrs={'class': 'form-select document-type'}),
         'fichier': forms.FileInput(attrs={'class': 'form-control'}),
     }
 )
-
 
 class PaiementForm(forms.ModelForm):
     class Meta:
