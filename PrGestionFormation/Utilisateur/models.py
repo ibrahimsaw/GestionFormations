@@ -785,6 +785,8 @@ class Etudiant(models.Model):
 
     def __str__(self):
         return f"{self.utilisateur.matricule} – {self.utilisateur.last_name} {self.utilisateur.first_name} - {self.classe_actuelle}"
+    def MNP(self):
+        return f"{self.utilisateur.matricule} – {self.utilisateur.last_name} {self.utilisateur.first_name}"
 
     @property
     def classe_actuelle(self):
@@ -799,10 +801,6 @@ class Parent(models.Model):
         limit_choices_to={'role': 'PARENT'}
     )
     enfants = models.ManyToManyField(Etudiant, related_name='parent')
-
-
-# Permissions_Manager/models.py
-
 
 class RolePermission(models.Model):
     print("\nInitialisation de RolePermission...")

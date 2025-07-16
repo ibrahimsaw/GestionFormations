@@ -304,10 +304,12 @@ class UtilisateurBaseView(BaseContextView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         type_name = self.get_type_name()
+        titre = self.model_mapping[self.model_type][-1]
 
         context.update({
             'bouton' : self.bouton,
             'path' : self.path,
+            'titre_formulaire' : titre,
             'titre_page' : self.titre_page,
             'role_utilisateur': type_name,
             'model_type': self.model_type,
@@ -724,6 +726,26 @@ def get_parcours_options(request):
     except Exception as e:
         logger.exception("Erreur lors de la récupération des parcours:")
         return JsonResponse({'error': str(e)}, status=500)
+
+
+
+def get_infos_etudiant(request):
+    etudiant_id = request.GET.get('etudiant_id')
+    try:
+        etudiant = Etudiant.objects.get(utilisateur_id=etudiant_id)
+        inscription = etudiant.inscriptions.order_by('-annee_academique').first()
+
+        if not inscription:
+            return JsonResponse({'error': "Aucune inscription trouvée pour cet étudiant."}, status=404)
+
+        return JsonResponse({
+            'annee_id': inscription.annee_academique.id if inscription.annee_academique else '',
+            'parcours_id': inscription.parcours.id if inscription.parcours else '',
+            'classe_id': inscription.classe.id if inscription.classe else '',
+        })
+
+    except Etudiant.DoesNotExist:
+        return JsonResponse({'error': 'Étudiant introuvable'}, status=404)
 
 
 @require_GET

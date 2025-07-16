@@ -198,15 +198,15 @@
                           <i class="bx bx-user text-primary fs-4"></i>
                         </div>
                         <div>
-                          <h6 class="mb-0">{{ ins.etudiant.utilisateur.matricule  }}</h6>
-                          <small class="text-muted">{{ ins.classe.nom }}</small>
+                          <h6 class="mb-0">{{ ins.etudiant.MNP  }}</h6>
+                          <small class="text-muted">{{ ins.annee_academique }}</small>
 						 </br>
-						 <small class="text-muted">{{ ins.annee_academique }}</small>
+						 <small class="text-muted">{{ ins.date_evenement }}</small>
                         </div>
                       </div>
                     </td>
                     <td class="text-end">
-                      <span class="badge bg-info">{{ ins.parcours }}</span>
+                      <span class="badge bg-info">{{ ins.parcours }}-{{ ins.classe.nom }}</span>
                       <span class="badge">
 					  <div class="d-flex justify-content-end">
 						<!-- Détails -->

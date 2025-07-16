@@ -9,6 +9,25 @@
     </ul>
   </div>
 {% endif %}
+  <!-- 📅 Date de l’événement -->
+  
+<div class="row mb-3" id="evenement_section">
+  <label for="id_date_evenement" class="col-sm-2 col-form-label">Date de l’événement</label>
+  <div class="col-sm-10">
+    <div class="input-group input-group-merge">
+      <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+      <input type="text"
+             id="id_date_evenement"
+             name="date_evenement"
+             class="form-control"
+             value="{{ date|date:'d/m/Y H:i' }}"
+             readonly>
+    </div>
+    {% for error in form.date_evenement.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
 
   <!-- 📍 Statut -->
   <div class="row mb-3">
@@ -45,18 +64,67 @@
 
   <!-- 🎓 Année / Parcours / Classe -->
   <div class="row mb-3" id="annee_parcours_classe">
-    <div class="col-md-4">
-      <label>Année académique</label>
-      {{ form.annee_academique|add_class:"form-select" }}
-    </div>
-    <div class="col-md-4">
-      <label>Parcours</label>
-      {{ form.parcours|add_class:"form-select" }}
-    </div>
-    <div class="col-md-4">
-      <label>Classe</label>
-      {{ form.classe|add_class:"form-select" }}
-    </div>
+   <!-- Sélection de l'année académique -->
+   <div class="col-md-4 mb-3">
+	 <label class="col-sm-12 col-form-label fw-semibold">Année académique</label>
+	 <div class="col-sm-12">
+	   <div class="input-group input-group-merge">
+		 <span class="input-group-text bg-light"><i class="bx bx-calendar-alt"></i></span>
+		 <select id="id_annee" name="annee_academique" class="form-select">
+		   {% for value, label in form.annee_academique.field.choices %}
+			 <option value="{{ value }}" {% if form.annee_academique.value == value %}selected{% endif %}>{{ label }}</option>
+		   {% endfor %}
+		 </select>
+	   </div>
+	   {% if form.annee_academique.errors %}
+		 <div class="text-danger small mt-1">
+		   {% for error in form.annee_academique.errors %}
+			 <div>⚠️ {{ error }}</div>
+		   {% endfor %}
+		 </div>
+	   {% endif %}
+	 </div>
+   </div>
+   
+   <!-- Parcours -->
+   <div class="col-md-4 mb-3">
+	 <label class="col-sm-12 col-form-label fw-semibold">Parcours</label>
+	 <div class="col-sm-12">
+	   <div class="input-group input-group-merge">
+		 <span class="input-group-text bg-light"><i class="bx bx-book"></i></span>
+		 <select id="id_parcours" name="parcours" class="form-select">
+		   <option value="">---------</option>
+		 </select>
+	   </div>
+	   {% if form.parcours.errors %}
+		 <div class="text-danger small mt-1">
+		   {% for error in form.parcours.errors %}
+			 <div>⚠️ {{ error }}</div>
+		   {% endfor %}
+		 </div>
+	   {% endif %}
+	 </div>
+   </div>
+   
+   <!-- Classe -->
+   <div class="col-md-4 mb-3">
+	 <label class="col-sm-12 col-form-label fw-semibold">Classe</label>
+	 <div class="col-sm-12">
+	   <div class="input-group input-group-merge">
+		 <span class="input-group-text bg-light"><i class="bx bx-group"></i></span>
+		 <select id="id_classe" name="classe" class="form-select">
+		   <option value="">---------</option>
+		 </select>
+	   </div>
+	   {% if form.classe.errors %}
+		 <div class="text-danger small mt-1">
+		   {% for error in form.classe.errors %}
+			 <div>⚠️ {{ error }}</div>
+		   {% endfor %}
+		 </div>
+	   {% endif %}
+	 </div>
+   </div>
   </div>
 
   <!-- 📈 Résultat -->
@@ -74,28 +142,6 @@
       {{ form.motif|add_class:"form-control" }}
     </div>
   </div>
-
-  <!-- 📅 Date de l’événement -->
-  
-<div class="row mb-3" id="evenement_section">
-  <label for="id_date_evenement" class="col-sm-2 col-form-label">📅 Date de l’événement</label>
-  <div class="col-sm-10">
-    <div class="input-group input-group-merge">
-      <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
-      <input type="text"
-             id="id_date_evenement"
-             name="date_evenement"
-             class="form-control"
-             value="{{ date|date:'d/m/Y H:i' }}"
-             readonly>
-    </div>
-    {% for error in form.date_evenement.errors %}
-      <div class="text-danger small">⚠️ {{ error }}</div>
-    {% endfor %}
-  </div>
-</div>
-
-
 
   <!-- ⏳ Durée -->
   <div class="row mb-3" id="duree_section">
@@ -170,17 +216,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const champsParStatut = {
     reinscrit: ['annee_parcours_classe', 'resultat_section', 'documents_section'],
     redoublant: ['annee_parcours_classe', 'resultat_section', 'documents_section'],
-    abandon: ['motif_section', 'evenement_section'],
-    suspendu: ['motif_section', 'evenement_section', 'duree_section'],
-    exclu: ['motif_section', 'evenement_section'],
+    abandon: ['motif_section'],
+    suspendu: ['motif_section', 'duree_section'],
+    exclu: ['motif_section'],
     en_attente: ['documents_section'],
     reserviste: ['documents_section'],
-    transfert: ['etablissement_section', 'motif_section', 'evenement_section'],
+    transfert: ['etablissement_section', 'motif_section'],
     diplome: ['resultat_section']
   };
 
   const tousLesChamps = [
-    'annee_parcours_classe', 'resultat_section', 'motif_section', 'evenement_section',
+    'annee_parcours_classe', 'resultat_section', 'motif_section',
     'duree_section', 'etablissement_section', 'documents_section'
   ];
 
@@ -244,3 +290,105 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDocumentsForStatut();
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const anneeSelect = document.getElementById('id_annee');
+  const parcoursSelect = document.getElementById('id_parcours');
+  const classeSelect = document.getElementById('id_classe');
+  let parcoursData = [];
+
+  // Réinitialise un <select>
+  function resetSelect(selectElement, placeholder = '---------') {
+    selectElement.innerHTML = '';
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = placeholder;
+    selectElement.appendChild(option);
+  }
+
+  // Charger les parcours lors du changement d'année
+  anneeSelect.addEventListener('change', function () {
+    const anneeId = this.value;
+    resetSelect(parcoursSelect);
+    resetSelect(classeSelect);
+
+    if (!anneeId) return;
+
+    fetch("{% url 'utilisateur:get_parcours_options' %}?annee_academique=" + anneeId)
+      .then(response => response.json())
+      .then(data => {
+        parcoursData = data;
+        data.forEach(parcours => {
+          const option = new Option(parcours.nom, parcours.id);
+          parcoursSelect.add(option);
+        });
+      })
+      .catch(error => {
+        console.error("Erreur lors de la récupération des parcours :", error);
+      });
+  });
+
+  // Charger les classes en fonction du parcours sélectionné
+  parcoursSelect.addEventListener('change', function () {
+    const parcoursId = this.value;
+    resetSelect(classeSelect);
+
+    if (!parcoursId) return;
+
+    const selectedParcours = parcoursData.find(p => p.id == parcoursId);
+    if (selectedParcours) {
+      selectedParcours.classes.forEach(classe => {
+        const option = new Option(classe.nom, classe.id);
+        classeSelect.add(option);
+      });
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const etudiantSelect = document.getElementById('id_etudiant');
+  const anneeSelect = document.getElementById('id_annee');
+  const parcoursSelect = document.getElementById('id_parcours');
+  const classeSelect = document.getElementById('id_classe');
+
+  etudiantSelect.addEventListener('change', function () {
+    const etudiantId = this.value;
+    if (!etudiantId) return;
+
+    fetch(`/utilisateur/ajax/get-infos-etudiant/?etudiant_id=${etudiantId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          console.error(data.error);
+          return;
+        }
+
+        // Met à jour l'année académique
+        if (data.annee_id) {
+          anneeSelect.value = data.annee_id;
+          anneeSelect.dispatchEvent(new Event('change')); // Déclenche le chargement des parcours
+        }
+
+        // Attends un peu que les parcours soient chargés (car c'est async)
+        setTimeout(() => {
+          if (data.parcours_id) {
+            parcoursSelect.value = data.parcours_id;
+            parcoursSelect.dispatchEvent(new Event('change'));
+          }
+
+          setTimeout(() => {
+            if (data.classe_id) {
+              classeSelect.value = data.classe_id;
+            }
+          }, 300);
+
+        }, 500);
+      })
+      .catch(error => {
+        console.error("Erreur lors de la récupération des infos étudiant :", error);
+      });
+  });
+});
+</script>
+

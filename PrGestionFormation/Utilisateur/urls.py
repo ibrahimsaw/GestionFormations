@@ -30,6 +30,8 @@ urlpatterns = [
 
     path('get_parcours_options/', get_parcours_options, name='get_parcours_options'),
     path('get_classes_options/', get_classes_options, name='get_classes_options'),
+    path('ajax/get-infos-etudiant/', get_infos_etudiant, name='get_infos_etudiant'),
+
 
     # # Administrateur
     path('tableau_de_bord_admin/', Bienvenu.as_view(), name='tableau_de_bord_admin'),
