@@ -45,10 +45,14 @@ navbar = [
     #         {"name": "Sauvegardes", "url": "sauvegardes"}
     #     ]
     # },
-    # {
-    #     "ul": "Audit de sécurité", "bouton": "true", "role": "Administrateur",
-    #     "url": "audit_securite"
-    # },
+    {
+        "ul": "Audit de sécurité", "bouton": "true", "role": "Administrateur",
+        "url": "utilisateur:parent"
+    },
+    {
+        "ul": "Audit de sécurité", "bouton": "true", "role": "Administrateur",
+        "url": "utilisateur:etudiant"
+    },
     # {
     #     "ul": "Maintenance", "bouton": "true", "role": "Administrateur",
     #     "url": "formation:maintenance"

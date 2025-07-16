@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'Permissions_Manager',
     'widget_tweaks',
     'django_select2',
+    'simple_history',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
     # 'Utilisateur.middleware.Custom403Middleware',
     # 'Utilisateur.middleware.Custom404Middleware',
     # 'Utilisateur.middleware.Custom500Middleware',

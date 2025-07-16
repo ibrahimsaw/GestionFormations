@@ -12,6 +12,6 @@ urlpatterns = [
     path('fonction/supprimer/<int:fonction_id>/', SupprimerFonctionView.as_view(), name='supprimer_fonction'),
     # path('permission/creer/', CreerPermissionView.as_view(), name='creer_permission'),
     # path('permission/modifier/<int:permission_id>/', ModifierPermissionView.as_view(), name='modifier_permission'),
-    path('permissions/<int:permission_id>/detail/',DetailPermissionView.as_view(),name='permission_detail'
-    ),
+    path('permissions/<int:permission_id>/detail/',DetailPermissionView.as_view(),name='permission_detail'),
+    path('utilisateur/<int:pk>/', historique_utilisateur, name='historique_utilisateur'),
 ]

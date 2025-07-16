@@ -7,7 +7,7 @@ from datetime import date
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinLengthValidator
-
+from simple_history.models import HistoricalRecords
 
 class CustomUserManager(BaseUserManager):
     def _create_user(self, matricule, password=None, **extra_fields):
@@ -98,6 +98,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
         default=None,  # Temporairement à None
         verbose_name="Genre"
     )
+    history = HistoricalRecords()  # <--- c'est ici qu'on active l'historique
     doit_changer_mot_de_passe = models.BooleanField(default=False)
     # Champs requis pour AbstractBaseUser
     is_staff = models.BooleanField(default=False)
@@ -191,14 +192,18 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
             self.matricule = f"{prefix}-{uuid.uuid4().hex[:6].upper()}"
             print(f"Matricule généré: {self.matricule}")
 
-        # Sauvegarde d'abord l'utilisateur
-        super().save(*args, **kwargs)
-
-        # Puis attribution des permissions
-        self.assign_role_permissions()
+        super().save(*args, **kwargs)  # On sauvegarde normalement
+        self.assign_role_permissions()  # Puis on assigne les permissions
         print("Utilisateur sauvegardé avec permissions")
 
-
+    def save_with_user(self, user, *args, **kwargs):
+        """Sauvegarde et enregistrement de l'utilisateur dans l'historique"""
+        pirnt("user :",user)
+        self.save(*args, **kwargs)  # Appel de la méthode save() normale
+        last_history = self.history.first()
+        if last_history and user:
+            last_history.history_user = user
+            last_history.save()
 
 
 class FonctionAgent(models.Model):
@@ -721,6 +726,7 @@ class AdminSysteme(models.Model):
         primary_key = True,
         limit_choices_to = {'role': Utilisateur.Role.ADMIN, 'is_superuser': True}
     )
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         # Vérifie que l'utilisateur est bien ADMIN ET superuser
@@ -733,6 +739,13 @@ class AdminSysteme(models.Model):
         #         "pour être AdminSysteme."
         #     )
         super().save(*args, **kwargs)
+
+    def save_with_user(self, user, *args, **kwargs):
+        self.save(*args, **kwargs)
+        last_history = self.history.first()
+        if last_history and user:
+            last_history.history_user = user
+            last_history.save()
 
 class AgentAdministration(models.Model):
     utilisateur = models.OneToOneField(
@@ -751,6 +764,13 @@ class AgentAdministration(models.Model):
             self.utilisateur.role = Utilisateur.Role.AGENT
             self.utilisateur.save()
         super().save(*args, **kwargs)
+
+    def save_with_user(self, user, *args, **kwargs):
+        self.save(*args, **kwargs)
+        last_history = self.history.first()
+        if last_history and user:
+            last_history.history_user = user
+            last_history.save()
 
 
 
@@ -775,6 +795,13 @@ class Enseignant(models.Model):
     def __str__(self):
         return f"{self.utilisateur}"
 
+    def save_with_user(self, user, *args, **kwargs):
+        self.save(*args, **kwargs)
+        last_history = self.history.first()
+        if last_history and user:
+            last_history.history_user = user
+            last_history.save()
+
 class Etudiant(models.Model):
     utilisateur = models.OneToOneField(
         Utilisateur,
@@ -785,11 +812,20 @@ class Etudiant(models.Model):
 
     def __str__(self):
         return f"{self.utilisateur.matricule} – {self.utilisateur.last_name} {self.utilisateur.first_name} - {self.classe_actuelle}"
+    def MNP(self):
+        return f"{self.utilisateur.matricule} – {self.utilisateur.last_name} {self.utilisateur.first_name}"
 
     @property
     def classe_actuelle(self):
         inscription = self.inscriptions.order_by('-annee_academique').first()
         return inscription.classe if inscription else None
+
+    def save_with_user(self, user, *args, **kwargs):
+        self.save(*args, **kwargs)
+        last_history = self.history.first()
+        if last_history and user:
+            last_history.history_user = user
+            last_history.save()
 
 class Parent(models.Model):
     utilisateur = models.OneToOneField(
@@ -800,9 +836,12 @@ class Parent(models.Model):
     )
     enfants = models.ManyToManyField(Etudiant, related_name='parent')
 
-
-# Permissions_Manager/models.py
-
+    def save_with_user(self, user, *args, **kwargs):
+        self.save(*args, **kwargs)
+        last_history = self.history.first()
+        if last_history and user:
+            last_history.history_user = user
+            last_history.save()
 
 class RolePermission(models.Model):
     print("\nInitialisation de RolePermission...")

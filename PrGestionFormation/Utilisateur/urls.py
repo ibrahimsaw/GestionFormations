@@ -6,6 +6,8 @@ app_name = 'utilisateur'
 urlpatterns = [
     # Vos URLs ici
     path('', login_view, name='login'),
+    path('parent/', Parent.as_view(), name='parent'),
+    path('etudiant/', Etudiant.as_view(), name='etudiant'),
     path('changer-mot-de-passe/', ChangerMotDePasseView.as_view(), name='changer_mot_de_passe'),
     path('utilisateur/<int:utilisateur_id>/changer-mot-de-passe/', ModifierMotDePasseUtilisateurView.as_view(), name='modifier_mot_de_passe_utilisateur'),
 
@@ -30,6 +32,9 @@ urlpatterns = [
 
     path('get_parcours_options/', get_parcours_options, name='get_parcours_options'),
     path('get_classes_options/', get_classes_options, name='get_classes_options'),
+    path('ajax/get-infos-etudiant/', get_infos_etudiant, name='get_infos_etudiant'),
+    path('search_students/',search_students, name='search_students'),
+
 
     # # Administrateur
     path('tableau_de_bord_admin/', Bienvenu.as_view(), name='tableau_de_bord_admin'),

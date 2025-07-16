@@ -304,10 +304,12 @@ class UtilisateurBaseView(BaseContextView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         type_name = self.get_type_name()
+        titre = self.model_mapping[self.model_type][-1]
 
         context.update({
             'bouton' : self.bouton,
             'path' : self.path,
+            'titre_formulaire' : titre,
             'titre_page' : self.titre_page,
             'role_utilisateur': type_name,
             'model_type': self.model_type,
@@ -362,6 +364,8 @@ class UtilisateurCreateView(UtilisateurBaseView, CreateView):
 
                 form.instance.utilisateur = utilisateur
                 self.object = form.save()
+                print("self.request.user :",self.request.user)
+                self.object.save_with_user(self.request.user)
                 self.messagecreate +="==> Form principal sauvegardé avec utilisateur"
 
                 return redirect(self.get_success_url())
@@ -726,6 +730,26 @@ def get_parcours_options(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+
+def get_infos_etudiant(request):
+    etudiant_id = request.GET.get('etudiant_id')
+    try:
+        etudiant = Etudiant.objects.get(utilisateur_id=etudiant_id)
+        inscription = etudiant.inscriptions.order_by('-annee_academique').first()
+
+        if not inscription:
+            return JsonResponse({'error': "Aucune inscription trouvée pour cet étudiant."}, status=404)
+
+        return JsonResponse({
+            'annee_id': inscription.annee_academique.id if inscription.annee_academique else '',
+            'parcours_id': inscription.parcours.id if inscription.parcours else '',
+            'classe_id': inscription.classe.id if inscription.classe else '',
+        })
+
+    except Etudiant.DoesNotExist:
+        return JsonResponse({'error': 'Étudiant introuvable'}, status=404)
+
+
 @require_GET
 def get_classes_options(request):
     """API pour récupérer les classes en fonction du parcours."""
@@ -739,3 +763,87 @@ def get_classes_options(request):
 
     data = [{'id': c.id, 'nom': f"{c.formation.nom} - {c.nom}"} for c in classes]
     return JsonResponse(data, safe=False)
+
+
+
+from django.views.decorators.http import require_http_methods
+
+
+# @require_http_methods(["GET"])
+# def search_students(request):
+#     query = request.GET.get('q', '')
+#     students = Student.objects.filter(
+#         Q(matricule__icontains=query) |
+#         Q(nom__icontains=query) |
+#         Q(prenom__icontains=query)
+#     )[:10]
+#
+#     return JsonResponse({
+#         'students': [{
+#             'id': s.id,
+#             'nom': s.nom,
+#             'prenom': s.prenom,
+#             'matricule': s.matricule,
+#             'classe': s.classe.nom if s.classe else None
+#         } for s in students]
+#     })
+
+
+from django.db.models import Q
+
+@require_http_methods(["GET"])
+@login_required
+def search_students(request):
+    query = request.GET.get('q', '').strip().lower()
+
+    # Recherche dans le modèle Etudiant (lié à Utilisateur)
+    etudiants = Etudiant.objects.filter(
+        Q(utilisateur__matricule__icontains=query) |
+        Q(utilisateur__last_name__icontains=query) |
+        Q(utilisateur__first_name__icontains=query)
+    )[:10]
+
+    results = []
+
+    for etu in etudiants:
+        classe = etu.classe_actuelle.nom if etu.classe_actuelle else ""
+        results.append({
+            'id': etu.utilisateur.id,  # car id réel = utilisateur_id
+            'nom': etu.utilisateur.last_name,
+            'prenom': etu.utilisateur.first_name,
+            'matricule': etu.utilisateur.matricule,
+            'classe': classe,
+        })
+
+    return JsonResponse({'students': results})
+
+
+@require_http_methods(["GET"])
+def get_student_info(request):
+    student_id = request.GET.get('student_id')
+    try:
+        student = Student.objects.get(id=student_id)
+        return JsonResponse({
+            'annee_id': student.annee_academique.id if student.annee_academique else None,
+            'parcours_id': student.parcours.id if student.parcours else None,
+            'classe_id': student.classe.id if student.classe else None,
+        })
+    except Student.DoesNotExist:
+        return JsonResponse({'error': 'Étudiant non trouvé'}, status=404)
+
+
+class Parent(BaseContextView, TemplateView):
+    template_name = 'Accuiel/parent.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['donne'] = 'autre donnée'
+        return context
+
+class Etudiant(BaseContextView, TemplateView):
+    template_name = 'Accuiel/etudiant.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['donne'] = 'autre donnée'
+        return context

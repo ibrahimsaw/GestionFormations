@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Étudiant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .grades-table, .schedule-table, .courses-table, .finance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .grades-table th, .schedule-table th, .courses-table th, .finance-table th,
+        .grades-table td, .schedule-table td, .courses-table td, .finance-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .grades-table th, .schedule-table th, .courses-table th, .finance-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .grade-good {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .grade-average {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .grade-poor {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .status-actif {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .status-suspendu {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .finance-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .finance-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #667eea;
+        }
+
+        .finance-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .document-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .download-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #5a67d8;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+            
+            .nav-btn {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="student-info">
+                <div class="avatar">JD</div>
+                <div>
+                    <h2>Jean Dupont</h2>
+                    <p>Étudiant en Informatique - Niveau L3</p>
+                </div>
+            </div>
+            <div>
+                <p><strong>Année Académique:</strong> 2024-2025</p>
+                <p><strong>Numéro Étudiant:</strong> 202400123</p>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <button class="nav-btn active" onclick="showSection('profile')">Profil</button>
+            <button class="nav-btn" onclick="showSection('grades')">Notes</button>
+            <button class="nav-btn" onclick="showSection('schedule')">Emploi du Temps</button>
+            <button class="nav-btn" onclick="showSection('courses')">Cours</button>
+            <button class="nav-btn" onclick="showSection('documents')">Documents</button>
+            <button class="nav-btn" onclick="showSection('finance')">Finances</button>
+        </div>
+
+        <!-- Section Profil -->
+        <div id="profile" class="content-section active">
+            <h2 class="section-title">Informations Personnelles</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Identité</h3>
+                    <p><strong>Nom:</strong> Dupont</p>
+                    <p><strong>Prénom:</strong> Jean</p>
+                    <p><strong>Date de naissance:</strong> 15/03/2002</p>
+                    <p><strong>Lieu de naissance:</strong> Paris, France</p>
+                </div>
+                <div class="info-card">
+                    <h3>Contact</h3>
+                    <p><strong>Téléphone:</strong> +33 6 12 34 56 78</p>
+                    <p><strong>Email:</strong> jean.dupont@email.com</p>
+                    <p><strong>Adresse:</strong> 123 Rue de la Paix, 75001 Paris</p>
+                </div>
+                <div class="info-card">
+                    <h3>Scolarité</h3>
+                    <p><strong>Filière:</strong> Informatique</p>
+                    <p><strong>Niveau:</strong> Licence 3</p>
+                    <p><strong>Année d'inscription:</strong> 2022</p>
+                    <p><strong>Statut:</strong> <span class="status-actif">Actif</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>Contact d'urgence</h3>
+                    <p><strong>Nom:</strong> Marie Dupont</p>
+                    <p><strong>Lien:</strong> Mère</p>
+                    <p><strong>Téléphone:</strong> +33 6 98 76 54 32</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Notes -->
+        <div id="grades" class="content-section">
+            <h2 class="section-title">Notes et Résultats</h2>
+            <div class="alert">
+                <strong>Moyenne générale:</strong> 14.2/20 - Mention Bien
+            </div>
+            <table class="grades-table">
+                <thead>
+                    <tr>
+                        <th>Matière</th>
+                        <th>Professeur</th>
+                        <th>Coefficient</th>
+                        <th>Note</th>
+                        <th>Moyenne Classe</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Programmation Web</td>
+                        <td>Prof. Martin</td>
+                        <td>3</td>
+                        <td><span class="grade-good">16/20</span></td>
+                        <td>13.2/20</td>
+                        <td>Validé</td>
+                    </tr>
+                    <tr>
+                        <td>Base de Données</td>
+                        <td>Prof. Dubois</td>
+                        <td>4</td>
+                        <td><span class="grade-good">15/20</span></td>
+                        <td>12.8/20</td>
+                        <td>Validé</td>
+                    </tr>
+                    <tr>
+                        <td>Algorithmes</td>
+                        <td>Prof. Leroy</td>
+                        <td>4</td>
+                        <td><span class="grade-average">12/20</span></td>
+                        <td>11.5/20</td>
+                        <td>Validé</td>
+                    </tr>
+                    <tr>
+                        <td>Réseaux</td>
+                        <td>Prof. Bernard</td>
+                        <td>3</td>
+                        <td><span class="grade-good">14/20</span></td>
+                        <td>12.1/20</td>
+                        <td>Validé</td>
+                    </tr>
+                    <tr>
+                        <td>Anglais</td>
+                        <td>Prof. Smith</td>
+                        <td>2</td>
+                        <td><span class="grade-average">13/20</span></td>
+                        <td>14.2/20</td>
+                        <td>Validé</td>
+                    </tr>
+                    <tr>
+                        <td>Gestion de Projet</td>
+                        <td>Prof. Moreau</td>
+                        <td>2</td>
+                        <td><span class="grade-good">17/20</span></td>
+                        <td>13.8/20</td>
+                        <td>Validé</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section Emploi du Temps -->
+        <div id="schedule" class="content-section">
+            <h2 class="section-title">Emploi du Temps - Semaine du 15 au 19 Juillet 2025</h2>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Horaire</th>
+                        <th>Lundi</th>
+                        <th>Mardi</th>
+                        <th>Mercredi</th>
+                        <th>Jeudi</th>
+                        <th>Vendredi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>8h00-10h00</strong></td>
+                        <td>Programmation Web<br><small>Prof. Martin - Salle A101</small></td>
+                        <td>Base de Données<br><small>Prof. Dubois - Salle B205</small></td>
+                        <td></td>
+                        <td>Algorithmes<br><small>Prof. Leroy - Salle A102</small></td>
+                        <td>Gestion de Projet<br><small>Prof. Moreau - Salle C301</small></td>
+                    </tr>
+                    <tr>
+                        <td><strong>10h15-12h15</strong></td>
+                        <td>TP Programmation Web<br><small>Prof. Martin - Lab Info 1</small></td>
+                        <td>TP Base de Données<br><small>Prof. Dubois - Lab Info 2</small></td>
+                        <td>Réseaux<br><small>Prof. Bernard - Salle B203</small></td>
+                        <td>TP Algorithmes<br><small>Prof. Leroy - Lab Info 1</small></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><strong>14h00-16h00</strong></td>
+                        <td>Anglais<br><small>Prof. Smith - Salle D401</small></td>
+                        <td></td>
+                        <td>TP Réseaux<br><small>Prof. Bernard - Lab Réseau</small></td>
+                        <td>Base de Données<br><small>Prof. Dubois - Salle B205</small></td>
+                        <td>Algorithmes<br><small>Prof. Leroy - Salle A102</small></td>
+                    </tr>
+                    <tr>
+                        <td><strong>16h15-18h15</strong></td>
+                        <td></td>
+                        <td>Gestion de Projet<br><small>Prof. Moreau - Salle C301</small></td>
+                        <td></td>
+                        <td>Anglais<br><small>Prof. Smith - Salle D401</small></td>
+                        <td>Projet Tutoré<br><small>Encadrant: Prof. Martin</small></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section Cours -->
+        <div id="courses" class="content-section">
+            <h2 class="section-title">Mes Cours</h2>
+            <table class="courses-table">
+                <thead>
+                    <tr>
+                        <th>Matière</th>
+                        <th>Professeur</th>
+                        <th>Statut</th>
+                        <th>Prochaine Séance</th>
+                        <th>Salle</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Programmation Web</td>
+                        <td>Prof. Martin</td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td>Lundi 21 Juillet - 8h00</td>
+                        <td>A101</td>
+                        <td><button class="download-btn">Voir Support</button></td>
+                    </tr>
+                    <tr>
+                        <td>Base de Données</td>
+                        <td>Prof. Dubois</td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td>Mardi 22 Juillet - 8h00</td>
+                        <td>B205</td>
+                        <td><button class="download-btn">Voir Support</button></td>
+                    </tr>
+                    <tr>
+                        <td>Algorithmes</td>
+                        <td>Prof. Leroy</td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td>Jeudi 24 Juillet - 8h00</td>
+                        <td>A102</td>
+                        <td><button class="download-btn">Voir Support</button></td>
+                    </tr>
+                    <tr>
+                        <td>Réseaux</td>
+                        <td>Prof. Bernard</td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td>Mercredi 23 Juillet - 14h00</td>
+                        <td>B203</td>
+                        <td><button class="download-btn">Voir Support</button></td>
+                    </tr>
+                    <tr>
+                        <td>Anglais</td>
+                        <td>Prof. Smith</td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td>Lundi 21 Juillet - 14h00</td>
+                        <td>D401</td>
+                        <td><button class="download-btn">Voir Support</button></td>
+                    </tr>
+                    <tr>
+                        <td>Mathématiques Discrètes</td>
+                        <td>Prof. Rousseau</td>
+                        <td><span class="status-suspendu">Suspendu</span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section Documents -->
+        <div id="documents" class="content-section">
+            <h2 class="section-title">Mes Documents</h2>
+            
+            <h3>Documents Administratifs</h3>
+            <div class="document-item">
+                <div>
+                    <strong>Certificat de Scolarité 2024-2025</strong>
+                    <p>Généré le 10 Juillet 2025</p>
+                </div>
+                <button class="download-btn">Télécharger</button>
+            </div>
+            <div class="document-item">
+                <div>
+                    <strong>Relevé de Notes - Semestre 1</strong>
+                    <p>Généré le 15 Février 2025</p>
+                </div>
+                <button class="download-btn">Télécharger</button>
+            </div>
+            <div class="document-item">
+                <div>
+                    <strong>Attestation d'Inscription</strong>
+                    <p>Généré le 1 Septembre 2024</p>
+                </div>
+                <button class="download-btn">Télécharger</button>
+            </div>
+
+            <h3>Cours et Supports</h3>
+            <div class="document-item">
+                <div>
+                    <strong>Cours Programmation Web - Chapitre 1 à 5</strong>
+                    <p>Mis à jour le 12 Juillet 2025</p>
+                </div>
+                <button class="download-btn">Télécharger</button>
+            </div>
+            <div class="document-item">
+                <div>
+                    <strong>TP Base de Données - Exercices</strong>
+                    <p>Mis à jour le 10 Juillet 2025</p>
+                </div>
+                <button class="download-btn">Télécharger</button>
+            </div>
+            <div class="document-item">
+                <div>
+                    <strong>Projet Tutoré - Cahier des Charges</strong>
+                    <p>Mis à jour le 8 Juillet 2025</p>
+                </div>
+                <button class="download-btn">Télécharger</button>
+            </div>
+        </div>
+
+        <!-- Section Finances -->
+        <div id="finance" class="content-section">
+            <h2 class="section-title">Situation Financière</h2>
+            
+            <div class="finance-summary">
+                <div class="finance-card">
+                    <h3>Frais de Scolarité</h3>
+                    <div class="finance-amount">3 500 €</div>
+                    <p>Année 2024-2025</p>
+                </div>
+                <div class="finance-card">
+                    <h3>Montant Payé</h3>
+                    <div class="finance-amount">2 100 €</div>
+                    <p>60% du total</p>
+                </div>
+                <div class="finance-card">
+                    <h3>Reste à Payer</h3>
+                    <div class="finance-amount">1 400 €</div>
+                    <p>Échéance: 30 Août 2025</p>
+                </div>
+            </div>
+
+            <h3>Historique des Paiements</h3>
+            <table class="finance-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th>Facture</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>15 Juin 2025</td>
+                        <td>Frais de Scolarité - 2ème Trimestre</td>
+                        <td>1 200 €</td>
+                        <td><span class="status-actif">Payé</span></td>
+                        <td><button class="download-btn">Voir</button></td>
+                    </tr>
+                    <tr>
+                        <td>15 Mars 2025</td>
+                        <td>Frais de Scolarité - 1er Trimestre</td>
+                        <td>1 200 €</td>
+                        <td><span class="status-actif">Payé</span></td>
+                        <td><button class="download-btn">Voir</button></td>
+                    </tr>
+                    <tr>
+                        <td>1 Septembre 2024</td>
+                        <td>Frais d'inscription</td>
+                        <td>700 €</td>
+                        <td><span class="status-actif">Payé</span></td>
+                        <td><button class="download-btn">Voir</button></td>
+                    </tr>
+                    <tr>
+                        <td>30 Août 2025</td>
+                        <td>Frais de Scolarité - 3ème Trimestre</td>
+                        <td>1 400 €</td>
+                        <td><span class="status-suspendu">En attente</span></td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Masquer toutes les sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Désactiver tous les boutons
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Afficher la section sélectionnée
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Activer le bouton correspondant
+            event.target.classList.add('active');
+        }
+
+        // Ajouter des interactions pour les boutons de téléchargement
+        document.querySelectorAll('.download-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                alert('Téléchargement en cours...');
+            });
+        });
+    </script>
+</body>
+</html>

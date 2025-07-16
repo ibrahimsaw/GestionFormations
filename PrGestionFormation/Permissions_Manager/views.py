@@ -521,3 +521,11 @@ class DetailPermissionView(GestionPermissionsBaseView, LoginRequiredMixin, Permi
         context.update(super().get_context_data(**kwargs))
 
         return render(request, self.template_name, context)
+
+def historique_utilisateur(request, pk):
+    utilisateur = get_object_or_404(Utilisateur, pk=pk)
+    historique = utilisateur.history.all().order_by('-history_date')
+    return render(request, 'Permissions_Manager/utilisateur/historique.html', {
+        'utilisateur': utilisateur,
+        'historique': historique,
+    })
