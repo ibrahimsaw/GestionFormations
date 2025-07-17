@@ -594,10 +594,10 @@ class HistoriqueUtilisateurView(BaseContextView, DetailView, MultipleObjectMixin
 
     def get_context_data(self, **kwargs):
         self.object = self.get_object()
-        role = self.kwargs.get('type', 'Moi')
+        role = self.kwargs.get('type', 'moi')
 
         # Récupération de l'historique selon le rôle
-        if role == 'Action':
+        if role == 'action':
             historique = self.get_all_actions_done_by_user(self.object)
         else:
             historique = self.object.history.all().order_by('-history_date')
