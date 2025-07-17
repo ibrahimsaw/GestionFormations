@@ -164,6 +164,8 @@ class Inscription(models.Model):
     etudiant = models.ForeignKey(
         Etudiant,
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
         related_name="inscriptions"
     )
 
@@ -210,7 +212,8 @@ class Inscription(models.Model):
     statut = models.CharField(
         max_length=20,
         choices=STATUT_CHOICES,
-        default=STATUT_INSCRIT
+        default=STATUT_INSCRIT,
+        help_text="Sélectionnez le statut de l'étudiant"
     )
 
     resultat_annee_precedente = models.CharField(max_length=100, blank=True, null=True)

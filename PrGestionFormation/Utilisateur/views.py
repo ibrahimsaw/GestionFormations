@@ -818,21 +818,26 @@ def search_students(request):
     return JsonResponse({'students': results})
 
 
+
+from django.views.decorators.http import require_http_methods
+
+
 @require_http_methods(["GET"])
 def get_student_info(request):
-    student_id = request.GET.get('student_id')
+    etudiant_id = request.GET.get('etudiant_id')  # correspond à ta requête
     try:
-        student = Student.objects.get(id=student_id)
+        etudiant = Etudiant.objects.get(utilisateur__id=etudiant_id)  # ✅ si id = id de l'utilisateur
         return JsonResponse({
-            'annee_id': student.annee_academique.id if student.annee_academique else None,
-            'parcours_id': student.parcours.id if student.parcours else None,
-            'classe_id': student.classe.id if student.classe else None,
+            'annee_id': etudiant.annee_academique.id if etudiant.annee_academique else None,
+            'parcours_id': etudiant.parcours.id if etudiant.parcours else None,
+            'classe_id': etudiant.classe_actuelle.id if etudiant.classe_actuelle else None,
         })
-    except Student.DoesNotExist:
+    except Etudiant.DoesNotExist:
         return JsonResponse({'error': 'Étudiant non trouvé'}, status=404)
 
 
-class Parent(BaseContextView, TemplateView):
+
+class ParentextView(BaseContextView, TemplateView):
     template_name = 'Accuiel/parent.html'
 
     def get_context_data(self, **kwargs):
@@ -840,8 +845,16 @@ class Parent(BaseContextView, TemplateView):
         context['donne'] = 'autre donnée'
         return context
 
-class Etudiant(BaseContextView, TemplateView):
+class EtudiantextView(BaseContextView, TemplateView):
     template_name = 'Accuiel/etudiant.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['donne'] = 'autre donnée'
+        return context
+
+class EtudiantextViewS(BaseContextView, TemplateView):
+    template_name = 'Accuiel/etudiantS.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

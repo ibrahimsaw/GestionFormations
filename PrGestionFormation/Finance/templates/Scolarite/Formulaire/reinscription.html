@@ -37,15 +37,31 @@
 </div>
 
 <!-- Statut -->
-<div class="row mb-3">
+<div class="row mb-3 align-items-center">
   <label for="id_statut" class="col-sm-2 col-form-label">Statut</label>
   <div class="col-sm-10">
-    {{ form.statut|add_class:"form-select" }}
-    {% for error in form.statut.errors %}
-      <div class="text-danger small">⚠️ {{ error }}</div>
-    {% endfor %}
+    <div class="input-group input-group-merge">
+      <span class="input-group-text bg-light"><i class="bx bx-list-check"></i></span>
+      <select id="id_statut" name="{{ form.statut.name }}" class="form-select">
+        <option value="">---------</option>
+        {% for value, label in form.statut.field.choices %}
+          <option value="{{ value }}" {% if form.statut.value == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+   {% if form.statut.help_text %}
+      <div class="form-text text-muted">{{ form.statut.help_text }}</div>
+    {% endif %}
+    {% if form.statut.errors %}
+      <div class="text-danger small mt-1">
+        {% for error in form.statut.errors %}
+          <div>⚠️ {{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 </div>
+
 
 <!-- Recherche étudiant améliorée -->
 <div class="row mb-3">
@@ -256,7 +272,9 @@ class FormManager {
   init() {
     this.setupEventListeners();
     this.updateFieldsVisibility();
+    this.updateDocumentsForStatus();
     this.resetAllFields();
+    this.handleStatusChange(); // ✅ le plus important
   }
 
   setupEventListeners() {
@@ -527,6 +545,7 @@ class FormManager {
   // Gestion des documents
   updateDocumentsForStatus() {
     const statut = this.statutField.value;
+    console.log("Statut détecté :", statut);
     const documentsParStatut = {
       en_attente: ['formulaire', 'naissance', 'cni'],
       reserviste: ['formulaire', 'diplome', 'bulletin'],

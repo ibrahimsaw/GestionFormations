@@ -50,8 +50,12 @@ navbar = [
         "url": "utilisateur:parent"
     },
     {
-        "ul": "Audit de sécurité", "bouton": "true", "role": "Administrateur",
+        "ul": "Etudiant", "bouton": "true", "role": "Etudiant",
         "url": "utilisateur:etudiant"
+    },
+    {
+        "ul": "Etudiant 2", "bouton": "true", "role": "Etudiant2",
+        "url": "utilisateur:etudiantS"
     },
     # {
     #     "ul": "Maintenance", "bouton": "true", "role": "Administrateur",
