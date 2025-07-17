@@ -717,28 +717,12 @@ class FonctionAgent(models.Model):
 
 
 
+class BaseRoleModel(models.Model):
+    """Classe de base pour les modèles liés à un utilisateur."""
+    history = HistoricalRecords(inherit=True)
 
-
-class AdminSysteme(models.Model):
-    utilisateur = models.OneToOneField(
-        Utilisateur,
-        on_delete=models.CASCADE,
-        primary_key = True,
-        limit_choices_to = {'role': Utilisateur.Role.ADMIN, 'is_superuser': True}
-    )
-    history = HistoricalRecords()
-
-    def save(self, *args, **kwargs):
-        # Vérifie que l'utilisateur est bien ADMIN ET superuser
-        print(self.utilisateur.role)
-        print(Utilisateur.Role.ADMIN)
-        print(self.utilisateur.is_superuser)
-        # if self.utilisateur.role != Utilisateur.Role.ADMIN or not self.utilisateur.is_superuser:
-        #     raise ValueError(
-        #         "L'utilisateur doit avoir le rôle ADMIN ET être superutilisateur "
-        #         "pour être AdminSysteme."
-        #     )
-        super().save(*args, **kwargs)
+    class Meta:
+        abstract = True
 
     def save_with_user(self, user, *args, **kwargs):
         self.save(*args, **kwargs)
@@ -747,7 +731,17 @@ class AdminSysteme(models.Model):
             last_history.history_user = user
             last_history.save()
 
-class AgentAdministration(models.Model):
+
+class AdminSysteme(BaseRoleModel):
+    utilisateur = models.OneToOneField(
+        Utilisateur,
+        on_delete=models.CASCADE,
+        primary_key = True,
+        limit_choices_to = {'role': Utilisateur.Role.ADMIN, 'is_superuser': True}
+    )
+
+
+class AgentAdministration(BaseRoleModel):
     utilisateur = models.OneToOneField(
         Utilisateur,
         on_delete=models.CASCADE,
@@ -765,13 +759,6 @@ class AgentAdministration(models.Model):
             self.utilisateur.save()
         super().save(*args, **kwargs)
 
-    def save_with_user(self, user, *args, **kwargs):
-        self.save(*args, **kwargs)
-        last_history = self.history.first()
-        if last_history and user:
-            last_history.history_user = user
-            last_history.save()
-
 
 
 
@@ -782,7 +769,7 @@ class Specialite(models.Model):
     def __str__(self):
         return self.nom
 
-class Enseignant(models.Model):
+class Enseignant(BaseRoleModel):
     utilisateur = models.OneToOneField(
         Utilisateur,
         on_delete=models.CASCADE,
@@ -795,14 +782,7 @@ class Enseignant(models.Model):
     def __str__(self):
         return f"{self.utilisateur}"
 
-    def save_with_user(self, user, *args, **kwargs):
-        self.save(*args, **kwargs)
-        last_history = self.history.first()
-        if last_history and user:
-            last_history.history_user = user
-            last_history.save()
-
-class Etudiant(models.Model):
+class Etudiant(BaseRoleModel):
     utilisateur = models.OneToOneField(
         Utilisateur,
         on_delete=models.CASCADE,
@@ -820,14 +800,8 @@ class Etudiant(models.Model):
         inscription = self.inscriptions.order_by('-annee_academique').first()
         return inscription.classe if inscription else None
 
-    def save_with_user(self, user, *args, **kwargs):
-        self.save(*args, **kwargs)
-        last_history = self.history.first()
-        if last_history and user:
-            last_history.history_user = user
-            last_history.save()
 
-class Parent(models.Model):
+class Parent(BaseRoleModel):
     utilisateur = models.OneToOneField(
         Utilisateur,
         on_delete=models.CASCADE,
@@ -836,12 +810,6 @@ class Parent(models.Model):
     )
     enfants = models.ManyToManyField(Etudiant, related_name='parent')
 
-    def save_with_user(self, user, *args, **kwargs):
-        self.save(*args, **kwargs)
-        last_history = self.history.first()
-        if last_history and user:
-            last_history.history_user = user
-            last_history.save()
 
 class RolePermission(models.Model):
     print("\nInitialisation de RolePermission...")
