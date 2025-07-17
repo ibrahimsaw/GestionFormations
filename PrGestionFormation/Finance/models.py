@@ -6,7 +6,7 @@ from decimal import Decimal, InvalidOperation
 
 
 # Create your models here.
-class Frais(models.Model):
+class Frais(BaseRoleModel):
     LIBELLE_CHOICES = [
         ('SCOLARITE', 'Scolarité'),
         ('INSCRIPTION', 'Inscription'),
@@ -59,7 +59,7 @@ class Frais(models.Model):
         return f"{self.get_libelle_display()} - {self.get_montant_display()}"
 
 
-class Paiement(models.Model):
+class Paiement(BaseRoleModel):
     class MethodePaiement(models.TextChoices):
         CB = 'CB', 'Carte Bancaire'
         ESPECES = 'ES', 'Espèces'
@@ -136,7 +136,7 @@ class DocumentInscription(models.Model):
         return f"{self.get_type_document_display()} - {self.inscription.etudiant}"
 
 
-class Inscription(models.Model):
+class Inscription(BaseRoleModel):
     STATUT_INSCRIT = 'inscrit'
     STATUT_REINSCRIT = 'reinscrit'
     STATUT_ABANDON = 'abandon'
