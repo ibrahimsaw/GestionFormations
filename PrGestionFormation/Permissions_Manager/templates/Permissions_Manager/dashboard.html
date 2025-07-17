@@ -252,11 +252,21 @@
 												   <span class="badge bg-warning ms-1">{{ user.user_permissions.count }} perm.</span>
 											   </td>
 											   <td>
-												   <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
-													  class="btn btn-sm btn-primary">
-													   <i class="bx bx-plus-circle"></i>
-												   </a>
-											   </td>
+   <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
+      class="btn btn-sm btn-success me-2" title="Gérer permissions">
+       <i class="bx bx-user-check"></i>
+   </a>
+   <a href="{% url 'Permissions_Manager:historique_utilisateur' 'Action' user.id %}"
+      class="btn btn-sm btn-warning me-2" title="Voir actions de l'utilisateur">
+       <i class="bx bx-history"></i>
+   </a>
+   <a href="{% url 'Permissions_Manager:historique_utilisateur' 'Moi' user.id %}"
+      class="btn btn-sm btn-danger" title="Voir modifications sur l'utilisateur">
+       <i class="bx bx-user"></i>
+   </a>
+</td>
+
+
 										   </tr>
 										   {% endfor %}
 									   {% endfor %}

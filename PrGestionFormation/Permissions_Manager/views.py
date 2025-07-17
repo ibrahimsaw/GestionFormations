@@ -523,9 +523,93 @@ class DetailPermissionView(GestionPermissionsBaseView, LoginRequiredMixin, Permi
         return render(request, self.template_name, context)
 
 def historique_utilisateur(request, pk):
+    paginate_by = 10
     utilisateur = get_object_or_404(Utilisateur, pk=pk)
     historique = utilisateur.history.all().order_by('-history_date')
     return render(request, 'Permissions_Manager/utilisateur/historique.html', {
         'utilisateur': utilisateur,
         'historique': historique,
+        'paginate_by' : 10
     })
+
+from django.apps import apps
+
+def get_all_historical_entries_by_user(user):
+    historiques = []
+    for model in apps.get_models():
+        # On cherche les modèles avec un champ 'history'
+        if hasattr(model, 'history'):
+            try:
+                historiques += list(model.history.filter(history_user=user))
+            except Exception:
+                pass
+    historiques.sort(key=lambda x: x.history_date, reverse=True)
+    return historiques
+
+def historique_actions_par_utilisateur(request, utilisateur_pk):
+    utilisateur = get_object_or_404(Utilisateur, pk=utilisateur_pk)
+    historiques = get_all_historical_entries_by_user(utilisateur)
+
+    for entry in historiques:
+        try:
+            entry.model_name = entry.instance._meta.verbose_name.title()
+        except:
+            entry.model_name = "Objet inconnu"
+
+    return render(request, 'Permissions_Manager/utilisateur/historique_actions.html', {
+        'utilisateur': utilisateur,
+        'historiques': historiques,
+    })
+
+from django.views.generic import DetailView
+from django.views.generic.list import MultipleObjectMixin
+from django.apps import apps
+from django.shortcuts import get_object_or_404
+from .models import Utilisateur
+
+
+class HistoriqueUtilisateurView(BaseContextView, DetailView, MultipleObjectMixin):
+    model = Utilisateur
+    template_name = 'Permissions_Manager/utilisateur/historique_unifie.html'
+    context_object_name = 'utilisateur'
+    paginate_by = 10
+
+    def get_all_actions_done_by_user(self, user):
+        historiques = []
+
+        for model in apps.get_models():
+            if hasattr(model, 'history'):
+                try:
+                    historiques += list(model.history.filter(history_user=user))
+                except Exception:
+                    pass
+
+        for entry in historiques:
+            try:
+                entry.model_name = entry.instance._meta.verbose_name.title()
+            except Exception:
+                entry.model_name = "Objet inconnu"
+
+        return sorted(historiques, key=lambda x: x.history_date, reverse=True)
+
+    def get_context_data(self, **kwargs):
+        self.object = self.get_object()
+        role = self.kwargs.get('type', 'Moi')
+
+        # Récupération de l'historique selon le rôle
+        if role == 'Action':
+            historique = self.get_all_actions_done_by_user(self.object)
+        else:
+            historique = self.object.history.all().order_by('-history_date')
+            for entry in historique:
+                try:
+                    entry.model_name = entry.instance._meta.verbose_name.title()
+                except Exception:
+                    entry.model_name = "Utilisateur"
+
+        # Ajout de la liste paginée à context
+        context = super().get_context_data(object_list=historique, **kwargs)
+        context['historiques'] = context['object_list']
+        context['role'] = role
+        return context
+
