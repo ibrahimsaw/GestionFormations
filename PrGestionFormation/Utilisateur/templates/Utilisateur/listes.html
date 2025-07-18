@@ -6,22 +6,32 @@
 
 <div class="col-xl-12">
   <div class="row g-3 mb-4 align-items-center justify-content-between">
-   <div class="d-sm-flex align-items-center justify-content-between">
-	<h6 class="text-muted">{{ titre_page }}</h6>
-	<nav aria-label="breadcrumb" class="d-none d-sm-block">
-	   <ol class="breadcrumb">
-		 {% for item in breadcrumb %}
-		   {% if item.is_last %}
-			 <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
-		   {% elif item.is_first %}
-			 <li class="breadcrumb-item">{{ item.name }}</li>
-		   {% else %}
-			 <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
-		   {% endif %}
-		 {% endfor %}
-	   </ol>
-   </nav>
-   </div>
+   <!-- En-tête avec breadcrumb modernisé -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="text-primary fw-bold mb-1">{{ titre_page }}</h4>
+    <p class="text-muted small mb-0">Gestion des utilisateurs du système</p>
+  </div>
+  <nav aria-label="breadcrumb" class="d-none d-sm-block">
+    <ol class="breadcrumb bg-light px-3 py-2 rounded-pill mb-0">
+      {% for item in breadcrumb %}
+        {% if item.is_last %}
+          <li class="breadcrumb-item active fw-semibold" aria-current="page">
+            <i class="bx bx-chevron-right me-1"></i>{{ item.name }}
+          </li>
+        {% elif item.is_first %}
+          <li class="breadcrumb-item">
+            <i class="bx bx-home me-1"></i>{{ item.name }}
+          </li>
+        {% else %}
+          <li class="breadcrumb-item">
+            <a href="{{ item.url }}" class="text-decoration-none">{{ item.name }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+  </nav>
+</div>
 	<div class="col-auto">
 		 <div class="page-utilities">
 			<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
@@ -148,15 +158,24 @@
 
 				  <td>
 					  {% if agent.utilisateur.iget_full_name %}
-						{{ agent.utilisateur.iget_full_name }}
-					  {% elif agent.iget_full_name %}
-						{{ agent.iget_full_name }}
-					  {% else %}
-						<div class="text-center">
-						  <div class="text-warning"> --- </div>
-						</div>
-				   
-					  {% endif %}
+						   <div class="d-flex align-items-center">
+							 <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center"
+								  style="width: 40px; height: 40px;">
+							   <span class="text-white fw-bold">{{ agent.utilisateur.get_initials }}</span>
+							 </div>
+							 <span class="fw-semibold">{{ agent.utilisateur.iget_full_name }}</span>
+						   </div>
+						 {% elif agent.iget_full_name %}
+						   <div class="d-flex align-items-center">
+							 <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center"
+								  style="width: 40px; height: 40px;">
+							   <span class="text-white fw-bold">{{ agent.get_initials }}</span>
+							 </div>
+							 <span class="fw-semibold">{{ agent.iget_full_name }}</span>
+						   </div>
+						 {% else %}
+						   <span class="text-warning">---</span>
+						 {% endif %}
 					</td>
 <!--					<td>-->
 <!--					  {% if agent.utilisateur.first_name %}-->
@@ -218,13 +237,17 @@
 				 {% endif %}
 
 					{% if titre_formulaire == "Administrateur Système" %}
-					<th>
-						{% if agent.utilisateur.is_superuser %}
-							✅
-						{% else %}
-							❌
-						{% endif %}
-					</th>
+					<td class="text-center">
+                          {% if agent.utilisateur.is_superuser %}
+                            <span class="badge bg-success">
+                              <i class="bx bx-check me-1"></i>Oui
+                            </span>
+                          {% else %}
+                            <span class="badge bg-secondary">
+                              <i class="bx bx-x me-1"></i>Non
+                            </span>
+                          {% endif %}
+                        </td>
 				{% endif %}
 
 					{% if titre_formulaire == "Agent d'Administration" %}
@@ -235,9 +258,6 @@
 									 <span style="display: inline-flex; align-items: center; gap: 6px;">
 										 <i class="bx bx-briefcase-alt" style="color: #696cff;"></i>
 										 {{ fonction.nom }}
-										 {% if fonction.code %}
-											 <small style="color: #8592a3;">({{ fonction.code }})</small>
-										 {% endif %}
 									 </span>
 								 {% endfor %}
 							 </div>
@@ -326,38 +346,52 @@
 		  </table>
 		 <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
 			{% if is_paginated %}
-				<nav class="app-pagination">
-					<ul class="pagination justify-content-center">
-						{% if page_obj.has_previous %}
-							<li class="page-item">
-								<a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-							</li>
-						{% else %}
-							<li class="page-item disabled">
-								<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-							</li>
-						{% endif %}
+              <div class="card-footer bg-light border-0 p-4">
+                <nav aria-label="Pagination">
+                  <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                      <li class="page-item">
+                        <a class="page-link rounded-pill me-2" href="?page={{ page_obj.previous_page_number }}">
+                          <i class="bx bx-chevron-left"></i>
+                        </a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <span class="page-link rounded-pill me-2">
+                          <i class="bx bx-chevron-left"></i>
+                        </span>
+                      </li>
+                    {% endif %}
 
-						{% for num in paginator.page_range %}
-							{% if page_obj.number == num %}
-								<li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
-							{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-								<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-							{% endif %}
-						{% endfor %}
+                    {% for num in paginator.page_range %}
+                      {% if page_obj.number == num %}
+                        <li class="page-item active">
+                          <span class="page-link rounded-pill mx-1">{{ num }}</span>
+                        </li>
+                      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                          <a class="page-link rounded-pill mx-1" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
 
-						{% if page_obj.has_next %}
-							<li class="page-item">
-								<a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-							</li>
-						{% else %}
-							<li class="page-item disabled">
-								<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
-							</li>
-						{% endif %}
-					</ul>
-				</nav>
-			{% endif %}
+                    {% if page_obj.has_next %}
+                      <li class="page-item">
+                        <a class="page-link rounded-pill ms-2" href="?page={{ page_obj.next_page_number }}">
+                          <i class="bx bx-chevron-right"></i>
+                        </a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <span class="page-link rounded-pill ms-2">
+                          <i class="bx bx-chevron-right"></i>
+                        </span>
+                      </li>
+                    {% endif %}
+                  </ul>
+                </nav>
+              </div>
+            {% endif %}
 		</div>
 		</div>
 	</div>

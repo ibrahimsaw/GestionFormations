@@ -16,8 +16,7 @@ from .forms import UserRolePermissionForm, AssignFonctionForm, CustomPermissionF
 from .models import MetaPermission
 from django.contrib.contenttypes.models import ContentType
 from collections import defaultdict
-
-
+from django.db.models import Count
 
 
 def get_group_permission_count(user):
@@ -172,6 +171,13 @@ class GestionPermissionsView(GestionPermissionsBaseView,LoginRequiredMixin, Perm
             for users in users_by_role.values()
             for user in users
         }
+        models_list = (
+            Permission.objects.values_list('content_type__model', flat=True)
+            .distinct()
+            .order_by('content_type__model')
+        )
+
+        context['models_list'] = models_list
 
         # Ajout des permissions à chaque utilisateur
         for users in users_by_role.values():
@@ -281,16 +287,6 @@ class GererPermissionsUtilisateurView(GestionPermissionsBaseView, LoginRequiredM
         context = self.get_context_data(form=form, user=user, active_tab='users')
         return render(request, self.template_name, context)
 
-
-
-
-
-
-
-
-
-
-
 class GererFonctionView(GestionPermissionsBaseView,LoginRequiredMixin, PermissionRequiredMixin, View):
     """
     Vue pour créer ou modifier une fonction d'agent
@@ -340,70 +336,6 @@ class GererFonctionView(GestionPermissionsBaseView,LoginRequiredMixin, Permissio
         })
 
 
-
-# class CreerPermissionView(BaseContextView,LoginRequiredMixin, PermissionRequiredMixin, View):
-#     """
-#     Vue pour créer ou modifier une permission
-#     """
-#     permission_required = 'auth.add_permission'
-#     template_name = 'Permissions_Manager/creer_permission.html'
-#     form_class = CustomPermissionForm
-#
-#     def get_permission(self, permission_id):
-#         if permission_id:
-#             return get_object_or_404(
-#                 Permission.objects.select_related('content_type', 'meta'),
-#                 pk=permission_id
-#             )
-#         return None
-#
-#     def get_initial(self, permission):
-#         if not permission:
-#             return {}
-#
-#         try:
-#             meta = permission.meta
-#             return {
-#                 'description': meta.description,
-#                 'roles_autorises': meta.roles_autorises.split(',')
-#             }
-#         except AttributeError:
-#             return {}
-#
-#     def get(self, request, permission_id=None, *args, **kwargs):
-#         permission = self.get_permission(permission_id)
-#         form = self.form_class(instance=permission, initial=self.get_initial(permission))
-#         context = {
-#             'form': form,
-#             'editing': permission is not None
-#         }
-#         context.update(super().get_context_data(**kwargs))
-#         print("[get_context_data] Contexte envoyé :")
-#         for key, value in context.items():
-#             print(f"    {key}: {value}")
-#         return render(request, self.template_name, context)
-#
-#
-#     def post(self, request, permission_id=None, *args, **kwargs):
-#         permission = self.get_permission(permission_id)
-#         form = self.form_class(request.POST, instance=permission)
-#
-#         if form.is_valid():
-#             try:
-#                 form.save()
-#                 messages.success(request, "Permission enregistrée avec succès")
-#                 return redirect('Permissions_Manager:dashboard')
-#             except Exception as e:
-#                 messages.error(request, f"Erreur: {str(e)}")
-#         else:
-#             messages.error(request, "Veuillez corriger les erreurs")
-#
-#         return render(request, self.template_name, {
-#             'form': form,
-#             'editing': permission is not None
-#         })
-
-
 class SupprimerFonctionView(BaseContextView,LoginRequiredMixin, PermissionRequiredMixin, View):
     """
     Vue pour supprimer une fonction d'agent
@@ -433,59 +365,6 @@ class SupprimerFonctionView(BaseContextView,LoginRequiredMixin, PermissionRequir
         messages.success(request, f"La fonction {fonction.nom} a été supprimée avec succès")
         return redirect('Permissions_Manager:dashboard')
 
-
-# class ModifierPermissionView(BaseContextView,LoginRequiredMixin, PermissionRequiredMixin, View):
-#     """
-#     Vue pour modifier une permission existante
-#     """
-#     permission_required = 'auth.change_permission'
-#     template_name = 'Permissions_Manager/detail_permission.html'
-#     form_class = CustomPermissionForm
-#
-#     def get_permission(self, permission_id):
-#         return get_object_or_404(
-#             Permission.objects.select_related('content_type', 'meta'),
-#             pk=permission_id
-#         )
-#
-#     def get_initial(self, permission):
-#         try:
-#             meta = permission.meta
-#             return {
-#                 'description': meta.description,
-#                 'roles_autorises': meta.roles_autorises.split(',')
-#             }
-#         except AttributeError:
-#             return {}
-#
-#     def get(self, request, permission_id, *args, **kwargs):
-#         permission = self.get_permission(permission_id)
-#         form = self.form_class(instance=permission, initial=self.get_initial(permission))
-#         context = {
-#             'form': form,
-#             'permission': permission,
-#             'active_tab': 'permissions'
-#         }
-#         context.update(super().get_context_data(**kwargs))
-#         print("[get_context_data] Contexte envoyé :")
-#         for key, value in context.items():
-#             print(f"    {key}: {value}")
-#         return render(request, self.template_name, context)
-#
-#     def post(self, request, permission_id, *args, **kwargs):
-#         permission = self.get_permission(permission_id)
-#         form = self.form_class(request.POST, instance=permission)
-#
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "Permission mise à jour avec succès")
-#             return redirect('Permissions_Manager:dashboard')
-#
-#         return render(request, self.template_name, {
-#             'form': form,
-#             'permission': permission,
-#             'active_tab': 'permissions'
-#         })
 
 class DetailPermissionView(GestionPermissionsBaseView, LoginRequiredMixin, PermissionRequiredMixin, View):
     """

@@ -7,7 +7,8 @@ from datetime import date
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinLengthValidator
-from simple_history.models import HistoricalRecords
+from Formation.models import BaseRoleModel
+
 
 class CustomUserManager(BaseUserManager):
     def _create_user(self, matricule, password=None, **extra_fields):
@@ -70,7 +71,7 @@ class Genre(models.Model):
 
 
 
-class Utilisateur(AbstractBaseUser, PermissionsMixin):
+class Utilisateur(AbstractBaseUser, PermissionsMixin,BaseRoleModel):
     print("\nInitialisation de la classe Utilisateur...")
     class Role(models.TextChoices):
         ADMIN = 'ADMIN', 'Administrateur Système'
@@ -98,7 +99,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
         default=None,  # Temporairement à None
         verbose_name="Genre"
     )
-    history = HistoricalRecords()  # <--- c'est ici qu'on active l'historique
+
     doit_changer_mot_de_passe = models.BooleanField(default=False)
     # Champs requis pour AbstractBaseUser
     is_staff = models.BooleanField(default=False)
@@ -112,7 +113,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
 
 
     def __str__(self):
-        return f"{self.matricule} ({self.get_role_display()})"
+        return f"{self.matricule} ({self.get_full_name()})"
 
     @classmethod
     def create_admin_user(cls, matricule, password, **extra_fields):
@@ -136,6 +137,14 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
 
     def iget_full_name(self):
         return f"{self.last_name} {self.first_name}".strip()
+
+    def get_initials(self):
+        initials = ''
+        if self.first_name:
+            initials += self.first_name[0].upper()
+        if self.last_name:
+            initials += self.last_name[0].upper()
+        return initials or '??'
 
     def get_role_display_name(self):
         """Retourne le nom d'affichage complet du rôle"""
@@ -715,21 +724,6 @@ class FonctionAgent(models.Model):
                 fonction.save()
 
 
-
-
-class BaseRoleModel(models.Model):
-    """Classe de base pour les modèles liés à un utilisateur."""
-    history = HistoricalRecords(inherit=True)
-
-    class Meta:
-        abstract = True
-
-    def save_with_user(self, user, *args, **kwargs):
-        self.save(*args, **kwargs)
-        last_history = self.history.first()
-        if last_history and user:
-            last_history.history_user = user
-            last_history.save()
 
 
 class AdminSysteme(BaseRoleModel):

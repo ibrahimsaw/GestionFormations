@@ -95,7 +95,7 @@
 													   <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
 														  class="text-decoration-none d-flex align-items-center">
 														   <div class="avatar bg-light rounded-circle me-3 d-flex align-items-center justify-content-center">
-															   <i class="fas fa-user text-primary"></i>
+															   <i class="bx bx-user text-primary"></i>
 														   </div>
 														   <div>
 															   {% if user.get_full_name %}
@@ -212,70 +212,134 @@
 				   </div>
 			   </div>
 			{% elif model_type == 'users' %}
-			   <!-- Users Tab -->
-			   <div class="tab-pane fade show active">
-				   <div class="card shadow">
-					   <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-						   <h5 class="mb-0 text-white">
-							   <i class="fas fa-users me-2"></i>Tous les Utilisateurs
-						   </h5>
-						   <a href="{% url 'utilisateur:utilisateur_create' %}"
-							  class="btn btn-sm btn-light">
-							   <i class="fas fa-plus me-1"></i>Ajouter
-						   </a>
-					   </div>
-					   <div class="card-body">
-						   <div class="table-responsive scrollbar">
-							   <table class="table table-bordered table-striped fs-10 mb-0">
-								   <thead>
-									   <tr>
-										   <th class="text-900 sort">Id</th>
-										   <th class="text-900 sort">Matricule</th>
-										   <th class="text-900 sort">Nom complet</th>
-										   <th class="text-900 sort">Rôle</th>
-										   <th class="text-900 sort">Permissions</th>
-										   <th class="text-900 sort">Actions</th>
-									   </tr>
-								   </thead>
-								   <tbody>
-									   {% for role_name, users in users_by_role.items %}
-										   {% for user in users %}
-										   <tr>
-											   <td>{{ user.pk}}</td>
-												<td>{{ user.matricule }}</td>
-											   <td>{{ user.get_full_name }}</td>
-											   <td>
-												   <span class="badge bg-secondary">{{ user.get_role_display }}</span>
-											   </td>
-											   <td>
-												   <span class="badge bg-info">{{ user.groups.count }} groupes</span>
-												   <span class="badge bg-warning ms-1">{{ user.user_permissions.count }} perm.</span>
-											   </td>
-											   <td>
-   <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
-      class="btn btn-sm btn-success me-2" title="Gérer permissions">
-       <i class="bx bx-user-check"></i>
-   </a>
-   <a href="{% url 'Permissions_Manager:historique_utilisateur' 'action' user.id %}"
-      class="btn btn-sm btn-warning me-2" title="Voir actions de l'utilisateur">
-       <i class="bx bx-history"></i>
-   </a>
-   <a href="{% url 'Permissions_Manager:historique_utilisateur' 'moi' user.id %}"
-      class="btn btn-sm btn-danger" title="Voir modifications sur l'utilisateur">
-       <i class="bx bx-user"></i>
-   </a>
-</td>
+<!-- Users Tab -->
+<div class="tab-pane fade show active">
+  <div class="card shadow-sm border-0 mb-4">
+    <!-- Header -->
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 text-white">
+        <i class="bx bx-users me-2"></i> Tous les Utilisateurs
+      </h5>
+      <div class="d-flex align-items-center gap-2">
+        <!-- Filtrer Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-light dropdown-toggle" type="button"
+                  id="usersFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-filter me-1"></i> Filtrer
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item filter-option" href="#" data-role="all">Tous les rôles</a>
+            </li>
+            {% for role_name, users in users_by_role.items %}
+            <li>
+              <a class="dropdown-item filter-option" href="#" data-role="{{ role_name }}">
+                {{ role_name }} ({{ users|length }})
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <!-- Ajouter -->
+        <a href="{% url 'utilisateur:utilisateur_create' %}" class="btn btn-sm btn-light">
+          <i class="fas fa-plus me-1"></i> Ajouter
+        </a>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card-body">
+      <div class="table-responsive scrollbar">
+        <table class="table table-sm table-bordered table-striped table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Matricule</th>
+              <th>Nom complet</th>
+              <th>Rôle</th>
+              <th>Permissions</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for role_name, users in users_by_role.items %}
+            <!-- Groupe -->
+            <tr class="role-header table-secondary" data-role="{{ role_name }}">
+              <td colspan="6" class="fw-semibold">
+                {{ role_name }}
+                <span class="badge bg-dark float-end">{{ users|length }}</span>
+              </td>
+            </tr>
+            {% for user in users %}
+            <tr class="user-row" data-role="{{ role_name }}">
+              <td>{{ user.pk }}</td>
+              <td>{{ user.matricule }}</td>
+              <td>{{ user.get_full_name }}</td>
+              <td>
+                <span class="badge bg-secondary">{{ user.get_role_display }}</span>
+              </td>
+              <td>
+                <span class="badge bg-info">{{ user.groups.count }} groupes</span>
+                <span class="badge bg-warning text-dark ms-1">{{ user.user_permissions.count }} perm.</span>
+              </td>
+              <td>
+                <a href="{% url 'Permissions_Manager:gerer_permissions_utilisateur' user.id %}"
+                   class="btn btn-link text-info p-0 me-2" title="Gérer permissions">
+                  <i class="bx bx-user-check fs-5"></i>
+                </a>
+                <a href="{% url 'Permissions_Manager:historique_utilisateur' 'action' user.id %}"
+                   class="btn btn-link text-warning p-0 me-2" title="Voir actions">
+                  <i class="bx bx-history fs-5"></i>
+                </a>
+                <a href="{% url 'Permissions_Manager:historique_utilisateur' 'moi' user.id %}"
+                   class="btn btn-link text-danger p-0" title="Voir modifications">
+                  <i class="bx bx-user fs-5"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
 
-										   </tr>
-										   {% endfor %}
-									   {% endfor %}
-								   </tbody>
-							   </table>
-						   </div>
-					   </div>
-				   </div>
-			   </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterOptions = document.querySelectorAll('.filter-option');
+        const roleHeaders = document.querySelectorAll('.role-header');
+        const userRows = document.querySelectorAll('.user-row');
+
+        filterOptions.forEach(option => {
+            option.addEventListener('click', function (e) {
+                e.preventDefault();
+                const selectedRole = this.getAttribute('data-role');
+
+                document.querySelector('#usersFilterDropdown').innerHTML =
+                    `<i class="fas fa-filter me-1"></i> ${this.textContent}`;
+
+                applyFilter(selectedRole);
+            });
+        });
+
+        function applyFilter(role) {
+            roleHeaders.forEach(header => {
+                const roleName = header.getAttribute('data-role');
+                const match = (role === 'all' || roleName === role);
+
+                header.style.display = match ? '' : 'none';
+
+                document.querySelectorAll(`.user-row[data-role="${roleName}"]`).forEach(row => {
+                    row.style.display = match ? '' : 'none';
+                });
+            });
+        }
+    });
+</script>
+
 			{% elif model_type == 'fonction' %}
 			   <!-- Functions Tab -->
 				<div class="tab-pane fade show active">
@@ -352,28 +416,37 @@
 											</ul>
 										</div>
 									</div>
-				
-									<!-- Permissions -->
-									<h6 class="fw-semibold text-primary mt-4">
-										<i class="fas fa-lock me-2"></i>Permissions associées
-									</h6>
-				
-									{% if fonction.permissions_list %}
-									<div class="d-flex flex-wrap gap-2">
-										{% for perm in fonction.permissions_list %}
-										<span class="badge bg-white border text-dark shadow-sm rounded-pill px-3 py-2">
-											<i class="fas fa-check-circle text-success me-1"></i>{{ perm.name }}
-											<small class="text-muted">({{ perm.codename }})</small>
-										</span>
-										{% endfor %}
+								 <div class="d-flex flex-column flex-md-row gap-3 mt-3">
+										<!-- Protocoles -->
+										<div class="flex-fill bg-light text-dark p-3 rounded-3 border">
+											<h6 class="fw-semibold text-primary mt-4">
+												<i class="fas fa-lock me-2"></i>Permissions associées
+											</h6>
+										 	{% if fonction.permissions_list %}
+											<ul class="list-unstyled small" style="list-style-type: disc; padding-left: 1.2em;">
+											  {% for perm in fonction.permissions_list %}
+												<li class="mb-1">
+												   {% if "Can add" in perm.name %}
+													  Création :
+													{% elif "Can change" in perm.name %}
+													  Modification :
+													{% elif "Can delete" in perm.name %}
+													  Suppression :
+													{% elif "Can view" in perm.name %}
+													  Visualisation :
+													{% endif %}
+													{{ perm.content_type.model|title }}
+												</li>
+											  {% endfor %}
+											</ul>
+										 	{% else %}
+											<p class="text-muted small mt-2">
+												<i class="fas fa-ban me-1 text-warning"></i>Aucune permission attribuée
+											</p>
+											{% endif %}
+										</div>
 									</div>
-									{% else %}
-									<p class="text-muted small mt-2">
-										<i class="fas fa-ban me-1 text-warning"></i>Aucune permission attribuée
-									</p>
-									{% endif %}
-								</div>
-				
+								 </div>
 								<!-- Pied -->
 								<div class="card-footer bg-white border-top text-center">
 									<a href="{% url 'Permissions_Manager:modifier_fonction' fonction.id %}"
@@ -387,59 +460,124 @@
 					</div>
 					{% else %}
 					<div class="alert alert-info mt-4">
-						<i class="fas fa-info-circle me-2"></i>Aucune fonction n'a été créée pour le moment.
+						<i class="bx bx-info-circle me-2"></i>Aucune fonction n'a été créée pour le moment.
 					</div>
 					{% endif %}
 				</div>
 			{% elif model_type == 'permissions' %}
-			   <!-- Permissions Tab -->
-			   <div class="tab-pane fade show active">
-				   <div class="d-flex justify-content-between mb-3">
-					   <h5 class="mb-0 text-primary fw-bold">
-							<i class="fas fa-id-card me-2"></i>{{ titre_page }}
-						</h5>
-				   </div>
-				   
-				   <div class="card shadow-sm">
-					   <div class="card-body">
-						   <div class="table-responsive scrollbar">
-							   <table class="table table-bordered table-striped fs-10 mb-0">
-								   <thead>
-									   <tr>
-										   <th class="text-900 sort">Application</th>
-										   <th class="text-900 sort">Modèle</th>
-										   <th class="text-900 sort">Permission</th>
-										   <th class="text-900 sort">Code</th>
-										   <th class="text-900 sort">Actions</th>
-									   </tr>
-								   </thead>
-								   <tbody>
-									   {% for perm in permissions %}
-									   <tr>
-										   <td>{{ perm.content_type.app_label }}</td>
-										   <td>{{ perm.content_type.model }}</td>
-										   <td>{{ perm.name }}</td>
-										   <td><code>{{ perm.codename }}</code></td>
-										   <td>
-											   <a href="{% url 'Permissions_Manager:permission_detail' perm.id %}"
-												  class="btn btn-sm btn-secondary">
-												   <i class="bx bx-edit-alt"></i>
-											   </a>
-										   </td>
-									   </tr>
-									   {% empty %}
-									   <tr>
-										   <td colspan="5" class="text-center text-muted py-4">
-											   Aucune permission disponible
-										   </td>
-									   </tr>
-									   {% endfor %}
-								   </tbody>
-							   </table>
-						   </div>
-					   </div>
-				   </div>
-			   </div>
+<!-- Permissions Tab -->
+<div class="tab-pane fade show active">
+  <!-- Titre -->
+ <div class="d-flex justify-content-between mb-4 align-items-center">
+  <div class="d-flex justify-content-between mb-3">
+    <h5 class="mb-0 text-primary fw-bold">
+      <i class="fas fa-id-card me-2"></i>{{ titre_page }}
+    </h5>
+  </div>
+
+  <!-- Filtres -->
+   <div class="mb-3 d-flex justify-content-end">
+	 <div class="dropdown">
+	   <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button"
+			   id="modelFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+		 <i class="fas fa-filter me-1"></i> Filtrer par Modèle
+	   </button>
+	   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="modelFilterDropdown" style="max-height: 300px; overflow-y: auto;">
+		 <li><a class="dropdown-item model-filter" href="#" data-model="all">Tous les modèles</a></li>
+		 {% for model in models_list %}
+		 <li>
+		   <a class="dropdown-item model-filter" href="#" data-model="{{ model }}">
+			 {{ model|title }}
+		   </a>
+		 </li>
+		 {% endfor %}
+	   </ul>
+	 </div>
+   </div>
+  </div>
+
+
+ 
+  <!-- Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive scrollbar">
+        <table class="table table-bordered table-striped fs-10 mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="text-900 sort">Application</th>
+              <th class="text-900 sort">Modèle</th>
+              <th class="text-900 sort">Permission</th>
+<!--              <th class="text-900 sort">Code</th>-->
+              <th class="text-900 sort">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for perm in permissions %}
+            <tr data-model="{{ perm.content_type.model }}">
+              <td>{{ perm.content_type.app_label|title }}</td>
+              <td>{{ perm.content_type.model|title }}</td>
+              <td>
+				 {% if "Can add" in perm.name %}
+				   Création
+				 {% elif "Can change" in perm.name %}
+				   Modification
+				 {% elif "Can delete" in perm.name %}
+				   Suppression
+				 {% elif "Can view" in perm.name %}
+				   Visualisation
+				 {% endif %}
+			   </td>
+<!--              <td><code>{{ perm.codename }}</code></td>-->
+              <td>
+                <a href="{% url 'Permissions_Manager:permission_detail' perm.id %}"
+                   class="btn btn-sm btn-secondary">
+                  <i class="bx bx-edit-alt"></i>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">
+                Aucune permission disponible
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script de filtrage -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterLinks = document.querySelectorAll('.model-filter');
+    const rows = document.querySelectorAll('tbody tr[data-model]');
+    const dropdownBtn = document.getElementById('modelFilterDropdown');
+
+    filterLinks.forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const model = this.dataset.model;
+
+        // Mettre à jour le texte du bouton
+        dropdownBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${this.textContent}`;
+
+        // Appliquer le filtre
+        rows.forEach(row => {
+          if (model === 'all' || row.dataset.model === model) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>
+
 			{% endif %}
 		 </div>
 	  

@@ -1,6 +1,21 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from simple_history.models import HistoricalRecords
+
+class BaseRoleModel(models.Model):
+    """Classe de base pour les modèles liés à un utilisateur."""
+    history = HistoricalRecords(inherit=True)
+
+    class Meta:
+        abstract = True
+
+    def save_with_user(self, user, *args, **kwargs):
+        self.save(*args, **kwargs)
+        last_history = self.history.first()
+        if last_history and user:
+            last_history.history_user = user
+            last_history.save()
 
 # Modèle TypeFormation
 class TypeFormation(models.Model):
@@ -63,7 +78,7 @@ class Specification(models.Model):
             cls.objects.get_or_create(code=spec["code"], defaults={"nom": spec["nom"]})
 
 # Modèle Parcours corrigé avec ForeignKey
-class Parcours(models.Model):
+class Parcours(BaseRoleModel):
     type_formation = models.ForeignKey(TypeFormation, on_delete=models.CASCADE)
     specification = models.ForeignKey(Specification, on_delete=models.SET_NULL, null=True, blank=True)
     nom = models.CharField(max_length=100)
@@ -95,7 +110,7 @@ class Parcours(models.Model):
 
 
 # Modèle Formation
-class Formation(models.Model):
+class Formation(BaseRoleModel):
     parcours = models.ForeignKey(
         Parcours,
         on_delete=models.CASCADE,
@@ -153,7 +168,7 @@ def formation_post_save(sender, instance, created, **kwargs):
         instance.creer_classes_auto()
 
 # Modèle Classe (manquant dans l'original)
-class Classe(models.Model):
+class Classe(BaseRoleModel):
     nom = models.CharField(max_length=100)
     ordre = models.IntegerField()
     formation = models.ForeignKey(Formation, on_delete=models.CASCADE, related_name='classes')
@@ -166,7 +181,7 @@ class Classe(models.Model):
         return f"{self.nom} ({self.annee_academique.nom})"
 
 # Modèle AnneeAcademique
-class AnneeAcademique(models.Model):
+class AnneeAcademique(BaseRoleModel):
     nom = models.CharField(
         max_length=20,
         unique=True,
