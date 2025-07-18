@@ -1,6 +1,6 @@
 from django.db import models
-from Utilisateur.models import *
-from Formation.models import *
+from Utilisateur.models import Utilisateur,Etudiant
+from Formation.models import BaseRoleModel,Classe,Parcours, AnneeAcademique
 from django.core.exceptions import ValidationError
 from decimal import Decimal, InvalidOperation
 
