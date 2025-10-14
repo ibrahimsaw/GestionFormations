@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Parents</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .child-selector {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .child-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .child-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .child-card.active {
+            border-color: #007bff;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .schedule-cell {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 2px;
+            font-size: 12px;
+        }
+        .schedule-cell.math { background: #e3f2fd; }
+        .schedule-cell.french { background: #f3e5f5; }
+        .schedule-cell.english { background: #e8f5e8; }
+        .schedule-cell.science { background: #fff3e0; }
+        .schedule-cell.history { background: #fce4ec; }
+        .schedule-cell.sport { background: #e0f2f1; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <!-- En-tête Parents -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body bg-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 col-md-12 mb-3 mb-lg-0">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="fas fa-users fa-2x text-white"></i>
+                            </div>
+                            <div>
+                                <h2 class="mb-1">Espace Parents</h2>
+                                <p class="mb-0 opacity-75">
+                                    <i class="fas fa-home me-2"></i>
+                                    Famille <span id="family-name">Dupont</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12 text-lg-end">
+                        <p class="mb-1">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <strong>Année:</strong> <span id="academic-year">2024-2025</span>
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-child me-2"></i>
+                            <strong>Enfants:</strong> <span id="children-count">3</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sélecteur d'enfants -->
+        <div class="child-selector text-white">
+            <h4 class="mb-3 text-center">
+                <i class="fas fa-heart me-2"></i>
+                Sélectionnez votre enfant
+            </h4>
+            <div class="row" id="children-selector">
+                <!-- Les cartes d'enfants seront générées ici -->
+            </div>
+        </div>
+
+        <!-- Informations de l'enfant sélectionné -->
+        <div id="child-info" class="card shadow-sm mb-4" style="display: none;">
+            <div class="card-body bg-info text-white">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-12 mb-3 mb-lg-0">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="fas fa-user-graduate fa-2x text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-1" id="selected-child-name">Nom de l'enfant</h3>
+                                <p class="mb-0 opacity-75" id="selected-child-info">
+                                    <i class="fas fa-graduation-cap me-2"></i>
+                                    Informations scolaires
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12 text-lg-end">
+                        <div class="d-flex justify-content-lg-end justify-content-start gap-3">
+                            <div class="text-center">
+                                <div class="h4 mb-0" id="child-average">--</div>
+                                <small>Moyenne</small>
+                            </div>
+                            <div class="text-center">
+                                <div class="h4 mb-0" id="child-absences">--</div>
+                                <small>Absences</small>
+                            </div>
+                            <div class="text-center">
+                                <div class="h4 mb-0" id="child-alerts">--</div>
+                                <small>Alertes</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card shadow-sm mb-4" id="navigation" style="display: none;">
+            <div class="card-body p-2">
+                <ul class="nav nav-pills nav-fill">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="pill" href="#overview">
+                            <i class="fas fa-tachometer-alt me-2"></i>Vue d'ensemble
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#grades">
+                            <i class="fas fa-chart-line me-2"></i>Notes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#attendance">
+                            <i class="fas fa-calendar-check me-2"></i>Assiduité
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#schedule">
+                            <i class="fas fa-calendar me-2"></i>Emploi du temps
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#communication">
+                            <i class="fas fa-comments me-2"></i>Communication
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Contenu des onglets -->
+        <div class="tab-content" id="tab-content" style="display: none;">
+            
+            <!-- Vue d'ensemble -->
+            <div class="tab-pane fade show active" id="overview">
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Progression Académique</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="academic-progress">
+                                    <!-- Progression générée par JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notifications</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="notifications-list">
+                                    <!-- Notifications générées par JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-star me-2"></i>Dernières Notes</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-grades">
+                                    <!-- Dernières notes générées par JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Prochains Événements</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="upcoming-events">
+                                    <!-- Événements générés par JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="tab-pane fade" id="grades">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Notes et Résultats</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info" id="overall-grade">
+                            <!-- Moyenne générale -->
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th><i class="fas fa-book me-2"></i>Matière</th>
+                                        <th><i class="fas fa-user-tie me-2"></i>Professeur</th>
+                                        <th><i class="fas fa-star me-2"></i>Note</th>
+                                        <th><i class="fas fa-users me-2"></i>Moy. Classe</th>
+                                        <th><i class="fas fa-trend-up me-2"></i>Évolution</th>
+                                        <th><i class="fas fa-check-circle me-2"></i>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="grades-table">
+                                    <!-- Notes générées par JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assiduité -->
+            <div class="tab-pane fade" id="attendance">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Suivi d'Assiduité</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-success">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                                        <h4 class="text-success" id="attendance-rate">95%</h4>
+                                        <small class="text-muted">Taux de présence</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-warning">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-2"></i>
+                                        <h4 class="text-warning" id="total-absences">5</h4>
+                                        <small class="text-muted">Absences totales</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-danger">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-clock fa-3x text-danger mb-2"></i>
+                                        <h4 class="text-danger" id="late-arrivals">3</h4>
+                                        <small class="text-muted">Retards</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-calendar-times fa-3x text-info mb-2"></i>
+                                        <h4 class="text-info" id="justified-absences">2</h4>
+                                        <small class="text-muted">Abs. justifiées</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Matière</th>
+                                        <th>Type</th>
+                                        <th>Motif</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table">
+                                    <!-- Données d'assiduité générées par JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emploi du temps -->
+            <div class="tab-pane fade" id="schedule">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Emploi du Temps</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Horaire</th>
+                                        <th>Lundi</th>
+                                        <th>Mardi</th>
+                                        <th>Mercredi</th>
+                                        <th>Jeudi</th>
+                                        <th>Vendredi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedule-table">
+                                    <!-- Emploi du temps généré par JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication -->
+            <div class="tab-pane fade" id="communication">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Messages</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="messages-list">
+                                    <!-- Messages générés par JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Professeurs</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="teachers-list">
+                                    <!-- Liste des professeurs générée par JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Données de la famille
+const familyData = {
+    familyName: "Dupont",
+    academicYear: "2024-2025",
+    children: [
+        {
+            id: 1,
+            name: "Jean Dupont",
+            age: 17,
+            class: "Terminale S",
+            school: "Lycée Victor Hugo",
+            photo: "fas fa-user-graduate",
+            average: 14.2,
+            absences: 3,
+            alerts: 1,
+            grades: [
+                { subject: "Mathématiques", professor: "M. Martin", grade: 16, classAvg: 12.5, trend: "up", status: "Excellent" },
+                { subject: "Physique", professor: "Mme Dubois", grade: 15, classAvg: 13.2, trend: "stable", status: "Bien" },
+                { subject: "Français", professor: "M. Bernard", grade: 12, classAvg: 11.8, trend: "down", status: "Passable" },
+                { subject: "Anglais", professor: "Mme Smith", grade: 13, classAvg: 12.1, trend: "up", status: "Assez bien" }
+            ],
+            attendance: [
+                { date: "2025-01-15", subject: "Mathématiques", type: "Absence", reason: "Maladie", status: "Justifiée" },
+                { date: "2025-01-12", subject: "Physique", type: "Retard", reason: "Transport", status: "Justifiée" },
+                { date: "2025-01-10", subject: "Français", type: "Absence", reason: "Non justifiée", status: "Non justifiée" }
+            ],
+            schedule: [
+                { time: "08h00-09h00", monday: "Mathématiques", tuesday: "Physique", wednesday: "", thursday: "Français", friday: "Anglais" },
+                { time: "09h00-10h00", monday: "Français", tuesday: "Mathématiques", wednesday: "", thursday: "Physique", friday: "Histoire" },
+                { time: "10h00-11h00", monday: "Anglais", tuesday: "Histoire", wednesday: "", thursday: "Mathématiques", friday: "Sport" }
+            ],
+            messages: [
+                { from: "M. Martin", subject: "Félicitations", date: "2025-01-14", content: "Excellents résultats en mathématiques." },
+                { from: "Mme Dubois", subject: "Conseil", date: "2025-01-12", content: "Penser à réviser le chapitre 3." }
+            ],
+            notifications: [
+                { type: "warning", message: "Conseil de classe le 25/01" },
+                { type: "info", message: "Réunion parents-professeurs le 30/01" }
+            ]
+        },
+        {
+            id: 2,
+            name: "Marie Dupont",
+            age: 14,
+            class: "3ème A",
+            school: "Collège Molière",
+            photo: "fas fa-female",
+            average: 16.8,
+            absences: 1,
+            alerts: 0,
+            grades: [
+                { subject: "Français", professor: "Mme Leroy", grade: 18, classAvg: 14.2, trend: "up", status: "Excellent" },
+                { subject: "Mathématiques", professor: "M. Moreau", grade: 17, classAvg: 13.5, trend: "stable", status: "Excellent" },
+                { subject: "Histoire", professor: "M. Roux", grade: 16, classAvg: 12.8, trend: "up", status: "Bien" },
+                { subject: "Anglais", professor: "Mme Johnson", grade: 15, classAvg: 13.1, trend: "stable", status: "Bien" }
+            ],
+            attendance: [
+                { date: "2025-01-13", subject: "Français", type: "Absence", reason: "Maladie", status: "Justifiée" }
+            ],
+            schedule: [
+                { time: "08h00-09h00", monday: "Français", tuesday: "Mathématiques", wednesday: "Histoire", thursday: "Anglais", friday: "Sciences" },
+                { time: "09h00-10h00", monday: "Mathématiques", tuesday: "Français", wednesday: "Mathématiques", thursday: "Histoire", friday: "Anglais" },
+                { time: "10h00-11h00", monday: "Histoire", tuesday: "Sciences", wednesday: "", thursday: "Français", friday: "Sport" }
+            ],
+            messages: [
+                { from: "Mme Leroy", subject: "Félicitations", date: "2025-01-15", content: "Excellente dissertation sur Molière." }
+            ],
+            notifications: [
+                { type: "success", message: "Élève exemplaire ce trimestre" }
+            ]
+        },
+        {
+            id: 3,
+            name: "Pierre Dupont",
+            age: 11,
+            class: "CM2",
+            school: "École Primaire Pasteur",
+            photo: "fas fa-child",
+            average: 13.5,
+            absences: 2,
+            alerts: 0,
+            grades: [
+                { subject: "Français", professor: "Mme Blanc", grade: 14, classAvg: 12.8, trend: "up", status: "Bien" },
+                { subject: "Mathématiques", professor: "Mme Blanc", grade: 13, classAvg: 12.5, trend: "stable", status: "Assez bien" },
+                { subject: "Sciences", professor: "M. Vert", grade: 15, classAvg: 13.2, trend: "up", status: "Bien" },
+                { subject: "Histoire", professor: "Mme Blanc", grade: 12, classAvg: 11.9, trend: "down", status: "Passable" }
+            ],
+            attendance: [
+                { date: "2025-01-14", subject: "Mathématiques", type: "Absence", reason: "Maladie", status: "Justifiée" },
+                { date: "2025-01-11", subject: "Sciences", type: "Retard", reason: "Réveil tardif", status: "Non justifiée" }
+            ],
+            schedule: [
+                { time: "08h30-09h30", monday: "Français", tuesday: "Mathématiques", wednesday: "", thursday: "Français", friday: "Sciences" },
+                { time: "09h30-10h30", monday: "Mathématiques", tuesday: "Histoire", wednesday: "", thursday: "Mathématiques", friday: "Sport" },
+                { time: "10h30-11h30", monday: "Sciences", tuesday: "Français", wednesday: "", thursday: "Histoire", friday: "Arts" }
+            ],
+            messages: [
+                { from: "Mme Blanc", subject: "Progrès", date: "2025-01-13", content: "Pierre fait des progrès en français." }
+            ],
+            notifications: [
+                { type: "info", message: "Sortie scolaire prévue le 28/01" }
+            ]
+        }
+    ]
+};
+
+let selectedChildId = null;
+
+// Initialisation
+function initializeApp() {
+    document.getElementById('family-name').textContent = familyData.familyName;
+    document.getElementById('academic-year').textContent = familyData.academicYear;
+    document.getElementById('children-count').textContent = familyData.children.length;
+    generateChildrenSelector();
+}
+
+// Génération du sélecteur d'enfants
+function generateChildrenSelector() {
+    const selector = document.getElementById('children-selector');
+    selector.innerHTML = '';
+
+    familyData.children.forEach(child => {
+        const childCard = document.createElement('div');
+        childCard.className = 'col-md-4 mb-3';
+        
+        const alertCount = child.alerts;
+        const alertBadge = alertCount > 0 ? `<div class="notification-badge">${alertCount}</div>` : '';
+        
+        childCard.innerHTML = `
+            <div class="card child-card h-100" onclick="selectChild(${child.id})">
+                <div class="card-body text-center position-relative">
+                    ${alertBadge}
+                    <i class="${child.photo} fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title text-dark">${child.name}</h5>
+                    <p class="card-text text-muted">
+                        <small><i class="fas fa-school me-1"></i>${child.class}</small><br>
+                        <small><i class="fas fa-building me-1"></i>${child.school}</small>
+                    </p>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">Moyenne: ${child.average}/20</span>
+                        <span class="badge bg-warning">Abs: ${child.absences}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        selector.appendChild(childCard);
+    });
+}
+
+// Sélection d'un enfant
+function selectChild(childId) {
+    selectedChildId = childId;
+    const child = familyData.children.find(c => c.id === childId);
+    
+    // Mettre à jour la sélection visuelle
+    document.querySelectorAll('.child-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    
+    // Afficher les informations de l'enfant
+    updateChildInfo(child);
+    
+    // Afficher la navigation et le contenu
+    document.getElementById('child-info').style.display = 'block';
+    document.getElementById('navigation').style.display = 'block';
+    document.getElementById('tab-content').style.display = 'block';
+    
+    // Charger les données de l'enfant
+    loadChildData(child);
+}
+
+// Mise à jour des informations de l'enfant sélectionné
+function updateChildInfo(child) {
+    document.getElementById('selected-child-name').textContent = child.name;
+    document.getElementById('selected-child-info').innerHTML = `
+        <i class="fas fa-graduation-cap me-2"></i>
+        ${child.class} - ${child.school}
+    `;
+    document.getElementById('child-average').textContent = child.average + '/20';
+    document.getElementById('child-absences').textContent = child.absences;
+    document.getElementById('child-alerts').textContent = child.alerts;
+}
+
+// Chargement des données de l'enfant
+function loadChildData(child) {
+    loadOverview(child);
+    loadGrades(child);
+    loadAttendance(child);
+    loadSchedule(child);
+    loadCommunication(child);
+}
+
+// Chargement de la vue d'ensemble
+function loadOverview(child) {
+    // Progression académique
+    const progressContainer = document.getElementById('academic-progress');
+    progressContainer.innerHTML = '';
+    
+    child.grades.forEach(grade => {
+        const progressItem = document.createElement('div');
+        progressItem.className = 'col-md-6 mb-3';
+        
+        const progressPercent = (grade.grade / 20) * 100;
+        const progressColor = getProgressColor(grade.grade);
+        
+        progressItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">${grade.subject}</span>
+                <span class="badge ${getGradeBadgeColor(grade.grade)}">${grade.grade}/20</span>
+            </div>
+            <div class="progress mb-2">
+                <div class="progress-bar ${progressColor}" role="progressbar"
+                     style="width: ${progressPercent}%"
+                     aria-valuenow="${grade.grade}"
+                     aria-valuemin="0"
+                     aria-valuemax="20">
+                </div>
+            </div>
+            <small class="text-muted">Moyenne classe: ${grade.classAvg}/20</small>
+        `;
+        
+        progressContainer.appendChild(progressItem);
+    });
+    
+    // Notifications
+    const notificationsContainer = document.getElementById('notifications-list');
+    notificationsContainer.innerHTML = '';
+    
+    if (child.notifications.length === 0) {
+        notificationsContainer.innerHTML = '<p class="text-muted">Aucune notification</p>';
+    } else {
+        child.notifications.forEach(notification => {
+            const notificationItem = document.createElement('div');
+            notificationItem.className = `alert alert-${notification.type} alert-sm`;
+            notificationItem.innerHTML = `
+                <i class="fas fa-bell me-2"></i>
+                ${notification.message}
+            `;
+            notificationsContainer.appendChild(notificationItem);
+        });
+    }
+    
+    // Dernières notes
+    const recentGradesContainer = document.getElementById('recent-grades');
+    recentGradesContainer.innerHTML = '';
+    
+    child.grades.slice(0, 3).forEach(grade => {
+        const gradeItem = document.createElement('div');
+        gradeItem.className = 'd-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded';
+        gradeItem.innerHTML = `
+            <div>
+                <strong>${grade.subject}</strong><br>
+                <small class="text-muted">${grade.professor}</small>
+            </div>
+            <div class="text-end">
+                <span class="badge ${getGradeBadgeColor(grade.grade)}">${grade.grade}/20</span>
+                ${getTrendIcon(grade.trend)}
+            </div>
+        `;
+        recentGradesContainer.appendChild(gradeItem);
+    });
+    
+    // Événements à venir
+    const eventsContainer = document.getElementById('upcoming-events');
+    eventsContainer.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+            <div>
+                <strong>Conseil de classe</strong><br>
+                <small class="text-muted">25 janvier 2025</small>
+            </div>
+            <i class="fas fa-calendar-check text-primary"></i>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+            <div>
+                <strong>Réunion parents-professeurs</strong><br>
+                <small class="text-muted">30 janvier 2025</small>
+            </div>
+            <i class="fas fa-users text-info"></i>
+        </div>
+    `;
+}
+
+// Chargement des notes
+function loadGrades(child) {
+    const gradesTable = document.getElementById('grades-table');
+    gradesTable.innerHTML = '';
+    
+    // Moyenne générale
+    const overallGrade = document.getElementById('overall-grade');
+    overallGrade.innerHTML = `
+        <h4 class="mb-0">
+            <i class="fas fa-star me-2"></i>
+            Moyenne générale: <strong>${child.average}/20</strong>
+            <span class="badge ${getGradeBadgeColor(child.average)} ms-2">${child.average >= 16 ? 'Excellent' : child.average >= 14 ? 'Bien' : child.average >= 12 ? 'Assez bien' : 'Passable'}</span>
+        </h4>
+    `;
+    
+    child.grades.forEach(grade => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><i class="fas fa-book me-2"></i>${grade.subject}</td>
+            <td>${grade.professor}</td>
+            <td><span class="badge ${getGradeBadgeColor(grade.grade)}">${grade.grade}/20</span></td>
+            <td>${grade.classAvg}/20</td>
+            <td>${getTrendIcon(grade.trend)}</td>
+            <td><span class="badge bg-secondary">${grade.status}</span></td>
+        `;
+        gradesTable.appendChild(row);
+    });
+}
+
+// Chargement de l'assiduité
+function loadAttendance(child) {
+    const attendanceTable = document.getElementById('attendance-table');
+    attendanceTable.innerHTML = '';
+    
+    // Mise à jour des statistiques
+    const totalAbsences = child.attendance.filter(a => a.type === 'Absence').length;
+    const lateArrivals = child.attendance.filter(a => a.type === 'Retard').length;
+    const justifiedAbsences = child.attendance.filter(a => a.status === 'Justifiée').length;
+    const attendanceRate = Math.round((1 - totalAbsences / 100) * 100);
+    
+    document.getElementById('attendance-rate').textContent = attendanceRate + '%';
+    document.getElementById('total-absences').textContent = totalAbsences;
+    document.getElementById('late-arrivals').textContent = lateArrivals;
+    document.getElementById('justified-absences').textContent = justifiedAbsences;
+    
+    child.attendance.forEach(attendance => {
+        const row = document.createElement('tr');
+        const statusBadge = attendance.status === 'Justifiée' ? 'bg-success' : 'bg-danger';
+        const typeIcon = attendance.type === 'Absence' ? 'fa-times' : 'fa-clock';
+        
+        row.innerHTML = `
+            <td>${attendance.date}</td>
+            <td>${attendance.subject}</td>
+            <td><i class="fas ${typeIcon} me-2"></i>${attendance.type}</td>
+            <td>${attendance.reason}</td>
+            <td><span class="badge ${statusBadge}">${attendance.status}</span></td>
+        `;
+        attendanceTable.appendChild(row);
+    });
+}
+
+// Chargement de l'emploi du temps
+function loadSchedule(child) {
+    const scheduleTable = document.getElementById('schedule-table');
+    scheduleTable.innerHTML = '';
+    
+    child.schedule.forEach(timeSlot => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="fw-bold">${timeSlot.time}</td>
+            <td><div class="schedule-cell ${getSubjectClass(timeSlot.monday)}">${timeSlot.monday || '-'}</div></td>
+            <td><div class="schedule-cell ${getSubjectClass(timeSlot.tuesday)}">${timeSlot.tuesday || '-'}</div></td>
+            <td><div class="schedule-cell ${getSubjectClass(timeSlot.wednesday)}">${timeSlot.wednesday || '-'}</div></td>
+            <td><div class="schedule-cell ${getSubjectClass(timeSlot.thursday)}">${timeSlot.thursday || '-'}</div></td>
+            <td><div class="schedule-cell ${getSubjectClass(timeSlot.friday)}">${timeSlot.friday || '-'}</div></td>
+        `;
+        scheduleTable.appendChild(row);
+    });
+}
+
+// Chargement de la communication
+function loadCommunication(child) {
+    // Messages
+    const messagesList = document.getElementById('messages-list');
+    messagesList.innerHTML = '';
+    
+    if (child.messages.length === 0) {
+        messagesList.innerHTML = '<p class="text-muted">Aucun message</p>';
+    } else {
+        child.messages.forEach(message => {
+            const messageItem = document.createElement('div');
+            messageItem.className = 'card mb-3';
+            messageItem.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">${message.subject}</h6>
+                        <small class="text-muted">${message.date}</small>
+                    </div>
+                    <p class="card-text">${message.content}</p>
+                    <small class="text-muted">
+                        <i class="fas fa-user me-1"></i>
+                        ${message.from}
+                    </small>
+                </div>
+            `;
+            messagesList.appendChild(messageItem);
+        });
+    }
+    
+    // Liste des professeurs
+    const teachersList = document.getElementById('teachers-list');
+    teachersList.innerHTML = '';
+    
+    const uniqueTeachers = [...new Set(child.grades.map(g => g.professor))];
+    uniqueTeachers.forEach(teacher => {
+        const subjects = child.grades.filter(g => g.professor === teacher).map(g => g.subject);
+        const teacherItem = document.createElement('div');
+        teacherItem.className = 'card mb-3';
+        teacherItem.innerHTML = `
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-user-tie me-2"></i>
+                    ${teacher}
+                </h6>
+                <p class="card-text">
+                    <small class="text-muted">Matière(s): ${subjects.join(', ')}</small>
+                </p>
+                <button class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-envelope me-1"></i>
+                    Contacter
+                </button>
+            </div>
+        `;
+        teachersList.appendChild(teacherItem);
+    });
+}
+
+// Fonctions utilitaires
+function getProgressColor(grade) {
+    if (grade >= 16) return 'bg-success';
+    if (grade >= 14) return 'bg-info';
+    if (grade >= 12) return 'bg-warning';
+    return 'bg-danger';
+}
+
+function getGradeBadgeColor(grade) {
+    if (grade >= 16) return 'bg-success';
+    if (grade >= 14) return 'bg-info';
+    if (grade >= 12) return 'bg-warning';
+    return 'bg-danger';
+}
+
+function getTrendIcon(trend) {
+    switch(trend) {
+        case 'up': return '<i class="fas fa-arrow-up text-success"></i>';
+        case 'down': return '<i class="fas fa-arrow-down text-danger"></i>';
+        default: return '<i class="fas fa-minus text-muted"></i>';
+    }
+}
+
+function getSubjectClass(subject) {
+    const subjectMap = {
+        'Mathématiques': 'math',
+        'Français': 'french',
+        'Anglais': 'english',
+        'Sciences': 'science',
+        'Physique': 'science',
+        'Histoire': 'history',
+        'Sport': 'sport'
+    };
+    return subjectMap[subject] || '';
+}
+
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>

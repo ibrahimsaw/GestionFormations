@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+         <!-- En-tête avec breadcrumb modernisé -->
+      {% include "nav_ol.html" %}
+	<div class="text-center">
+	  <div class="alert bg-primary">
+		<h5 class="mb-0 text-white">{{ entete }}</h5>
+	  </div>
+	</div>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+ <div class="row row-cols-1 row-cols-md-2 g-4">
+    <!-- Informations de base -->
+  <div class="col">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-info-circle me-2"></i> Informations de Base
+        </div>
+        <div class="card-body">
+            {% for field in form.visible_fields %}
+                {% if field.name != 'permissions' %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {% if field.errors %}
+                            {{ field|add_class:"form-control is-invalid" }}
+                            <div class="invalid-feedback d-block">
+                                {{ field.errors }}
+                            </div>
+                        {% else %}
+                            {{ field|add_class:"form-control" }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+   </div>
+
+    <!-- Permissions associées -->
+  <div class="col">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <i class="fas fa-key me-2"></i> Permissions Associées
+        </div>
+        <div class="card-body">
+            {% if form.permissions.field.queryset.exists %}
+                <div class="accordion" id="permissionsAccordion">
+                    {% for model, perms in form.fields.permissions.choices %}
+                        <div class="accordion-item border-0 mb-3">
+                            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                <button class="accordion-button bg-light shadow-none"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse{{ forloop.counter }}"
+                                        aria-expanded="true"
+                                        aria-controls="collapse{{ forloop.counter }}">
+                                    <i class="fas fa-folder-open text-success me-2"></i>
+                                    <span class="fw-bold">{{ model|upper }}</span>
+                                    <span class="badge bg-success ms-2">{{ perms|length }}</span>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ forloop.counter }}"
+                                 class="accordion-collapse collapse show"
+                                 aria-labelledby="heading{{ forloop.counter }}"
+                                 data-bs-parent="#permissionsAccordion">
+                                <div class="accordion-body pt-3">
+                                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                                        {% for perm_id, perm_name in perms %}
+                                            <div class="col">
+                                                <div class="card card-perm h-100">
+                                                    <div class="card-body py-3 px-3">
+                                                        <div class="form-check">
+                                                            <input type="checkbox"
+                                                                   name="permissions"
+                                                                   value="{{ perm_id }}"
+                                                                   id="perm_{{ perm_id }}"
+                                                                   class="form-check-input"
+                                                                   {% if perm_id in form.permissions.value %}checked{% endif %}>
+                                                            <label for="perm_{{ perm_id }}" class="form-check-label ms-2">
+                                                                <i class="fas fa-shield-alt text-muted me-1"></i>
+                                                                {{ perm_name }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-warning d-flex align-items-center p-4 rounded-3">
+                    <i class="fas fa-exclamation-triangle fs-2 me-3"></i>
+                    <div>
+                        <h5 class="alert-heading mb-2">Aucune permission disponible</h5>
+                        <p class="mb-0">Contactez l'administrateur pour configurer les permissions.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-footer bg-light py-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle text-success me-2"></i>
+                <small class="text-muted">Cochez les permissions nécessaires pour cette fonction.</small>
+            </div>
+        </div>
+    </div>
+   </div>
+
+    <!-- Boutons d'action -->
+    <div class="d-flex justify-content-between align-items-center">
+        <a href="{% url 'Permissions_Manager:permission' %}" class="btn btn-outline-dark">
+            <i class="fas fa-arrow-left"></i> Annuler
+        </a>
+        <div>
+            {% if fonction %}
+                <a href="{% url 'Permissions_Manager:supprimer_fonction' fonction.id %}"
+                   class="btn btn-danger me-2"
+                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette fonction ?');">
+                    <i class="fas fa-trash"></i> Supprimer
+                </a>
+            {% endif %}
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+        </div>
+    </div>
+  </div>
+</form>
+<style>
+.card-perm {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card-perm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV SAWADOGO Ibrahim - Développeur Full-Stack</title>
+    <style>
+        body {
+            font-family: 'Calibri', Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #333;
+            margin: 40px;
+            background: white;
+        }
+        
+        .header {
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .photo-section {
+            flex-shrink: 0;
+            order: 1;
+        }
+        
+        .profile-photo {
+            width: 120px;
+            height: 150px;
+            border: 3px solid #2c5aa0;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            color: #666;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .header-info {
+            flex: 1;
+            min-width: 300px;
+            order: 2;
+        }
+        
+        .header h1 {
+            font-size: 24pt;
+            color: #2c5aa0;
+            margin: 0;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .header h2 {
+            font-size: 14pt;
+            color: #666;
+            margin: 5px 0 15px 0;
+            font-weight: normal;
+            font-style: italic;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #2c5aa0;
+            text-transform: uppercase;
+            border-bottom: 2px solid #2c5aa0;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+        
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+            margin-top: 0;
+        }
+        
+        .contact-item {
+            font-size: 10pt;
+            color: #555;
+        }
+        
+        .contact-item strong {
+            color: #2c5aa0;
+        }
+        
+        .experience-item {
+            margin-bottom: 20px;
+            border-left: 3px solid #e0e0e0;
+            padding-left: 15px;
+        }
+        
+        .job-title {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 3px;
+        }
+        
+        .company-period {
+            font-size: 10pt;
+            color: #666;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        
+        .job-description {
+            font-size: 10pt;
+            line-height: 1.5;
+        }
+        
+        .job-description ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        
+        .job-description li {
+            margin-bottom: 4px;
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .skills-category {
+            margin-bottom: 15px;
+        }
+        
+        .skills-category h4 {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .skills-list {
+            font-size: 10pt;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .education-item {
+            margin-bottom: 15px;
+        }
+        
+        .degree {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        
+        .school {
+            font-size: 10pt;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .certification-item {
+            font-size: 10pt;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .certification-item strong {
+            color: #2c5aa0;
+        }
+        
+        .languages {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .language-item {
+            font-size: 10pt;
+            color: #555;
+        }
+        
+        .language-item strong {
+            color: #2c5aa0;
+        }
+        
+        .interests {
+            font-size: 10pt;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .tech-stack {
+            font-size: 9pt;
+            color: #2c5aa0;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        @media print {
+            body { margin: 20px; }
+            .section { page-break-inside: avoid; }
+        }
+        
+        @media screen and (max-width: 768px) {
+            body {
+                margin: 20px;
+                font-size: 10pt;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .photo-section {
+                order: 1;
+                align-self: center;
+            }
+            
+            .header-info {
+                order: 2;
+                min-width: auto;
+            }
+            
+            .header h1 {
+                font-size: 20pt;
+            }
+            
+            .header h2 {
+                font-size: 12pt;
+            }
+            
+            .contact-info {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .languages {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .section-title {
+                font-size: 12pt;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            body {
+                margin: 15px;
+            }
+            
+            .profile-photo {
+                width: 100px;
+                height: 125px;
+                font-size: 8pt;
+            }
+            
+            .header h1 {
+                font-size: 18pt;
+            }
+            
+            .languages {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-info {
+                font-size: 9pt;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="photo-section">
+            <div class="profile-photo">
+                Insérer<br>Photo<br>Profil<br>120x150px
+            </div>
+        </div>
+        <div class="header-info">
+            <h1>SAWADOGO Ibrahim</h1>
+            <h2>Développeur Full-Stack Senior</h2>
+            <div class="contact-info">
+                <div class="contact-item"><strong>Téléphone:</strong> +226 74 53 46 94/63 69 69 61</div>
+                <div class="contact-item"><strong>Email:</strong> ibrahimsaw19@gmail.com</div>
+                <div class="contact-item"><strong>LinkedIn:</strong> linkedin.com/in/jeanpaulmartin</div>
+                <div class="contact-item"><strong>GitHub:</strong> github.com/jpmartin</div>
+                <div class="contact-item"><strong>Adresse:</strong> 15 rue de la République, 75011 Paris</div>
+                <div class="contact-item"><strong>Âge:</strong> 32 ans • Permis C</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Profil Professionnel</div>
+        <p>Développeur Full-Stack passionné avec 8 ans d'expérience dans la conception et le développement d'applications web et mobiles. Expert en technologies modernes (React, Node.js, Python, AWS) avec une forte orientation résultats et esprit d'équipe. Spécialisé dans l'architecture de systèmes scalables et l'optimisation des performances.</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Compétences Techniques</div>
+        <div class="skills-grid">
+            <div>
+                <div class="skills-category">
+                    <h4>Langages de programmation</h4>
+                    <div class="skills-list">JavaScript (ES6+), TypeScript, Python, Java, PHP, SQL, HTML5, CSS3, SASS/SCSS</div>
+                </div>
+                
+                <div class="skills-category">
+                    <h4>Frameworks & Bibliothèques</h4>
+                    <div class="skills-list"><strong>Frontend:</strong> React.js, Vue.js, Angular, Next.js, Bootstrap, Tailwind CSS<br>
+                    <strong>Backend:</strong> Node.js, Express.js, Django, Spring Boot, Laravel<br>
+                    <strong>Mobile:</strong> React Native, Flutter</div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="skills-category">
+                    <h4>Bases de données</h4>
+                    <div class="skills-list">MySQL, PostgreSQL, MongoDB, Redis<br>Design de schémas, optimisation des requêtes</div>
+                </div>
+                
+                <div class="skills-category">
+                    <h4>DevOps & Cloud</h4>
+                    <div class="skills-list">AWS (EC2, S3, RDS, Lambda), Google Cloud Platform<br>Docker, Kubernetes, Jenkins, GitLab CI/CD<br>Nginx, Apache</div>
+                </div>
+                
+                <div class="skills-category">
+                    <h4>Outils & Méthodologies</h4>
+                    <div class="skills-list">Git, GitHub, GitLab, Jira, Confluence<br>Agile/Scrum, TDD, Tests unitaires (Jest, PyTest)<br>Figma, Adobe XD (notions de UI/UX)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Expérience Professionnelle</div>
+        
+        <div class="experience-item">
+            <div class="job-title">Lead Developer Full-Stack</div>
+            <div class="company-period">TechCorp Solutions | Septembre 2020 - Présent</div>
+            <div class="job-description">
+                <ul>
+                    <li>Encadrement d'une équipe de 5 développeurs sur des projets web complexes</li>
+                    <li>Architecture et développement d'une plateforme e-commerce générant 2M€ de CA annuel</li>
+                    <li>Optimisation des performances : réduction du temps de chargement de 60%</li>
+                    <li>Migration vers une architecture microservices avec Docker et AWS</li>
+                </ul>
+                <div class="tech-stack">Technologies : React, Node.js, PostgreSQL, AWS, Docker</div>
+            </div>
+        </div>
+
+        <div class="experience-item">
+            <div class="job-title">Développeur Full-Stack</div>
+            <div class="company-period">StartupTech | Janvier 2019 - Août 2020</div>
+            <div class="job-description">
+                <ul>
+                    <li>Développement d'une application SaaS de gestion de projets (5000+ utilisateurs)</li>
+                    <li>Intégration d'APIs tierces (Stripe, Mailchimp, Slack)</li>
+                    <li>Mise en place de tests automatisés et déploiement continu</li>
+                    <li>Collaboration directe avec l'équipe produit et design</li>
+                </ul>
+                <div class="tech-stack">Technologies : Vue.js, Django, MySQL, GitLab CI/CD</div>
+            </div>
+        </div>
+
+        <div class="experience-item">
+            <div class="job-title">Développeur Frontend</div>
+            <div class="company-period">WebAgency Pro | Mars 2017 - Décembre 2018</div>
+            <div class="job-description">
+                <ul>
+                    <li>Création de sites web responsives pour des clients grands comptes</li>
+                    <li>Intégration de maquettes Figma/Photoshop avec pixel-perfect</li>
+                    <li>Optimisation SEO et performances web (PageSpeed 90+)</li>
+                    <li>Formation des clients sur les CMS (WordPress, Drupal)</li>
+                </ul>
+                <div class="tech-stack">Technologies : React, WordPress, PHP, SASS</div>
+            </div>
+        </div>
+
+        <div class="experience-item">
+            <div class="job-title">Développeur Junior</div>
+            <div class="company-period">Digital Solutions | Juin 2016 - Février 2017</div>
+            <div class="job-description">
+                <ul>
+                    <li>Développement de modules e-commerce sous Prestashop et Magento</li>
+                    <li>Maintenance et debug d'applications legacy</li>
+                    <li>Support technique client et documentation</li>
+                </ul>
+                <div class="tech-stack">Technologies : PHP, MySQL, jQuery, CSS</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Projets Personnels & Contributions</div>
+        
+        <div class="experience-item">
+            <div class="job-title">EcoTracker (2023)</div>
+            <div class="job-description">
+                Application mobile de suivi carbone personnel développée en React Native
+                <ul>
+                    <li>1000+ téléchargements sur les stores</li>
+                    <li>Intégration d'APIs de géolocalisation et météo</li>
+                    <li><strong>GitHub:</strong> github.com/jpmartin/ecotracker</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="experience-item">
+            <div class="job-title">OpenSource Contributor</div>
+            <div class="job-description">
+                <ul>
+                    <li>Contributions régulières à des projets React et Node.js</li>
+                    <li>50+ pull requests acceptées</li>
+                    <li>Maintenance d'une bibliothèque npm avec 500+ téléchargements/semaine</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Formation</div>
+        
+        <div class="education-item">
+            <div class="degree">Master en Informatique</div>
+            <div class="school">Université Pierre et Marie Curie | 2014 - 2016</div>
+            <div class="job-description">
+                Spécialisation : Génie Logiciel et Systèmes Distribués<br>
+                <strong>Mention :</strong> Bien<br>
+                <strong>Projet de fin d'études :</strong> Système de recommandation basé sur machine learning
+            </div>
+        </div>
+
+        <div class="education-item">
+            <div class="degree">Licence Informatique</div>
+            <div class="school">Université Paris Diderot | 2011 - 2014</div>
+            <div class="job-description">
+                <strong>Mention :</strong> Assez Bien<br>
+                Stages en entreprise : 6 mois chez IBM France
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Certifications</div>
+        <div class="certification-item"><strong>AWS Certified Solutions Architect</strong> (2022)</div>
+        <div class="certification-item"><strong>Google Cloud Professional Cloud Architect</strong> (2021)</div>
+        <div class="certification-item"><strong>Scrum Master Certified (PSM I)</strong> (2020)</div>
+        <div class="certification-item"><strong>MongoDB Certified Developer</strong> (2019)</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Langues</div>
+        <div class="languages">
+            <div class="language-item"><strong>Français :</strong> Langue maternelle</div>
+            <div class="language-item"><strong>Anglais :</strong> Courant (TOEIC 920/990)</div>
+            <div class="language-item"><strong>Espagnol :</strong> Intermédiaire</div>
+            <div class="language-item"><strong>Allemand :</strong> Notions</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Centres d'Intérêt</div>
+        <div class="interests">
+            <strong>Technologie :</strong> Veille technologique, participation à des meetups et conférences tech<br>
+            <strong>Sport :</strong> Course à pied (3 marathons), escalade<br>
+            <strong>Voyage :</strong> 25 pays visités, passion pour la découverte de nouvelles cultures<br>
+            <strong>Bénévolat :</strong> Initiation à la programmation pour des jeunes en quartiers prioritaires
+        </div>
+    </div>
+</body>
+</html>

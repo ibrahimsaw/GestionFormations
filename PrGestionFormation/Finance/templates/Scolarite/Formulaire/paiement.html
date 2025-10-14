@@ -1,0 +1,234 @@
+{% load widget_tweaks %}
+<!-- Date de paiement (lecture seule) -->
+  <div class="row mb-3">
+	  <label for="id_date_paiement" class="col-sm-2 col-form-label">Date de paiement</label>
+	  <div class="col-sm-10">
+		  <div class="input-group input-group-merge">
+			  <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+			  <input type="text"
+					 class="form-control"
+					 value="{{ form.instance.date_paiement.value|date:'d/m/Y H:i:s' }}"
+					 placeholder="{{ date }}"
+					 readonly>
+		  </div>
+		  {% for error in utilisateur_form.date_inscription.errors %}
+			  <div class="text-danger small">⚠️ {{ error }}</div>
+		  {% endfor %}
+	  </div>
+  </div>
+
+<!-- Barre de recherche (par matricule) -->
+  <div class="row mb-3">
+    <label for="searchEtudiants" class="col-sm-2 col-form-label">Rechercher Étudiant</label>
+    <div class="col-sm-10">
+      <div class="input-group">
+        <span class="input-group-text bg-light"><i class="bx bx-search"></i></span>
+        <input type="text" class="form-control" id="searchEtudiants" placeholder="Tapez un matricule...">
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Étudiant (Select2 + id forcé) -->
+  <div class="row mb-3">
+    <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant</label>
+    <div class="col-sm-10">
+      {{ form.etudiant|add_class:"form-select select2"|attr:"id:id_etudiant" }}
+      {% for error in form.etudiant.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+  <!-- Frais (remplissage dynamique) -->
+  <div class="row mb-3">
+    <label for="id_frais" class="col-sm-2 col-form-label">Frais</label>
+    <div class="col-sm-10">
+      <select name="frais" id="id_frais" class="form-select">
+        <option value="">Sélectionnez un étudiant d'abord</option>
+      </select>
+    </div>
+  </div>
+ 
+ <!-- Montant restant à payer (lecture seule) -->
+<div class="row mb-3">
+  <label for="id_montant_restant" class="col-sm-2 col-form-label">Reste à payer</label>
+  <div class="col-sm-10">
+    <input type="text" id="id_montant_restant" class="form-control" readonly placeholder="0.00 FCFA">
+  </div>
+</div>
+
+
+  <!-- Montant -->
+  <div class="row mb-3" id="montant">
+    <label for="{{ form.montant.id_for_label }}" class="col-sm-2 col-form-label">Montant</label>
+    <div class="col-sm-10">
+      {{ form.montant|add_class:"form-control" }}
+      {% for error in form.montant.errors %}
+        <div class="text-danger small">⚠️ {{ error }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+<!-- Méthode -->
+<div class="row mb-3" id="methode">
+  <label for="{{ form.methode.id_for_label }}" class="col-sm-2 col-form-label">Méthode</label>
+  <div class="col-sm-10">
+    {{ form.methode|add_class:"form-select" }}
+    {% for error in form.methode.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Référence (masqué si méthode = Espèces) -->
+<div class="row mb-3" id="reference_row">
+  <label for="{{ form.reference.id_for_label }}" class="col-sm-2 col-form-label">Référence</label>
+  <div class="col-sm-10">
+    {{ form.reference|add_class:"form-control" }}
+    {% for error in form.reference.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+
+<!-- Script JS pour masquer dynamiquement -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const searchInput = document.getElementById('searchEtudiants');
+  const selectEtudiant = document.getElementById('id_etudiant');
+  const originalOptions = Array.from(selectEtudiant.options);
+
+  searchInput.addEventListener('input', function () {
+    const searchValue = this.value.toLowerCase().trim();
+    selectEtudiant.innerHTML = '';
+
+    const filtered = originalOptions.filter(opt =>
+      opt.text.toLowerCase().includes(searchValue)
+    );
+
+    if (filtered.length === 0) {
+      const option = document.createElement('option');
+      option.text = '-- Aucun résultat --';
+      option.disabled = true;
+      selectEtudiant.add(option);
+    } else {
+      filtered.forEach(option => selectEtudiant.add(option));
+    }
+  });
+});
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const methodeSelect = document.getElementById("id_methode");
+    const referenceRow = document.getElementById("reference_row");
+    const referenceInput = document.getElementById("id_reference");
+    const etudiantSelect = document.getElementById("id_etudiant");
+    const fraisSelect = document.getElementById("id_frais");
+    const montantRestantInput = document.getElementById("id_montant_restant");
+    const montantInput = document.getElementById("id_montant");
+    const montant = document.getElementById("montant");
+    const methode = document.getElementById("methode");
+    const bouton = document.getElementById("bouton");
+
+    function generateReference() {
+      // Générer un identifiant aléatoire
+      const rand = Math.random().toString(36).substr(2, 8).toUpperCase();
+      return "ES-" + rand;
+    }
+
+    function toggleReferenceField() {
+      const selectedValue = methodeSelect.value;
+
+      if (selectedValue === "ES") {
+        referenceRow.style.display = "none"; // Cacher le champ
+        if (!referenceInput.value) {
+          referenceInput.value = generateReference(); // Générer si vide
+        }
+      } else {
+        referenceRow.style.display = "flex"; // Réafficher
+      }
+    }
+
+    methodeSelect.addEventListener("change", toggleReferenceField);
+    toggleReferenceField(); // Initialiser au chargement
+
+    etudiantSelect.addEventListener("change", async function () {
+      const etudiantId = this.value;
+      console.log("🎓 Étudiant sélectionné :", etudiantId);
+
+      fraisSelect.innerHTML = '<option value="">Chargement...</option>';
+
+      if (!etudiantId) {
+        fraisSelect.innerHTML = '<option value="">Sélectionnez un étudiant d\'abord</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/finance/ajax/frais_par_etudiant/?etudiant_id=${etudiantId}`);
+        if (!response.ok) throw new Error("Erreur serveur");
+
+        const data = await response.json();
+
+        let options = '<option value="">-- Choisissez un frais --</option>';
+        data.forEach(frais => {
+          options += `<option value="${frais.id}">${frais.libelle}</option>`;
+        });
+
+        fraisSelect.innerHTML = options;
+        console.log("📥 Frais mis à jour");
+      } catch (error) {
+        console.error("❌ Erreur AJAX :", error);
+        fraisSelect.innerHTML = '<option value="">Erreur lors du chargement</option>';
+      }
+    });
+    
+
+    fraisSelect.addEventListener("change", async function () {
+      const fraisId = this.value;
+      const etudiantId = etudiantSelect.value;
+
+      if (!fraisId || !etudiantId) {
+        montantRestantInput.value = "";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/finance/ajax/montant_restant/?etudiant_id=${etudiantId}&frais_id=${fraisId}`);
+        if (!response.ok) throw new Error("Erreur serveur");
+
+        const data = await response.json();
+
+        if (data.montant_restant !== undefined) {
+          montantRestantInput.value = `${data.montant_restant} FCFA`;
+          const reste = parseFloat(data.montant_restant);
+          if (reste <= 0) {
+              montantRestantInput.value = "Soldé";
+              montantRestantInput.classList.add("text-success");
+              montant.style.display = "none";
+              referenceRow.style.display = "none";
+              methode.style.display = "none";
+              bouton.style.display = "none";
+              montantInput.value = "";
+            } else {
+              montant.style.display = "flex";
+              referenceRow.style.display = "flex";
+              methode.style.display = "flex";
+              bouton.style.display = "flex";
+              montantRestantInput.value = `${reste.toFixed(2)} FCFA`;
+              montantRestantInput.classList.remove("text-success");
+              montantInput.readOnly = false;
+              montantInput.classList.remove("bg-light", "text-success");
+            }
+        } else {
+          montantRestantInput.value = "Erreur";
+        }
+      } catch (error) {
+        console.error("❌ Erreur montant restant :", error);
+        montantRestantInput.value = "Erreur";
+      }
+    });
+  });
+</script>

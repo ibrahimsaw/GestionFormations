@@ -1,0 +1,58 @@
+ {% extends 'base.html' %}
+ {% load static %}
+ {% load form_tags %}
+ {% block content %}
+
+ <!--suppress ALL -->
+ <div class="col-xl-12">
+	         <!-- En-tête avec breadcrumb modernisé -->
+      {% include "nav_ol.html" %}
+   <div class="nav-align-top mb-4">
+	 {% include "Formation/Formulaire/nav.html" %}
+	   {% if model_type %}
+       <div class="card mb-4">
+ <div class="tab-content">
+  <div class="text-center">
+	  <div class="alert bg-primary">
+		<h5 class="mb-0 text-white">Formulaire {{ titre_page }}</h5>
+	  </div>
+	</div>
+
+	 <div class="tab-pane fade show active">
+	   <!-- FORMULAIRE DYNAMIQUE -->
+		 {% if model_type == 'formation' %}
+			 {% include "Formation/Formulaire/formation.html" %}
+		 {% elif model_type == 'parcours' %}
+			 {% include "Formation/Formulaire/parcours.html" %}
+		 {% elif model_type == 'annee' %}
+			 {% include "Formation/Formulaire/annee.html" %}
+		 {% elif model_type == 'classe' %}
+			 {% include "Formation/Formulaire/classe.html" %}
+		 {% else %}
+			 <div class="tab-content">
+			   <div class="tab-pane fade show active">
+				   <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant à la Creation.</div>
+			   </div>
+		   </div>
+	  	{% endif %}
+	 </div>
+   </div>
+       </div>
+
+	  <div class="fixed-action-buttons">
+		  <a href="{% url 'formation:universal-list' model_type %}" class="btn btn-list">
+			  <span class="tf-icons bx bx-list-ul"></span>&nbsp;  Listes
+		  </a>
+	  </div>
+	   {% else %}
+       <div class="card mb-4">
+	   <div class="tab-content">
+		   <div class="tab-pane fade show active">
+			   <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant à la Creation.</div>
+		   </div>
+	   </div>
+       </div>
+	   {% endif %}
+   </div>
+ </div>
+{% endblock %}

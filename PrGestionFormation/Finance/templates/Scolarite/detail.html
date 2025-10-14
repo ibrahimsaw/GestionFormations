@@ -1,0 +1,598 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Hero Section avec gradient -->
+<div class="position-relative overflow-hidden">
+    <div class="bg-gradient-primary-to-secondary py-4 mb-4">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center mb-2">
+                        <a href="" class="btn btn-light btn-sm rounded-pill me-3 shadow-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Retour
+                        </a>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-light mb-0">
+                                {% for item in breadcrumb %}
+                                    {% if item.is_last %}
+                                        <li class="breadcrumb-item active text-white-50">{{ item.name }}</li>
+                                    {% elif item.is_first %}
+                                        <li class="breadcrumb-item text-white">{{ item.name }}</li>
+                                    {% else %}
+                                        <li class="breadcrumb-item">
+                                            <a href="{{ item.url }}" class="text-white text-decoration-none">{{ item.name }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                        </nav>
+                    </div>
+                    <h1 class="display-6 fw-bold text-white mb-1">
+                        {% if model_type == 'paiement' %}
+                            <i class="bi bi-credit-card-2-front me-2"></i>
+                            Paiement #{{ object.reference }}
+                        {% elif model_type == 'reinscription' %}
+                            <i class="bi bi-person-check me-2"></i>
+                            {{ object.etudiant.utilisateur }}
+                        {% else %}
+                            <i class="bi bi-bookmark-star me-2"></i>
+                            {{ object.get_libelle_display }}
+                        {% endif %}
+                    </h1>
+                    <p class="text-white-50 mb-0">{{ titre_page }}</p>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle rounded-pill shadow-sm" type="button" id="actionsMenu" data-bs-toggle="dropdown">
+                            <i class="bi bi-lightning-charge me-2"></i>Actions rapides
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                            <li><a class="dropdown-item py-2" href="">
+                                <i class="bi bi-pencil-square text-primary me-2"></i>Modifier
+                            </a></li>
+                            <li><a class="dropdown-item py-2" href="">
+                                <i class="bi bi-plus-circle text-success me-2"></i>
+                                {% if model_type == 'paiement' %}Nouveau paiement
+                                {% elif model_type == 'reinscription' %}Nouvelle réinscription
+                                {% else %}Ajouter{% endif %}
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="">
+                                <i class="bi bi-trash3 me-2"></i>Supprimer
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cartes de statut et métriques -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                        <i class="bi {% if model_type == 'paiement' %}bi-cash-coin{% elif model_type == 'reinscription' %}bi-person-badge{% else %}bi-bookmark-star{% endif %} text-primary fs-3"></i>
+                    </div>
+                </div>
+                <h5 class="card-title">
+                    {% if model_type == 'paiement' %}{{ object.get_methode_display }}
+                    {% elif model_type == 'reinscription' %}{{ object.get_statut_display }}
+                    {% else %}{{ object.get_recurrent_display }}{% endif %}
+                </h5>
+                <span class="badge rounded-pill
+                    {% if model_type == 'paiement' %}
+                        {% if object.methode == 'ES' %}bg-warning{% elif object.methode == 'CB' %}bg-success{% else %}bg-info{% endif %}
+                    {% elif model_type == 'reinscription' %}
+                        {% if object.statut == 'inscrit' %}bg-success
+                        {% elif object.statut == 'reinscrit' %}bg-primary
+                        {% elif object.statut == 'diplome' %}bg-info
+                        {% elif object.statut == 'abandon' or object.statut == 'exclu' or object.statut == 'demission' %}bg-danger
+                        {% else %}bg-warning{% endif %}
+                    {% else %}
+                        {% if object.recurrent %}bg-success{% else %}bg-info{% endif %}
+                    {% endif %}">
+                    Statut
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                        <i class="bi bi-currency-exchange text-success fs-3"></i>
+                    </div>
+                </div>
+                <h5 class="card-title">
+                    {% if model_type == 'paiement' %}
+                        {{ object.montant|floatformat:2 }} FCFA
+                    {% elif model_type == 'reinscription' %}
+                        {{ object.annee_academique }}
+                    {% else %}
+                        {{ object.get_montant_display }}
+                    {% endif %}
+                </h5>
+                <small class="text-muted">
+                    {% if model_type == 'paiement' %}Montant payé
+                    {% elif model_type == 'reinscription' %}Année académique
+                    {% else %}Montant total{% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                        <i class="bi
+                            {% if model_type == 'paiement' %}bi-person-fill
+                            {% elif model_type == 'reinscription' %}bi-calendar-event
+                            {% else %}bi-people-fill{% endif %} text-info fs-3"></i>
+                    </div>
+                </div>
+                <h6 class="card-title">
+                    {% if model_type == 'paiement' %}
+                        {{ object.etudiant }}
+                    {% elif model_type == 'reinscription' %}
+                        {{ object.date_inscription|date:"d/m/Y" }}
+                    {% else %}
+                        {{ object.classe }}
+                    {% endif %}
+                </h6>
+                <small class="text-muted">
+                    {% if model_type == 'paiement' %}Étudiant
+                    {% elif model_type == 'reinscription' %}Date inscription
+                    {% else %}Classe concernée{% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                        <i class="bi bi-clock-history text-warning fs-3"></i>
+                    </div>
+                </div>
+                <h6 class="card-title">
+                    {% if model_type == 'paiement' %}
+                        {{ object.date_paiement|date:"d/m/Y" }}
+                    {% elif model_type == 'reinscription' %}
+                        {{ object.created_at|date:"d/m/Y" }}
+                    {% else %}
+                        {{ object.created_at|date:"d/m/Y" }}
+                    {% endif %}
+                </h6>
+                <small class="text-muted">
+                    {% if model_type == 'paiement' %}Date paiement
+                    {% else %}Date création{% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenu principal avec onglets -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <ul class="nav nav-pills nav-fill" id="detailTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill" id="details-tab" data-bs-toggle="pill" data-bs-target="#details" type="button" role="tab">
+                            <i class="bi bi-info-circle me-2"></i>Détails
+                        </button>
+                    </li>
+                    {% if model_type == 'paiement' %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill" id="etudiant-tab" data-bs-toggle="pill" data-bs-target="#etudiant" type="button" role="tab">
+                            <i class="bi bi-person me-2"></i>Étudiant
+                        </button>
+                    </li>
+                    {% elif model_type == 'reinscription' %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill" id="academique-tab" data-bs-toggle="pill" data-bs-target="#academique" type="button" role="tab">
+                            <i class="bi bi-mortarboard me-2"></i>Académique
+                        </button>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <div class="card-body">
+                <div class="tab-content" id="detailTabsContent">
+                    <!-- Onglet Détails -->
+                    <div class="tab-pane fade show active" id="details" role="tabpanel">
+                        {% if model_type == 'paiement' %}
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                                                <i class="bi bi-receipt text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Frais concerné</h6>
+                                            <p class="text-muted mb-0">{{ object.frais.libelle }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-success bg-opacity-10 p-2">
+                                                <i class="bi bi-calendar-check text-success"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Date paiement</h6>
+                                            <p class="text-muted mb-0">{{ object.date_paiement|date:"d/m/Y H:i" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-info bg-opacity-10 p-2">
+                                                <i class="bi bi-hash text-info"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Référence</h6>
+                                            <p class="text-muted mb-0">
+                                                <span class="badge bg-light text-dark border">{{ object.reference }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif model_type == 'reinscription' %}
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                                                <i class="bi bi-building text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Classe</h6>
+                                            <p class="text-muted mb-0">{{ object.classe }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-success bg-opacity-10 p-2">
+                                                <i class="bi bi-map text-success"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Parcours</h6>
+                                            <p class="text-muted mb-0">{{ object.parcours }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if object.motif %}
+                                <div class="col-12">
+                                    <div class="alert alert-light border-start border-4 border-warning">
+                                        <h6 class="alert-heading mb-2">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>Motif
+                                        </h6>
+                                        <p class="mb-0">{{ object.motif }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            {% if object.description %}
+                            <div class="alert alert-light border-start border-4 border-primary">
+                                <h6 class="alert-heading mb-2">
+                                    <i class="bi bi-file-text me-2"></i>Description
+                                </h6>
+                                <p class="mb-0">{{ object.description|linebreaksbr }}</p>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Onglet Étudiant (pour paiement) -->
+                    {% if model_type == 'paiement' %}
+                    <div class="tab-pane fade" id="etudiant" role="tabpanel">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                                            <i class="bi bi-person-badge text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">Matricule</h6>
+                                        <p class="text-muted mb-0">{{ object.etudiant.utilisateur.matricule }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-success bg-opacity-10 p-2">
+                                            <i class="bi bi-person-fill text-success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">Nom complet</h6>
+                                        <p class="text-muted mb-0">{{ object.etudiant.utilisateur.get_full_name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-info bg-opacity-10 p-2">
+                                            <i class="bi bi-building text-info"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">Classe actuelle</h6>
+                                        <p class="text-muted mb-0">{{ object.etudiant.classe_actuelle }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-warning bg-opacity-10 p-2">
+                                            <i class="bi bi-telephone text-warning"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">Contact</h6>
+                                        <p class="text-muted mb-1">{{ object.etudiant.utilisateur.telephone|default:"-" }}</p>
+                                        <p class="text-muted mb-0">{{ object.etudiant.utilisateur.email|default:"-" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Onglet Académique (pour réinscription) -->
+                    {% if model_type == 'reinscription' %}
+                    <div class="tab-pane fade" id="academique" role="tabpanel">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                                            <i class="bi bi-mortarboard text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">Type formation</h6>
+                                        <p class="text-muted mb-0">{{ object.parcours.type_formation }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-success bg-opacity-10 p-2">
+                                            <i class="bi bi-trophy text-success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">Résultat précédent</h6>
+                                        <p class="text-muted mb-0">{{ object.resultat_annee_precedente|default:"-" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if object.date_evenement %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-info bg-opacity-10 p-2">
+                                            <i class="bi bi-calendar-event text-info"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">Date événement</h6>
+                                        <p class="text-muted mb-0">{{ object.date_evenement|date:"d/m/Y" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if object.document %}
+                        <div class="mt-4">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                                <i class="bi bi-file-earmark-text text-primary fs-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Document associé</h6>
+                                            <a href="{{ object.document.fichier.url }}" class="text-decoration-none">
+                                                {{ object.document.nom }}
+                                            </a>
+                                            <p class="text-muted small mb-0">Uploadé le {{ object.document.date_upload|date:"d/m/Y" }}</p>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <a href="{{ object.document.fichier.url }}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar avec actions -->
+    <div class="col-lg-4">
+        <div class="sticky-top" style="top: 20px;">
+            <!-- Card Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightning-charge me-2"></i>Actions rapides
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            {% if model_type == 'reinscription' %}Modifier statut{% else %}Modifier{% endif %}
+                        </a>
+                        <a href="" class="btn btn-success">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            {% if model_type == 'paiement' %}Nouveau paiement
+                            {% elif model_type == 'reinscription' %}Nouvelle réinscription
+                            {% else %}Ajouter{% endif %}
+                        </a>
+                        {% if model_type == 'paiement' or model_type == 'reinscription' %}
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="bi bi-printer me-2"></i>
+                            {% if model_type == 'paiement' %}Imprimer reçu{% else %}Attestation{% endif %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Statut -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="mb-0">
+                        <i class="bi bi-shield-check me-2"></i>
+                        {% if model_type == 'reinscription' %}Statut académique{% else %}Statut{% endif %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <div class="rounded-circle bg-{% if model_type == 'paiement' %}success{% elif model_type == 'reinscription' %}{% if object.statut == 'diplome' %}success{% elif object.statut == 'abandon' or object.statut == 'exclu' or object.statut == 'demission' %}danger{% else %}info{% endif %}{% else %}info{% endif %} bg-opacity-10 p-3 d-inline-flex">
+                                <i class="bi {% if model_type == 'paiement' %}bi-check-circle-fill text-success{% elif model_type == 'reinscription' %}{% if object.statut == 'diplome' %}bi-check-circle-fill text-success{% elif object.statut == 'abandon' or object.statut == 'exclu' or object.statut == 'demission' %}bi-x-circle-fill text-danger{% else %}bi-info-circle-fill text-info{% endif %}{% else %}bi-info-circle-fill text-info{% endif %} fs-3"></i>
+                            </div>
+                        </div>
+                        <h6 class="mb-2">
+                            {% if model_type == 'paiement' %}Paiement validé
+                            {% elif model_type == 'reinscription' %}{{ object.get_statut_display }}
+                            {% else %}Actif{% endif %}
+                        </h6>
+                        <p class="text-muted small mb-0">
+                            {% if model_type == 'paiement' %}Transaction réussie
+                            {% elif model_type == 'reinscription' %}État actuel de l'inscription
+                            {% else %}Statut de l'élément{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Informations -->
+            {% if model_type != 'reinscription' %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Informations
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Créé le</small>
+                            <strong>{{ object.created_at|date:"d/m/Y" }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Modifié le</small>
+                            <strong>{{ object.updated_at|date:"d/m/Y" }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- CSS personnalisé -->
+<style>
+.bg-gradient-primary-to-secondary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.breadcrumb-light .breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-pills .nav-link {
+    color: #6c757d;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.alert {
+    border-radius: 12px;
+}
+
+.rounded-circle {
+    transition: all 0.3s ease;
+}
+
+.rounded-circle:hover {
+    transform: scale(1.05);
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between">
+	 <h6 class="text-muted">{{ titre_page }}</h6>
+	 <nav aria-label="breadcrumb" class="d-none d-sm-block">
+		  <ol class="breadcrumb">
+			{% for item in breadcrumb %}
+			  {% if item.is_last %}
+				<li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+			  {% elif item.is_first %}
+				<li class="breadcrumb-item">{{ item.name }} </li>
+			  {% else %}
+				<li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+			  {% endif %}
+			{% endfor %}
+		  </ol>
+	  </nav>
+	</div>
+
+<div class="text-center">
+  <div class="alert bg-primary">
+	<h5 class="mb-0 text-white">{{ entete }}</h5>
+  </div>
+</div>
+ <div class="row row-cols-1 row-cols-md-2 g-4">
+  <!-- Carte Informations -->
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Informations sur la permission</h5>
+      </div>
+      <div class="card-body">
+        <p><strong>App :</strong> {{ permission.content_type.app_label }}</p>
+        <p><strong>Modèle :</strong> {{ permission.content_type.model }}</p>
+        <p><strong>Code :</strong> <code>{{ permission.codename }}</code></p>
+        <p><strong>Nom :</strong> {{ form.name.value }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire Rôles autorisés -->
+  <div class="col">
+    <form method="post" class="h-100 d-flex flex-column">
+      {% csrf_token %}
+      <div class="card flex-grow-1 shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">Rôles autorisés</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% for role in form.roles_autorises %}
+            <div class="col-6 col-md-6 col-lg-4 mb-2">
+              <div class="form-check">
+                {{ role.tag }}
+                <label class="form-check-label" for="{{ role.id_for_label }}">
+                  {{ role.choice_label }}
+                </label>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+{% endblock %}

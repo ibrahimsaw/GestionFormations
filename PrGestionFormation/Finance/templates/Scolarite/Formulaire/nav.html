@@ -1,0 +1,94 @@
+<!-- ✅ Barre de navigation visible sur écrans moyens et grands -->
+<ul class="nav nav-pills mb-3 nav-fill d-none d-sm-flex" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if model_type == 'frais' %}active{% endif %}"
+       href="{% if page == 'Liste' %}{% url 'finance:scolarite-list' 'frais' %}{% else %}{% url 'finance:scolarite-create' 'frais' %}{% endif %}">
+      <i class="tf-icons bx bx-money"></i> Frais
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link {% if model_type == 'paiement' %}active{% endif %}"
+       href="{% if page == 'Liste' %}{% url 'finance:scolarite-list' 'paiement' %}{% else %}{% url 'finance:scolarite-create' 'paiement' %}{% endif %}">
+      <i class="tf-icons bx bx-credit-card"></i> Paiements
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link {% if model_type == 'reinscription' %}active{% endif %}"
+       href="{% if page == 'Liste' %}{% url 'finance:scolarite-list' 'reinscription' %}{% else %}{% url 'finance:scolarite-create' 'reinscription' %}{% endif %}">
+      <i class="tf-icons bx bx-book"></i> Statut de l'inscription
+    </a>
+  </li>
+</ul>
+
+<!-- ✅ Version mobile (visible uniquement sur petits écrans) -->
+<div class="d-sm-none mb-3 position-relative">
+  <!-- Icône dynamique -->
+  <i id="roleIcon" class="tf-icons bx bx-user position-absolute"
+     style="left: 10px; top: 50%; transform: translateY(-50%); color: #0d6efd;"></i>
+
+  <select class="form-select ps-5" id="roleSelect" onchange="updateRoleIcon(); location = this.value;">
+    <option value="" disabled {% if not role_utilisateur %}selected{% endif %}>Choisissez un rôle</option>
+
+    <option value="{% if page == 'Liste' %}{% url 'finance:scolarite-list' 'frais' %}{% else %}{% url 'finance:scolarite-create' 'frais' %}{% endif %}"
+      {% if role_utilisateur == 'Frais' %}selected{% endif %}>
+      Frais
+    </option>
+
+    <option value="{% if page == 'Liste' %}{% url 'finance:scolarite-list' 'paiement' %}{% else %}{% url 'finance:scolarite-create' 'paiement' %}{% endif %}"
+      {% if role_utilisateur == 'Paiement' %}selected{% endif %}>
+      Paiements
+    </option>
+
+    <option value="{% if page == 'Liste' %}{% url 'finance:scolarite-list' 'reinscription' %}{% else %}{% url 'finance:scolarite-create' 'reinscription' %}{% endif %}"
+      {% if role_utilisateur == "Statut de l'inscription" %}selected{% endif %}>
+      Statut de l'inscription
+    </option>
+  </select>
+</div>
+
+<!-- ✅ Style -->
+<style>
+#roleSelect {
+  color: white;
+  background-color: #696cff;
+  padding-left: 2rem;
+}
+#roleSelect option {
+  color: #000;
+  background-color: #fff;
+}
+</style>
+
+<!-- ✅ Script -->
+<script>
+function updateRoleIcon() {
+  const select = document.getElementById('roleSelect');
+  const icon = document.getElementById('roleIcon');
+  const value = select.options[select.selectedIndex].text.trim();
+
+  icon.className = 'tf-icons position-absolute';
+  icon.style.color = '#fff';
+  icon.style.left = '10px';
+  icon.style.top = '50%';
+  icon.style.transform = 'translateY(-50%)';
+
+  switch(value) {
+    case 'Frais':
+      icon.classList.add('bx', 'bx-money');
+      break;
+    case 'Paiements':
+      icon.classList.add('bx', 'bx-credit-card');
+      break;
+    case "Statut de l'inscription":
+      icon.classList.add('bx', 'bx-book');
+      break;
+    default:
+      icon.classList.add('bx', 'bx-user');
+  }
+}
+
+// Initialisation
+updateRoleIcon();
+</script>

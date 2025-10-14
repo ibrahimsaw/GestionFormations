@@ -1,0 +1,11 @@
+# Environnement virtuel
+venv/
+.env
+
+# Django
+*.sqlite3
+__pycache__/
+*.pyc
+
+# Static files
+staticfiles/

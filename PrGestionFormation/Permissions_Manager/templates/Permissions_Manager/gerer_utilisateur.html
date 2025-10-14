@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<div class="d-sm-flex align-items-center justify-content-between">
+	 <h6 class="text-muted">{{ titre_page }}</h6>
+	 <nav aria-label="breadcrumb" class="d-none d-sm-block">
+		  <ol class="breadcrumb">
+			{% for item in breadcrumb %}
+			  {% if item.is_last %}
+				<li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+			  {% elif item.is_first %}
+				<li class="breadcrumb-item">{{ item.name }} </li>
+			  {% else %}
+				<li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+			  {% endif %}
+			{% endfor %}
+		  </ol>
+	  </nav>
+	</div>
+
+
+<div class="alert bg-primary">
+  <h5 class="mb-0 text-white">Gestion des Permissions de <strong>{{ user.get_full_name|default:"Utilisateur inconnu" }}</strong></h5>
+</div>
+    <div class="card shadow mb-4">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+			<span>
+				<i class="fas fa-user-circle me-2"></i> Informations de l'utilisateur
+			</span>
+			<a href="{% url 'utilisateur:utilisateur_detail' role=user.role|lower pk=user.pk %}" class="text-white" title="Voir les détails de l'utilisateur">
+				<i class="fas fa-eye"></i>
+			</a>
+		</div>
+
+        <div class="card-body">
+            <p><strong>Nom complet :</strong> {{ user.get_full_name|default:"Non défini" }}</p>
+            <p><strong>Rôle :</strong> {{ user.get_role_display|default:"Non défini" }}</p>
+            <p><strong>Email :</strong> {{ user.email|default:"Non renseigné" }}</p>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+ 	<div>
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-lock me-2"></i> Permissions
+        </div>
+        <div class="card-body">
+            {% if form.user_permissions %}
+                {{ form.user_permissions.label_tag }}
+                <div class="row">
+                    {% for checkbox in form.user_permissions %}
+                        <div class="col-12 col-sm-6 col-md-4 mb-2">
+                            <div class="form-check">
+                                {{ checkbox }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle"></i> Aucune permission disponible.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+	 
+	 <div>
+        <div class="card shadow mb-4">
+            <div class="card-header bg-secondary text-white">
+                <i class="fas fa-users me-2"></i> Groupes
+            </div>
+            <div class="card-body">
+                {% if form.groups %}
+                    {{ form.groups.label_tag }}
+                    <div class="group-grid">
+                        {{ form.groups }}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Aucun groupe associé.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+	  
+        {% if form.fonction_agent %}
+ 	<div class="col">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-briefcase me-2"></i> Fonction Administrative
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+				   {{ form.fonction_agent.label_tag }}
+				   {{ form.fonction_agent }}
+				   {% if form.fonction_agent.help_text %}
+					   <small class="form-text text-muted">{{ form.fonction_agent.help_text }}</small>
+				   {% endif %}
+			   </div>
+            </div>
+        </div>
+	 </div>
+        {% endif %}
+	  {% if fonctions_avec_permissions %}
+    <div class="col">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-briefcase me-2"></i> Fonctions & Permissions associées
+            </div>
+            <div class="card-body">
+                {% for fonction in fonctions_avec_permissions %}
+			 	<h5 class="text-primary mt-3"> <i class="fas fa-user-tag me-1"></i>{{ fonction.nom }}</h5>
+			 
+			 		{% if fonction.permissions.all %}
+					   {% regroup fonction.permissions.all by content_type.model as model_perms %}
+					   <table class="table table-bordered table-striped mb-3">
+						   <thead class="table-light">
+							   <tr>
+								   <th>Modèle</th>
+								   <th class="text-center"><i class="fas fa-plus-circle"></i> </th>
+									<th class="text-center"><i class="fas fa-edit"></i> </th>
+									<th class="text-center"><i class="fas fa-trash"></i></th>
+									<th class="text-center"><i class="fas fa-eye"></i></th>
+							   </tr>
+						   </thead>
+						   <tbody>
+							   {% for model in model_perms %}
+								   <tr>
+									   <td>{{ model.grouper|title }}</td>
+									   <td>
+										   {% for perm in model.list %}
+											   {% if 'add_' in perm.codename %}
+												   <i class="fas fa-check text-success"></i>
+											   {% endif %}
+										   {% endfor %}
+									   </td>
+									   <td>
+										   {% for perm in model.list %}
+											   {% if 'change_' in perm.codename %}
+												   <i class="fas fa-check text-success"></i>
+											   {% endif %}
+										   {% endfor %}
+									   </td>
+									   <td>
+										   {% for perm in model.list %}
+											   {% if 'delete_' in perm.codename %}
+												   <i class="fas fa-check text-success"></i>
+											   {% endif %}
+										   {% endfor %}
+									   </td>
+									   <td>
+										   {% for perm in model.list %}
+											   {% if 'view_' in perm.codename %}
+												   <i class="fas fa-check text-success"></i>
+											   {% endif %}
+										   {% endfor %}
+									   </td>
+								   </tr>
+							   {% endfor %}
+						   </tbody>
+					   </table>
+				   {% else %}
+					   <p class="text-muted">Aucune permission pour cette fonction.</p>
+				   {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+	 </div>
+	 	<div class="card shadow mb-4">
+		 <div class="card-header bg-primary text-white">
+			 <i class="fas fa-lock me-2"></i> Permissions par rôle
+		 </div>
+			<div class="card-body">
+				{% if user.permissions_by_group %}
+					{% for group_name, permissions in user.permissions_by_group.items %}
+						<h5 class="text-primary mt-3">{{ group_name }}</h5>
+						<table class="table table-bordered table-hover">
+							<thead class="table-light">
+								<tr>
+									<th>Modèle</th>
+									<th class="text-center"><i class="fas fa-plus-circle"></i> </th>
+									<th class="text-center"><i class="fas fa-edit"></i> </th>
+									<th class="text-center"><i class="fas fa-trash"></i></th>
+									<th class="text-center"><i class="fas fa-eye"></i></th>
+								</tr>
+							</thead>
+							<tbody>
+								{% regroup permissions by content_type as grouped %}
+								{% for group in grouped %}
+									<tr>
+										<td>{{ group.grouper.name|capfirst }}</td>
+										<td class="text-center">
+											{% for perm in group.list %}
+												{% if "Can add" in perm.name %}
+													<i class="fas fa-check text-success"></i>
+												{% endif %}
+											{% empty %}
+												<i class="fas fa-times text-danger"></i>
+											{% endfor %}
+										</td>
+										<td class="text-center">
+											{% for perm in group.list %}
+												{% if "Can change" in perm.name %}
+													<i class="fas fa-check text-success"></i>
+												{% endif %}
+											{% empty %}
+												<i class="fas fa-times text-danger"></i>
+											{% endfor %}
+										</td>
+										<td class="text-center">
+											{% for perm in group.list %}
+												{% if "Can delete" in perm.name %}
+													<i class="fas fa-check text-success"></i>
+												{% endif %}
+											{% empty %}
+												<i class="fas fa-times text-danger"></i>
+											{% endfor %}
+										</td>
+										<td class="text-center">
+											{% for perm in group.list %}
+												{% if "Can view" in perm.name %}
+													<i class="fas fa-check text-success"></i>
+												{% endif %}
+											{% empty %}
+												<i class="fas fa-times text-danger"></i>
+											{% endfor %}
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					{% endfor %}
+				{% else %}
+					<p>Aucun groupe avec des permissions.</p>
+				{% endif %}
+			
+				{% if direct_permissions %}
+					<h5>Permissions directes</h5>
+					<ul>
+						{% for perm in direct_permissions %}
+							<li>{{ perm.name }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			</div>
+		 </div>
+
+        <div class="d-flex justify-content-between">
+			 <button onclick="window.history.back();" class="btn btn-outline-dark">
+				<i class="fas fa-arrow-left"></i> Retour
+			</button>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+        </div>
+    </form>
+
+
+<style>
+.permission-grid, .group-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+}
+</style>
+{% endblock %}

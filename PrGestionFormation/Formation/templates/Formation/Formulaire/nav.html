@@ -1,0 +1,93 @@
+
+	<ul class="nav nav-pills mb-3 nav-fill d-none d-sm-flex" role="tablist">
+	<li class="nav-item">
+		<a class="nav-link {% if model_type == 'formation' %}active{% endif %}"
+		   href="{% if page == 'Liste' %}{% url 'formation:universal-list' 'formation' %}{% else %}{% url 'formation:universal-create' 'formation' %}{% endif %}">
+			<i class="tf-icons bx bx-book-alt"></i> Formations
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {% if model_type == 'parcours' %}active{% endif %}"
+		   href="{% if page == 'Liste' %}{% url 'formation:universal-list' 'parcours' %}{% else %}{% url 'formation:universal-create' 'parcours' %}{% endif %}">
+			<i class="tf-icons bx bx-map"></i> Parcours
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {% if model_type == 'annee' %}active{% endif %}"
+		   href="{% if page == 'Liste' %}{% url 'formation:universal-list' 'annee' %}{% else %}{% url 'formation:universal-create' 'annee' %}{% endif %}">
+			<i class="tf-icons bx bx-calendar"></i> Années Académiques
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {% if model_type == 'classe' %}active{% endif %}"
+		   href="{% if page == 'Liste' %}{% url 'formation:universal-list' 'classe' %}{% else %}{% url 'formation:universal-create' 'classe' %}{% endif %}">
+			<i class="tf-icons bx bx-group"></i> Classes
+		</a>
+	</li>
+    </ul>
+
+
+ <style>
+/* Style du select */
+#roleSelect {
+  color: white;           /* texte blanc pour l'élément sélectionné */
+  background-color: #696cff; /* fond bleu pour l'élément sélectionné */
+  padding-left: 2rem;     /* pour laisser la place à l'icône */
+}
+
+/* Liste déroulante (options) */
+#roleSelect option {
+  color: #000;            /* texte noir dans le menu déroulant */
+  background-color: #fff; /* fond blanc dans le menu déroulant */
+}
+</style>
+
+<div class="d-sm-none mb-3 position-relative">
+  <!-- Icône dynamique -->
+  <i id="roleIcon" class="tf-icons bx bx-user position-absolute"
+     style="left: 10px; top: 50%; transform: translateY(-50%); color: #0d6efd;"></i>
+
+  <select class="form-select ps-5 nav-link active" id="roleSelect" onchange="updateRoleIcon(); location = this.value;">
+    <option value="" disabled {% if not role_utilisateur %}selected{% endif %}>Choisissez un rôle</option>
+    <option value="{% if page == 'Liste' %}{% url 'formation:universal-list' 'formation' %}{% else %}{% url 'formation:universal-create' 'formation' %}{% endif %} {% if role_utilisateur == 'Formations' %}selected{% endif %}">Formations</option>
+    <option value="{% if page == 'Liste' %}{% url 'formation:universal-list' 'parcours' %}{% else %}{% url 'formation:universal-create' 'parcours' %}{% endif %} {% if role_utilisateur == 'Parcours' %}selected{% endif %}">Parcours</option>
+    <option value="{% if page == 'Liste' %}{% url 'formation:universal-list' 'annee' %}{% else %}{% url 'formation:universal-create' 'annee' %}{% endif %} {% if role_utilisateur == 'Année Académique' %}selected{% endif %}">Années Académiques</option>
+    <option value="{% if page == 'Liste' %}{% url 'formation:universal-list' 'classe' %}{% else %}{% url 'formation:universal-create' 'classe' %}{% endif %} {% if role_utilisateur == 'Classe' %}selected{% endif %}">Classes</option>
+  </select>
+</div>
+
+<script>
+function updateRoleIcon() {
+  const select = document.getElementById('roleSelect');
+  const icon = document.getElementById('roleIcon');
+  const value = select.options[select.selectedIndex].text;
+
+  // Remise à zéro
+  icon.className = 'tf-icons position-absolute';
+  icon.style.color = '#fff';
+  icon.style.left = '10px';
+  icon.style.top = '50%';
+  icon.style.transform = 'translateY(-50%)';
+
+  // Définir l'icône selon le rôle
+  switch(value) {
+    case 'Formations':
+      icon.classList.add('bx', 'bx-book-alt');
+      break;
+    case 'Parcours':
+      icon.classList.add('bx', 'bx-map');
+      break;
+    case 'Années Académiques':
+      icon.classList.add('bx', 'bx-calendar');
+      break;
+    case 'Classes':
+      icon.classList.add('bx', 'bx-group');
+      break;
+    default:
+      icon.classList.add('bx', 'bx-book-alt');
+  }
+}
+
+// Initialisation au chargement
+updateRoleIcon();
+</script>

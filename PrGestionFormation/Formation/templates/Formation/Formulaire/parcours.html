@@ -1,0 +1,273 @@
+
+ <!--suppress ALL -->
+ <form method="post" id="parcoursForm">
+  {% if form.errors %}
+   <div class="alert alert-danger">
+	 <strong>⚠ Erreurs dans le formulaire :</strong>
+	 <ul>
+	   {% for field in form %}
+		 {% for error in field.errors %}
+		   <li><strong>{{ field.label }} :</strong> {{ error }}</li>
+		 {% endfor %}
+	   {% endfor %}
+	   {% for error in form.non_field_errors %}
+		 <li>{{ error }}</li>
+	   {% endfor %}
+	 </ul>
+   </div>
+ {% endif %}
+	 {% csrf_token %}
+	 
+	 <!-- Type de Formation -->
+	 <div class="form-group row mb-3">
+		 <label for="id_type_formation" class="col-md-3 col-form-label">Type de formation</label>
+		 <div class="col-md-9">
+			 {{ form.type_formation }}
+		 </div>
+	 </div>
+
+	 <!-- Spécification -->
+	 <div class="form-group row mb-3" id="specGroup">
+		 <label for="id_specification" class="col-md-3 col-form-label">Spécification</label>
+		 <div class="col-md-9">
+			 {{ form.specification }}
+		 </div>
+	 </div>
+
+	 <!-- Nom -->
+	 <div class="form-group row mb-3">
+		 <label for="id_nom" class="col-md-3 col-form-label">Nom du parcours</label>
+		 <div class="col-md-9">
+			 {{ form.nom }}
+		 </div>
+	 </div>
+
+	 <!-- Code Série -->
+	 <div class="form-group row mb-3" id="codeGroup">
+		 <label for="id_code_serie" class="col-md-3 col-form-label">Code série</label>
+		 <div class="col-md-9">
+			 {{ form.code_serie }}
+		 </div>
+	 </div>
+
+	 <!-- Structure des Classes -->
+	 <div class="form-group row mb-3" id="structureGroup">
+		 <label for="id_structure_classes" class="col-md-3 col-form-label">Structure des classes</label>
+		 <div class="col-md-9">
+			 {{ form.structure_classes }}
+		 </div>
+	 </div>
+
+	 <!-- Diplôme Final -->
+	 <div class="form-group row mb-3" id="diplomeGroup">
+		 <label for="id_diplome_final" class="col-md-3 col-form-label">Diplôme final</label>
+		 <div class="col-md-9">
+			 {{ form.diplome_final }}
+		 </div>
+	 </div>
+
+	 <button type="submit" class="btn btn-primary">Enregistrer</button>
+ </form>
+	
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+	const typeFormation = document.getElementById("id_type_formation");
+	const nom = document.getElementById("id_nom");
+	const specification = document.getElementById("id_specification");
+	const codeSerie = document.getElementById("id_code_serie");
+	const structureClasses = document.getElementById("id_structure_classes");
+	const diplomeFinal = document.getElementById("id_diplome_final");
+
+	const typeFormationsData = {{ type_formations_json|safe }};
+	const specificationsData = {{ specifications_json|safe }};
+
+	const codeSerieGroup = document.getElementById("codeGroup");
+
+	function getSpecByCode(code) {
+	  return specificationsData.find(s => s.code === code);
+	}
+
+	function setSpecificationByCode(code, disable = true) {
+	  const spec = getSpecByCode(code);
+	  if (spec) {
+		specification.value = spec.id;
+		specification.disabled = disable;
+		return spec;
+	  }
+	  return null;
+	}
+
+	function restrictSpecificationOptions(allowedCodes) {
+	  for (const option of specification.options) {
+		const spec = specificationsData.find(s => s.id == option.value);
+		if (spec) {
+		  const isAllowed = allowedCodes.includes(spec.code);
+		  option.disabled = !isAllowed;
+		  option.hidden = !isAllowed;
+		}
+	  }
+	  specification.disabled = false;
+	  const firstAllowed = specificationsData.find(s => allowedCodes.includes(s.code));
+	  if (firstAllowed) specification.value = firstAllowed.id;
+	}
+
+	function resetSpecificationOptions() {
+	  for (const option of specification.options) {
+		option.disabled = false;
+		option.hidden = false;
+	  }
+	  specification.disabled = false;
+	}
+
+	function updateDiplomeFinal(codeType, specCode, nomValue, codeSerieValue) {
+	  let result = "";
+
+	  if (codeType === "LIC") {
+		result = "Licence en " + nomValue;
+	  } else if (codeType === "MAS") {
+		result = "Master en " + nomValue;
+	  } else if (codeType === "PRIM") {
+		result = "CEP";
+	  } else if (codeType === "PRE") {
+		result = "";
+	  } else if (codeType === "SEC1") {
+		if (specCode === "GN") {
+		  result = "BEPC";
+		} else if (specCode === "TH") {
+		  result = "CAP en " + nomValue;
+		}
+	  } else if (codeType === "SEC2") {
+		if (specCode === "GN") {
+		  result = "Bac " + codeSerieValue;
+		} else if (specCode === "TH") {
+		  result = "Bac en " + nomValue + " " + codeSerieValue;
+		}
+	  } else {
+		result = "Attestation de " + nomValue;
+	  }
+
+	  diplomeFinal.value = result;
+	}
+
+	function updateCodeSerieVisibility(show) {
+	  codeSerieGroup.style.display = show ? "block" : "none";
+	}
+
+	function updateStructureClasses(codeType, specCode, nomValue, codeSerieValue, selectedType) {
+	  let classes = [];
+
+	  if (codeType === "SEC1") {
+		if (specCode === "GN") {
+		  classes = ["6e", "5e", "4e", "3e"];
+		} else if (specCode === "TH") {
+		  classes = ["6e", "5e", "4e", "3e"].map(n => n + " " + nomValue);
+		}
+	  } else if (codeType === "SEC2") {
+		if (specCode === "GN") {
+		  classes = ["2nde", "1ère", "Tle"].map(n => n + " " + codeSerieValue);
+		} else if (specCode === "TH") {
+		  classes = ["2nde", "1ère", "Tle"].map(n => n + " " + codeSerieValue + " " + nomValue);
+		}
+	  } else if (codeType === "PRO") {
+		classes = [nomValue + " " + 1,]
+	  } else {
+		// Pour les autres types, on utilise la liste des classes fournie dans selectedType
+		classes = selectedType.liste_classe;
+	  }
+
+	  structureClasses.value = JSON.stringify(classes);
+	  console.log("📚 Nouvelles classes :", classes);
+	}
+
+	typeFormation.addEventListener("change", function () {
+	  const selectedId = parseInt(this.value);
+	  const selectedType = typeFormationsData.find(item => item.id === selectedId);
+
+	  resetSpecificationOptions();
+	  updateCodeSerieVisibility(false); // cacher par défaut
+
+	  if (!selectedType) return;
+
+	  const codeType = selectedType.code;
+	  const nomValue = nom.value;
+
+	  let currentSpecCode = null;
+	  structureClasses.disabled = true;
+	  diplomeFinal.disabled = true; // toujours grisé
+
+	  // Gérer la spécification et options
+	  if (codeType === "LIC") {
+		const spec = setSpecificationByCode("UN", true);
+		currentSpecCode = spec.code;
+	  } else if (codeType === "MAS") {
+		const spec = setSpecificationByCode("UN", true);
+		currentSpecCode = spec.code;
+	  } else if (codeType === "PRIM" || codeType === "PR") {
+		const spec = setSpecificationByCode("GN", true);
+		currentSpecCode = spec.code;
+	  } else if (codeType === "PRO") {
+		const spec = setSpecificationByCode("FO", true);
+		currentSpecCode = spec.code;
+		diplomeFinal.disabled = false;
+		structureClasses.disabled = false;
+	  } else if (codeType === "SEC1") {
+		restrictSpecificationOptions(["GN", "TH"]);
+		currentSpecCode = getSpecByCode("GN").code; // valeur par défaut
+	  } else if (codeType === "SEC2") {
+		restrictSpecificationOptions(["GN", "TH"]);
+		updateCodeSerieVisibility(true);
+		currentSpecCode = getSpecByCode("GN").code; // valeur par défaut
+	  }
+
+	  updateDiplomeFinal(codeType, currentSpecCode, nom.value, codeSerie.value);
+	  updateStructureClasses(codeType, currentSpecCode, nom.value, codeSerie.value, selectedType);
+
+	  console.log("🎯 Type :", codeType);
+	});
+
+	nom.addEventListener("input", function () {
+	  const selectedId = parseInt(typeFormation.value);
+	  const selectedType = typeFormationsData.find(item => item.id === selectedId);
+	  if (!selectedType) return;
+	  const codeType = selectedType.code;
+	  const spec = specificationsData.find(s => s.id == specification.value);
+	  updateDiplomeFinal(codeType, spec.code, nom.value, codeSerie.value);
+	  updateStructureClasses(codeType, spec.code, nom.value, codeSerie.value, selectedType);
+	});
+
+	codeSerie.addEventListener("input", function () {
+	  const selectedId = parseInt(typeFormation.value);
+	  const selectedType = typeFormationsData.find(item => item.id === selectedId);
+	  if (!selectedType) return;
+	  const codeType = selectedType.code;
+	  const spec = specificationsData.find(s => s.id == specification.value);
+	  updateDiplomeFinal(codeType, spec.code, nom.value, codeSerie.value);
+	  updateStructureClasses(codeType, spec.code, nom.value, codeSerie.value, selectedType);
+	});
+
+	specification.addEventListener("change", function () {
+	  const selectedId = parseInt(typeFormation.value);
+	  const selectedType = typeFormationsData.find(item => item.id === selectedId);
+	  if (!selectedType) return;
+	  const codeType = selectedType.code;
+	  const spec = specificationsData.find(s => s.id == this.value);
+	  updateDiplomeFinal(codeType, spec.code, nom.value, codeSerie.value);
+	  updateStructureClasses(codeType, spec.code, nom.value, codeSerie.value, selectedType);
+	});
+
+	const form = document.getElementById("parcoursForm");
+	form.addEventListener("submit", function () {
+	  // Avant d’envoyer, on réactive les champs désactivés
+	  diplomeFinal.disabled = false;
+	  structureClasses.disabled = false;
+	  specification.disabled = false;
+
+	  console.log("📤 Envoi du formulaire...");
+	  console.log("Structure des classes :", structureClasses.value);
+	  console.log("Diplôme final :", diplomeFinal.value);
+	});
+  });
+</script>
+
+
+

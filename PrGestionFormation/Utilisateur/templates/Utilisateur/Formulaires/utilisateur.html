@@ -1,0 +1,633 @@
+<div class="bg-primary py-3 px-4 rounded mb-4" xmlns:value xmlns:value xmlns:value>
+  <h5 class="mb-0 text-center text-white">Informations Utilisateur</h5>
+</div>
+<!-- Afficher les erreurs cachées -->
+  {% if form.non_field_errors %}
+  <div class="alert alert-danger">
+	  {{ form.non_field_errors }}
+  </div>
+  {% endif %}
+
+  {% for field in form.hidden_fields %}
+	  {% if field.errors %}
+	  <div class="alert alert-danger">
+		  {% for error in field.errors %}
+			  <strong>Erreur champ caché:</strong> {{ error }}
+		  {% endfor %}
+	  </div>
+	  {% endif %}
+  {% endfor %}
+<div class="row">
+ <!-- Date et heure d'inscription (affichage uniquement) -->
+ <div class="col-md-6 mb-3">
+	  <label class="form-label">Date et heure d'inscription</label>
+	  <div class="col-sm-12">
+		  <div class="input-group input-group-merge">
+			  <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+			  <input type="text"
+					 class="form-control ps-2"
+					 value="{{ utilisateur_form.date_inscription.value|date:'d/m/Y H:i:s' }}"
+					 placeholder="{{ date }}"
+					 readonly>
+		  </div>
+		  {% for error in utilisateur_form.date_inscription.errors %}
+			  <div class="text-danger small">⚠️ {{ error }}</div>
+		  {% endfor %}
+	  </div>
+  </div>
+
+  <!-- Matricule (affichage uniquement) -->
+  <div class="col-md-6 mb-3">
+	  <label class="form-label" for="id_matricule">Matricule</label>
+	  <div class="col-sm-12">
+		<div class="input-group input-group-merge">
+		  <span class="input-group-text"><i class="bx bx-id-card"></i></span>
+		  <input type="text"
+                 class="form-control"
+                 id="id_matricule"
+				 value="{{ utilisateur_form.matricule.value|default:'ADM-XXXXXX' }}"
+				 placeholder="Généré automatiquement"
+                 readonly
+          />
+		</div>
+	  </div>
+  </div>
+</div>
+<div class="row">
+   <!-- Nom -->
+  <div class="col-md-6 mb-3">
+	  <label class="form-label" for="{{ utilisateur_form.last_name.id_for_label }}">Nom</label>
+	  <div class="col-sm-12">
+		<div class="input-group input-group-merge">
+		  <span class="input-group-text"><i class="bx bx-user-circle"></i></span>
+		  <input type="text"
+				 id="{{ utilisateur_form.last_name.id_for_label }}"
+				 name="{{ utilisateur_form.last_name.html_name }}"
+				 class="form-control ps-2"
+				 placeholder="Votre nom de famille"
+				 value="{{ utilisateur_form.last_name.value|default:'' }}">
+		</div>
+		{% for error in utilisateur_form.last_name.errors %}
+		  <div class="text-danger small">⚠️ {{ error }}</div>
+		{% endfor %}
+	  </div>
+  </div>
+
+  <!-- Prénom -->
+  <div class="col-md-6 mb-3">
+	  <label class="form-label" for="{{ utilisateur_form.first_name.id_for_label }}">Prénom</label>
+	  <div class="col-sm-12">
+		<div class="input-group input-group-merge">
+		  <span class="input-group-text"><i class="bx bx-user"></i></span>
+		  <input type="text"
+				 id="{{ utilisateur_form.first_name.id_for_label }}"
+				 name="{{ utilisateur_form.first_name.html_name }}"
+				 class="form-control ps-2"
+				 placeholder="Votre prénom"
+				 value="{{ utilisateur_form.first_name.value|default:'' }}">
+		</div>
+		{% for error in utilisateur_form.first_name.errors %}
+		  <div class="text-danger small">⚠️ {{ error }}</div>
+		{% endfor %}
+	  </div>
+  </div>
+</div>
+<div class="row">
+  <!--Date de Naissance-->
+	<div class="col-md-6 mb-3">
+	  <label class="form-label">Date de Naissance</label>
+		{% if fonction == "Modification d'Utilisateur" %} <p> {{ utilisateur_form.date_nais.value }}</p> {% endif %}
+	  <div class="col-sm-12">
+		  <div class="input-group input-group-merge">
+			  <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+			  <input type="date"
+				 class="form-control ps-2"
+				 name="{{ utilisateur_form.date_nais.html_name }}"
+				 id="id_date_nais"
+				 value="{{ utilisateur_form.date_nais.value|date:'Y-m-d' }}"
+				 placeholder="JJ/MM/AAAA">
+		  </div>
+		  {% for error in utilisateur_form.date_nais.errors %}
+			  <div class="text-danger small">⚠️ {{ error }}</div>
+		  {% endfor %}
+	  </div>
+  </div>
+ 
+ <div class="col-md-6 mb-3">
+	 <label class="form-label" for="{{ utilisateur_form.genre.id_for_label }}">Genre</label>
+	 <div class="col-sm-12">
+		 <div class="input-group input-group-merge">
+			 <span class="input-group-text"><i class="bx bx-body"></i></span>
+			 <select id="{{ utilisateur_form.genre.id_for_label }}"
+					name="{{ utilisateur_form.genre.html_name }}"
+					class="form-select ps-2">
+				 <option value="">Sélectionnez un genre</option>
+				 {% for value, label in utilisateur_form.genre.field.choices %}
+					 {% if value %}
+						 <option value="{{ value }}"
+								 {% if value|stringformat:"s" == utilisateur_form.genre.value|stringformat:"s" %}selected{% endif %}>
+							 {{ label }}
+						 </option>
+					 {% endif %}
+				 {% endfor %}
+			 </select>
+		 </div>
+		 {% for error in utilisateur_form.genre.errors %}
+			 <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	 </div>
+ </div>
+
+  <!-- Email -->
+  <div class="col-md-6 mb-3">
+	  <label class="form-label" for="{{ utilisateur_form.email.id_for_label }}">Email</label>
+	  <div class="col-sm-12">
+		<div class="input-group input-group-merge">
+		  <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+		  <input type="email"
+				 id="{{ utilisateur_form.email.id_for_label }}"
+				 name="{{ utilisateur_form.email.html_name }}"
+				 class="form-control ps-2"
+				 placeholder="exemple@domaine.com"
+				 value="{{ utilisateur_form.email.value|default:'' }}">
+		</div>
+		{% for error in utilisateur_form.email.errors %}
+		  <div class="text-danger small">⚠️ {{ error }}</div>
+		{% endfor %}
+	  </div>
+  </div>
+</div>
+<div class="row">
+ 
+ <!-- Sélecteur de pays -->
+ <div class="col-md-6 mb-3">
+   <label class="form-label" for="country">Pays</label>
+   <div class="col-sm-12">
+	 <select id="country" class="form-select ps-2" onchange="updatePhonePlaceholderAndMaxLength()">
+	   <!-- Frontaliers du Burkina Faso -->
+	   <optgroup label="Pays frontaliers du Burkina">
+		 <option value="BF" data-code="+226" data-length="8">Burkina Faso (+226)</option>
+		 <option value="CI" data-code="+225" data-length="10">Côte d’Ivoire (+225)</option>
+		 <option value="GH" data-code="+233" data-length="9">Ghana (+233)</option>
+		 <option value="ML" data-code="+223" data-length="8">Mali (+223)</option>
+		 <option value="NE" data-code="+227" data-length="8">Niger (+227)</option>
+		 <option value="TG" data-code="+228" data-length="8">Togo (+228)</option>
+		 <option value="BJ" data-code="+229" data-length="8">Bénin (+229)</option>
+	   </optgroup>
+ 
+	   <!-- Afrique -->
+	   <optgroup label="Afrique">
+		 <option value="SN" data-code="+221" data-length="9">Sénégal (+221)</option>
+		 <option value="MA" data-code="+212" data-length="9">Maroc (+212)</option>
+		 <option value="DZ" data-code="+213" data-length="9">Algérie (+213)</option>
+		 <option value="ZA" data-code="+27" data-length="9">Afrique du Sud (+27)</option>
+		 <option value="NG" data-code="+234" data-length="10">Nigeria (+234)</option>
+		 <option value="EG" data-code="+20" data-length="10">Égypte (+20)</option>
+	   </optgroup>
+ 
+	   <!-- Europe -->
+	   <optgroup label="Europe">
+		 <option value="FR" data-code="+33" data-length="9">France (+33)</option>
+		 <option value="DE" data-code="+49" data-length="10">Allemagne (+49)</option>
+		 <option value="ES" data-code="+34" data-length="9">Espagne (+34)</option>
+		 <option value="IT" data-code="+39" data-length="10">Italie (+39)</option>
+		 <option value="BE" data-code="+32" data-length="9">Belgique (+32)</option>
+		 <option value="GB" data-code="+44" data-length="10">Royaume-Uni (+44)</option>
+	   </optgroup>
+ 
+	   <!-- Amérique -->
+	   <optgroup label="Amérique">
+		 <option value="US" data-code="+1" data-length="10">États-Unis (+1)</option>
+		 <option value="CA" data-code="+1" data-length="10">Canada (+1)</option>
+		 <option value="BR" data-code="+55" data-length="11">Brésil (+55)</option>
+		 <option value="MX" data-code="+52" data-length="10">Mexique (+52)</option>
+		 <option value="AR" data-code="+54" data-length="10">Argentine (+54)</option>
+		 <option value="CO" data-code="+57" data-length="10">Colombie (+57)</option>
+	   </optgroup>
+ 
+	   <!-- Asie -->
+	   <optgroup label="Asie">
+		 <option value="CN" data-code="+86" data-length="11">Chine (+86)</option>
+		 <option value="IN" data-code="+91" data-length="10">Inde (+91)</option>
+		 <option value="JP" data-code="+81" data-length="10">Japon (+81)</option>
+		 <option value="KR" data-code="+82" data-length="10">Corée du Sud (+82)</option>
+		 <option value="SA" data-code="+966" data-length="9">Arabie Saoudite (+966)</option>
+		 <option value="ID" data-code="+62" data-length="10">Indonésie (+62)</option>
+	   </optgroup>
+ 
+	   <!-- Océanie -->
+	   <optgroup label="Océanie">
+		 <option value="AU" data-code="+61" data-length="9">Australie (+61)</option>
+		 <option value="NZ" data-code="+64" data-length="9">Nouvelle-Zélande (+64)</option>
+		 <option value="PG" data-code="+675" data-length="7">Papouasie-Nouvelle-Guinée (+675)</option>
+		 <option value="FJ" data-code="+679" data-length="7">Fidji (+679)</option>
+		 <option value="WS" data-code="+685" data-length="7">Samoa (+685)</option>
+		 <option value="TO" data-code="+676" data-length="7">Tonga (+676)</option>
+	   </optgroup>
+	 </select>
+   </div>
+ </div>
+   <!-- Téléphone -->
+   <div class="col-md-6 mb-3">
+	 <label class="form-label" for="{{ utilisateur_form.telephone.id_for_label }}">Téléphone</label>
+	 <div class="col-sm-12">
+	   <div class="input-group input-group-merge">
+		 <span class="input-group-text" id="country-code">+225</span>
+		 <input type="tel"
+				id="{{ utilisateur_form.telephone.id_for_label }}"
+				name="{{ utilisateur_form.telephone.html_name }}"
+				class="form-control ps-2"
+				placeholder="Entrez 10 chiffres"
+				maxlength="10"
+				value="{{ utilisateur_form.telephone.value|default:'' }}">
+	   </div>
+	   {% for error in utilisateur_form.telephone.errors %}
+		 <div class="text-danger small">⚠️ {{ error }}</div>
+	   {% endfor %}
+	 </div>
+   </div>
+  <script>
+	 function updatePhonePlaceholderAndMaxLength() {
+	   const countrySelect = document.getElementById('country');
+	   const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+	   const code = selectedOption.getAttribute('data-code');
+	   const length = selectedOption.getAttribute('data-length');
+   
+	   // Mise à jour de l'affichage de l'indicatif
+	   document.getElementById('country-code').innerText = code;
+   
+	   // Mise à jour du champ téléphone
+	   const phoneInput = document.getElementById('{{ utilisateur_form.telephone.id_for_label }}');
+	   phoneInput.placeholder = 'Entrez ' + length + ' chiffres';
+	   phoneInput.maxLength = length;
+	 }
+  
+	 document.addEventListener('DOMContentLoaded', function () {
+	   updatePhonePlaceholderAndMaxLength();
+   
+	   document.getElementById('user-form').addEventListener('submit', function () {
+		 const countrySelect = document.getElementById('country');
+		 const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+		 const code = selectedOption.getAttribute('data-code'); // ex: +226
+   
+		 const phoneInput = document.getElementById('{{ utilisateur_form.telephone.id_for_label }}');
+		 let number = phoneInput.value.trim();
+   
+		 // Nettoyer les espaces, tirets, etc.
+		 number = number.replace(/[\s\-]/g, '');
+   
+		 // ✅ S'il commence par un indicatif international (+ ou 00), on le supprime
+		 if (number.startsWith('+') || number.startsWith('00')) {
+		   number = number.replace(/^(\+|00)\d{1,4}/, ''); // Supprime uniquement indicatif
+		 }
+   
+		 // On ajoute le bon indicatif
+		 phoneInput.value = code + number;
+	   });
+	 });
+   </script>
+</div>
+
+ {% if page|lower != "modification" %}
+
+ <div class="row">
+	<!-- Mot de passe -->
+	<div class="col-md-6 mb-3">
+		<label class="form-label" for="{{ utilisateur_form.password1.id_for_label }}">Mot de passe</label>
+		<div class="col-sm-12">
+			<div class="input-group input-group-merge">
+				<span class="input-group-text"><i class="bx bx-lock"></i></span>
+				<input type="text"
+					id="{{ utilisateur_form.password1.id_for_label }}"
+					name="{{ utilisateur_form.password1.html_name }}"
+					class="form-control ps-2"
+					placeholder="8 caractères minimum avec chiffres et lettres"
+					oninput="validatePassword()">
+				<button type="button" class="btn btn-outline-secondary" onclick="togglePassword('{{ utilisateur_form.password1.id_for_label }}')">
+					<i class="bx bx-hide"></i>
+				</button>
+			</div>
+
+			<!-- Indicateur de force du mot de passe -->
+			<div id="password-strength-indicator" class="mt-2 fw-bold"></div>
+
+			<!-- Exigences du mot de passe -->
+			<div id="password-requirements" style="display: none;" class="border rounded p-3 bg-light mt-2">
+				<div id="length-requirement" class="d-flex align-items-center mb-2 invalid">
+					<i id="length-icon" class="bi bi-x-circle me-2"></i>
+					<span>Au moins 8 caractères</span>
+				</div>
+				<div id="uppercase-requirement" class="d-flex align-items-center mb-2 invalid">
+					<i id="uppercase-icon" class="bi bi-x-circle me-2"></i>
+					<span>Inclure une lettre majuscule</span>
+				</div>
+				<div id="special-requirement" class="d-flex align-items-center mb-2 invalid">
+					<i id="special-icon" class="bi bi-x-circle me-2"></i>
+					<span>Inclure un caractère spécial (ex: !@#$%)</span>
+				</div>
+				<div id="numeric-requirement" class="d-flex align-items-center mb-2 invalid">
+					<i id="numeric-icon" class="bi bi-x-circle me-2"></i>
+					<span>Inclure un chiffre</span>
+				</div>
+				<div id="letter-requirement" class="d-flex align-items-center mb-2 invalid">
+					<i id="letter-icon" class="bi bi-x-circle me-2"></i>
+					<span>Inclure une lettre</span>
+				</div>
+				<div id="match-requirement" class="d-flex align-items-center invalid">
+					<i id="match-icon" class="bi bi-x-circle me-2"></i>
+					<span>Les mots de passe doivent correspondre</span>
+				</div>
+			</div>
+			<div id="password-match-error" class="text-danger mt-1"></div>
+			{% if utilisateur_form.password1.help_text %}
+				<small class="form-text text-muted">{{ utilisateur_form.password1.help_text }}</small>
+			{% endif %}
+			{% for error in utilisateur_form.password1.errors %}
+				<div class="text-danger small">⚠️ {{ error }}</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<!-- Confirmation du mot de passe -->
+	<div class="col-md-6 mb-3">
+		<label class="form-label" for="{{ utilisateur_form.password2.id_for_label }}">Confirmation</label>
+		<div class="col-sm-12">
+			<div class="input-group input-group-merge">
+				<span class="input-group-text"><i class="bx bx-lock-alt"></i></span>
+				<input type="text"
+					id="{{ utilisateur_form.password2.id_for_label }}"
+					name="{{ utilisateur_form.password2.html_name }}"
+					class="form-control ps-2"
+					placeholder="Répétez le même mot de passe"
+					oninput="validatePassword()">
+				<button type="button" class="btn btn-outline-secondary" onclick="togglePassword('{{ utilisateur_form.password2.id_for_label }}')">
+					<i class="bx bx-hide"></i>
+				</button>
+			</div>
+			<div id="password-confirm-error" class="text-danger mt-1"></div>
+			{% for error in utilisateur_form.password2.errors %}
+				<div class="text-danger small">⚠️ {{ error }}</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<!-- Bouton pour régénérer un mot de passe -->
+	<div class="col-12 text-end mb-3">
+		<button type="button" class="btn btn-sm btn-primary" onclick="generateSmartPassword()">Générer un nouveau mot de passe</button>
+	</div>
+</div>
+
+<!-- Scripts -->
+<script>
+function togglePassword(id) {
+	const passwordField = document.getElementById(id);
+	if (passwordField) {
+		const icon = passwordField.nextElementSibling.querySelector('i');
+		if (passwordField.type === "password") {
+			passwordField.type = "text";
+			icon.classList.replace('bx-show', 'bx-hide');
+		} else {
+			passwordField.type = "password";
+			icon.classList.replace('bx-hide', 'bx-show');
+		}
+	}
+}
+
+function updateRequirement(id, condition) {
+	const icon = document.getElementById(id + '-icon');
+	const item = document.getElementById(id + '-requirement');
+	if (condition) {
+		icon.className = 'bi bi-check-circle me-2';
+		item.classList.remove('invalid');
+		item.classList.add('valid');
+	} else {
+		icon.className = 'bi bi-x-circle me-2';
+		item.classList.remove('valid');
+		item.classList.add('invalid');
+	}
+}
+
+function validatePassword() {
+	const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}").value;
+	const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}").value;
+	const strength = document.getElementById('password-strength-indicator');
+	const matchError = document.getElementById('password-match-error');
+	const confirmError = document.getElementById('password-confirm-error');
+
+	const hasMinLength = p1.length >= 8;
+	const hasNumber = /\d/.test(p1);
+	const hasLetter = /[a-zA-Z]/.test(p1);
+	const hasUppercase = /[A-Z]/.test(p1);
+	const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(p1);
+	const match = p1 === p2 && p1 !== '';
+
+	updateRequirement('length', hasMinLength);
+	updateRequirement('numeric', hasNumber);
+	updateRequirement('letter', hasLetter);
+	updateRequirement('uppercase', hasUppercase);
+	updateRequirement('special', hasSpecial);
+	updateRequirement('match', match);
+
+	const score = [hasMinLength, hasNumber, hasLetter, hasUppercase, hasSpecial].filter(Boolean).length;
+
+	if (p1.length === 0) {
+		strength.textContent = '';
+		strength.className = '';
+	} else if (score <= 1) {
+		strength.textContent = 'Mot de passe faible';
+		strength.className = 'text-danger fw-bold';
+	} else if (score === 2) {
+		strength.textContent = 'Mot de passe moyen';
+		strength.className = 'text-warning fw-bold';
+	} else {
+		strength.textContent = 'Mot de passe fort';
+		strength.className = 'text-success fw-bold';
+	}
+
+	matchError.textContent = (!match && p2.length > 0) ? 'Les mots de passe ne correspondent pas' : '';
+	confirmError.textContent = matchError.textContent;
+
+	const submitBtn = document.querySelector('button[type="submit"]');
+	if (submitBtn) {
+		submitBtn.disabled = !(hasMinLength && hasNumber && hasLetter && hasUppercase && hasSpecial && match);
+	}
+}
+
+function generateStrongPassword(length = 12) {
+	const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+	const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	const digits = '0123456789';
+	const specials = '!@#$%^&*()_+[]{}|;:,.<>?';
+	const all = lowercase + uppercase + digits + specials;
+
+	let password = [
+		lowercase[Math.floor(Math.random() * lowercase.length)],
+		uppercase[Math.floor(Math.random() * uppercase.length)],
+		digits[Math.floor(Math.random() * digits.length)],
+		specials[Math.floor(Math.random() * specials.length)]
+	];
+
+	for (let i = 4; i < length; i++) {
+		password.push(all[Math.floor(Math.random() * all.length)]);
+	}
+
+	return password.sort(() => 0.5 - Math.random()).join('');
+}
+
+function regeneratePassword() {
+	const password = generateStrongPassword(12);
+	const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}");
+	const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}");
+
+	p1.type = "text";
+	p2.type = "text";
+
+	p1.value = password;
+	p2.value = password;
+
+	const icon1 = p1.nextElementSibling.querySelector('i');
+	const icon2 = p2.nextElementSibling.querySelector('i');
+	icon1.classList.replace('bx-show', 'bx-hide');
+	icon2.classList.replace('bx-show', 'bx-hide');
+
+	validatePassword();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}");
+	const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}");
+	const requirements = document.getElementById('password-requirements');
+
+	// Génère automatiquement un mot de passe au chargement
+	const generatedPassword = generateStrongPassword(12);
+	p1.value = generatedPassword;
+	p2.value = generatedPassword;
+	p1.type = "text";
+	p2.type = "text";
+
+	const icon1 = p1.nextElementSibling.querySelector('i');
+	const icon2 = p2.nextElementSibling.querySelector('i');
+	icon1.classList.replace('bx-show', 'bx-hide');
+	icon2.classList.replace('bx-show', 'bx-hide');
+
+	const showRequirements = () => requirements.style.display = 'block';
+	const hideRequirements = () => {
+		if (requirementsValid()) requirements.style.display = 'none';
+	};
+
+	p1.addEventListener('focus', showRequirements);
+	p2.addEventListener('focus', showRequirements);
+	p1.addEventListener('blur', hideRequirements);
+	p2.addEventListener('blur', hideRequirements);
+	p1.addEventListener('input', validatePassword);
+	p2.addEventListener('input', validatePassword);
+
+	validatePassword();
+
+	function requirementsValid() {
+		const val1 = p1.value;
+		const val2 = p2.value;
+		return (
+			val1.length >= 8 &&
+			/\d/.test(val1) &&
+			/[a-zA-Z]/.test(val1) &&
+			/[A-Z]/.test(val1) &&
+			/[!@#$%^&*(),.?":{}|<>]/.test(val1) &&
+			val1 === val2
+		);
+	}
+});
+</script>
+<script>
+function generateSmartPassword() {
+    // Récupération des champs
+    const nomRaw = document.getElementById("{{ utilisateur_form.last_name.id_for_label }}")?.value.trim() || "";
+    const prenomRaw = document.getElementById("{{ utilisateur_form.first_name.id_for_label }}")?.value.trim() || "";
+    const dateStr = document.getElementById("id_date_nais")?.value;
+    const phoneRaw = document.getElementById("{{ utilisateur_form.telephone.id_for_label }}")?.value.trim() || "";
+
+    if (!nomRaw || !prenomRaw || !dateStr || !phoneRaw) {
+        alert("Veuillez remplir le nom, prénom, date de naissance et téléphone.");
+        return;
+    }
+
+    // Nettoyer espaces
+    const prenom = prenomRaw.replace(/\s+/g, '');
+    const nom = nomRaw.replace(/\s+/g, '');
+
+    // Tirage aléatoire : soit prénom entier, soit nom entier
+    const mainName = Math.random() < 0.5 ? prenom : nom;
+
+    // Extraction date
+    const d = new Date(dateStr);
+    const jour = String(d.getDate()).padStart(2, '0');
+    const annee = String(d.getFullYear()).slice(-2);
+
+    // Téléphone : derniers 4 chiffres
+    const phoneDigits = phoneRaw.replace(/\D/g, '');
+    const phone4 = phoneDigits.slice(-4);
+
+    // Symbole aléatoire
+    const specialChars = ['@', '#', '!', '$', '*', '%', '&'];
+    const symbole = specialChars[Math.floor(Math.random() * specialChars.length)];
+
+    // Segments
+    let segments = [
+        mainName,  // nom OU prénom entier
+        jour,
+        symbole,
+        annee,
+        phone4
+    ];
+
+    // Mélanger (shuffle)
+    for (let i = segments.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [segments[i], segments[j]] = [segments[j], segments[i]];
+    }
+
+    // Construire le mot de passe
+    let mdp = segments.join('').slice(0, 12);
+
+    // Vérifications : majuscule, chiffre, symbole
+    if (!/[A-Z]/.test(mdp) && mainName.length > 0) {
+        mdp = (mainName.charAt(0).toUpperCase() + mdp).slice(0, 12);
+    }
+    if (!/\d/.test(mdp)) {
+        mdp = (mdp + (phone4.charAt(0) || '0')).slice(0, 12);
+    }
+    if (!/[@#!$*%&]/.test(mdp)) {
+        mdp = (mdp + symbole).slice(0, 12);
+    }
+
+    // Application aux champs
+    const p1 = document.getElementById("{{ utilisateur_form.password1.id_for_label }}");
+    const p2 = document.getElementById("{{ utilisateur_form.password2.id_for_label }}");
+
+    if (!p1 || !p2) {
+        alert("Champs mot de passe non trouvés.");
+        return;
+    }
+
+    p1.type = "text";
+    p2.type = "text";
+    p1.value = mdp;
+    p2.value = mdp;
+
+    // Icônes (si présentes)
+    const icon1 = p1.nextElementSibling?.querySelector('i');
+    const icon2 = p2.nextElementSibling?.querySelector('i');
+    if (icon1 && icon1.classList.contains('bx-show')) icon1.classList.replace('bx-show', 'bx-hide');
+    if (icon2 && icon2.classList.contains('bx-show')) icon2.classList.replace('bx-show', 'bx-hide');
+
+    if (typeof validatePassword === "function") validatePassword();
+
+    // Repasser en password après 8s
+    setTimeout(() => {
+        p1.type = "password";
+        p2.type = "password";
+    }, 8000);
+}
+</script>
+
+	{% endif %}

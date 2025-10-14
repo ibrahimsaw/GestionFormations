@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+{% load widget_tweaks %}
+
+{% block content %}
+	         <!-- En-tête avec breadcrumb modernisé -->
+      {% include "nav_ol.html" %}
+  <div class="nav-align-top mb-4">
+      {% include "Scolarite/Formulaire/nav.html" %}
+       <div class="col-xl-12">
+        <div class="card">
+          <div class="card-body">
+		   {% if messages %}
+			{% for message in messages %}
+			  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+				{{ message }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			  </div>
+			{% endfor %}
+		  {% endif %}
+		    {% if model_type %}
+		     <div class="text-center">
+			   <div class="alert bg-primary">
+				 <h5 class="mb-0 text-white">Formulaire de {{ titre_page }}</h5>
+			   </div>
+			 </div>
+		   {% endif %}
+            <form method="post" id="scolariteForm" enctype="multipart/form-data" novalidate>
+              {% csrf_token %}
+              {% if model_type == 'frais' %}
+			 	{% include "Scolarite/Formulaire/frais.html" %}
+              {% elif model_type == 'paiement' %}
+			 	{% include "Scolarite/Formulaire/paiement.html" %}
+              {% elif model_type == 'reinscription' %}
+			 	{% include "Scolarite/Formulaire/reinscription.html" %}
+              {% else %}
+				<div class="tab-content">
+				  <div class="tab-pane fade show active">
+					<div class="alert alert-info">
+					  Choisissez une option en cliquant sur le bouton correspondant.
+					</div>
+				  </div>
+				</div>
+			  {% endif %}
+			 {% if bouton %}
+			   <button id="bouton" type="submit" class="btn btn-primary">
+				 <i class="bx bx-save"></i> {{ bouton }}
+			   </button>
+			 {% endif %}
+            </form>
+          </div>
+        </div>
+       </div>
+    </div>
+<div class="fixed-action-buttons">
+ {% if model_type %}
+   <a href="{% url 'finance:scolarite-list' model_type %}" class="btn btn-list">
+	 <span class="tf-icons bx bx-list-ul"></span>&nbsp;  Listes
+   </a>
+  {% endif %}
+</div>
+{% endblock %}

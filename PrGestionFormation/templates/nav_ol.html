@@ -1,0 +1,25 @@
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="text-primary fw-bold mb-1">{{ titre_page }}</h4>
+    <p class="text-muted small mb-0">Gestion des utilisateurs du système</p>
+  </div>
+  <nav aria-label="breadcrumb" class="d-none d-sm-block">
+    <ol class="breadcrumb bg-light px-3 py-2 rounded-pill mb-0">
+      {% for item in breadcrumb %}
+        {% if item.is_last %}
+          <li class="breadcrumb-item active fw-semibold" aria-current="page">
+            <i class="bx bx-chevron-right me-1"></i>{{ item.name }}
+          </li>
+        {% elif item.is_first %}
+          <li class="breadcrumb-item">
+            <i class="bx bx-home me-1"></i>{{ item.name }}
+          </li>
+        {% else %}
+          <li class="breadcrumb-item">
+            <a href="{{ item.url }}" class="text-decoration-none">{{ item.name }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+  </nav>
+</div>

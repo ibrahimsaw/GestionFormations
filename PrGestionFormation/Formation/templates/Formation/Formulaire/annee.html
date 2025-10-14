@@ -1,0 +1,125 @@
+<form method="post" class="needs-validation" novalidate>
+	 {% csrf_token %}
+ 
+	 <!-- Date de début -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="date_debut">Date de début</label>
+	   <div class="col-sm-10">
+		 <input type="date"
+				id="date_debut"
+				name="{{ form.date_debut.html_name }}"
+				class="form-control"
+				value="{{ form.date_debut.value|default:'' }}"
+				required>
+		 {% for error in form.date_debut.errors %}
+		   <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	   </div>
+	 </div>
+ 
+	 <!-- Durée -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="duree">Durée (en années)</label>
+	   <div class="col-sm-10">
+		 <select id="duree" class="form-select">
+		   {% for i in annee_durees %}
+			<option value="{{ i }}" {% if i == 1 %}selected{% endif %}>{{ i }} an{% if i > 1 %}s{% endif %}</option>
+		  {% endfor %}
+		 </select>
+	   </div>
+	 </div>
+ 
+	 <!-- Nom (calculé automatiquement) -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="{{ form.nom.id_for_label }}">Nom</label>
+	   <div class="col-sm-10">
+		 <input type="text"
+				id="{{ form.nom.id_for_label }}"
+				name="{{ form.nom.html_name }}"
+				class="form-control"
+				placeholder="Ex : 2024-2025"
+				readonly
+				required
+				value="{{ form.nom.value|default:'' }}">
+		 {% for error in form.nom.errors %}
+		   <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	   </div>
+	 </div>
+ 
+	 <!-- Date de fin (calculée automatiquement) -->
+	 <div class="row mb-3">
+	   <label class="col-sm-2 col-form-label" for="{{ form.date_fin.id_for_label }}">Date de fin</label>
+	   <div class="col-sm-10">
+		 <input type="date"
+				id="{{ form.date_fin.id_for_label }}"
+				name="{{ form.date_fin.html_name }}"
+				class="form-control"
+				readonly
+				required
+				value="{{ form.date_fin.value|default:'' }}">
+		 {% for error in form.date_fin.errors %}
+		   <div class="text-danger small">⚠️ {{ error }}</div>
+		 {% endfor %}
+	   </div>
+	 </div>
+	
+	 <!-- Création automatique des classes standards -->
+	  <div class="row mb-3">
+		<label class="col-sm-2 col-form-label" for="{{ form.classes_standards_creees.id_for_label }}">
+		  Ne pas créer automatiquement les classes pour cette année ?
+		</label>
+		<div class="col-sm-10">
+		  <div class="form-check mt-2">
+			{{ form.classes_standards_creees }}
+			<label class="form-check-label" for="{{ form.classes_standards_creees.id_for_label }}">
+			  Oui / Non
+			</label>
+		  </div>
+		  {% for error in form.classes_standards_creees.errors %}
+			<div class="text-danger small">⚠️ {{ error }}</div>
+		  {% endfor %}
+		</div>
+	  </div>
+ 
+ 
+	 <!-- Submit -->
+	 <div class="row justify-content-end">
+	   <div class="col-sm-9 offset-sm-3">
+		 <button type="submit" class="btn btn-primary">
+		   <i class="bx bx-save"></i> Enregistrer
+		 </button>
+	   </div>
+	 </div>
+   </form>
+ 
+ <!-- Script -->
+ <script>
+   document.addEventListener("DOMContentLoaded", function () {
+	 const dateDebut = document.getElementById("date_debut");
+	 const dateFin = document.getElementById("{{ form.date_fin.id_for_label }}");
+	 const nom = document.getElementById("{{ form.nom.id_for_label }}");
+	 const duree = document.getElementById("duree");
+ 
+	 function updateFinEtNom() {
+	   const debut = new Date(dateDebut.value);
+	   const nbAnnees = parseInt(duree.value);
+ 
+	   if (dateDebut.value && !isNaN(nbAnnees)) {
+		 const fin = new Date(debut);
+		 fin.setFullYear(fin.getFullYear() + nbAnnees);
+ 
+		 // Format YYYY-MM-DD
+		 const finFormatted = fin.toISOString().split('T')[0];
+		 dateFin.value = finFormatted;
+ 
+		 // Nom type : 2024-2025
+		 const nomFormatted = `${debut.getFullYear()}-${debut.getFullYear() + nbAnnees}`;
+		 nom.value = nomFormatted;
+	   }
+	 }
+ 
+	 dateDebut.addEventListener("change", updateFinEtNom);
+	 duree.addEventListener("change", updateFinEtNom);
+   });
+ </script>

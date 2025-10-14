@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+	         <!-- En-tête avec breadcrumb modernisé -->
+      {% include "nav_ol.html" %}
+
+<div class="nav-align-top mb-4">
+    {% include "Scolarite/Formulaire/nav.html" %}
+ {% if model_type %}
+<div class="col">
+  <div class="card shadow-sm h-100">
+    <!-- En-tête -->
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 text-white">
+        <i class="fas fa-users-cog me-2"></i>{{ titre_page }}
+      </h5>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="usersFilterDropdown" data-bs-toggle="dropdown">
+          <i class="fas fa-filter me-1"></i> Tous les rôles
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item filter-option active" href="#" data-filter="all" data-label="Tous les rôles">Tous les rôles</a></li>
+          
+          {% if model_type == 'paiement' %}
+            {% for methode, paiements in paiements_par_methode.items %}
+              <li><a class="dropdown-item filter-option" href="#" data-filter="{{ methode }}" data-label="{{ methode }}">{{ methode }} ({{ paiements|length }})</a></li>
+            {% endfor %}
+          {% elif model_type == 'frais' %}
+            {% for libelle, frais_list in frais_par_libelle.items %}
+              <li><a class="dropdown-item filter-option" href="#" data-filter="{{ libelle }}" data-label="{{ libelle }}">{{ libelle }} ({{ frais_list|length }})</a></li>
+            {% endfor %}
+          {% else %}
+            {% for statut, inscriptions in inscriptions_by_statut.items %}
+              <li><a class="dropdown-item filter-option" href="#" data-filter="{{ statut }}" data-label="{{ statut }}">{{ statut }} ({{ inscriptions|length }})</a></li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Corps -->
+    <div >
+      <div class="table-responsive scrollbar">
+	   <table id="tableau" class="table  table-striped fs-10 mb-0">
+          <tbody>
+            {% if model_type == 'paiement' %}
+              {% for methode, paiements in paiements_par_methode.items %}
+                <tr class="role-header bg-light" data-role="{{ methode }}">
+                  <td colspan="2">
+                    <strong>{{ methode }}</strong>
+                    <span class="badge bg-secondary float-end">{{ paiements|length }}</span>
+                  </td>
+                </tr>
+                {% for paiement in paiements %}
+                  <tr class="user-row" data-role="{{ methode }}" data-filter="{{ methode }}">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar bg-light rounded-circle me-3 d-flex align-items-center justify-content-center">
+                          <i class="bx bx-user text-primary fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{ paiement.etudiant.utilisateur.matricule  }}</h6>
+                          <small class="text-muted">{{ paiement.frais.get_libelle_display }}</small>
+						 </br>
+						 <small class="text-muted">{{ paiement.date_paiement|date:"d/m/Y H:i" }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <span class="badge bg-success">{{ paiement.montant }} FCFA</span>
+                      <span class="badge">
+					  <div class="d-flex justify-content-end">
+						<!-- Détails -->
+						<a href="{% url 'finance:scolarite-detail' type=model_type pk=paiement.pk %}"
+						   class="btn btn-link p-0 me-2" title="Détails">
+						  <i class="bx bx-show text-info fs-4"></i>
+						</a>
+					
+						<!-- Modifier -->
+						<a href="{% url 'finance:scolarite-update' type=model_type pk=paiement.pk %}"
+						   class="btn btn-link p-0 me-2" title="Modifier">
+						  <i class="bx bx-edit text-warning fs-4"></i>
+						</a>
+					
+						<!-- Supprimer -->
+						<a href="{% url 'finance:scolarite-delete' type=model_type pk=paiement.pk %}"
+						   class="btn btn-link p-0" title="Supprimer"
+						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+						  <i class="bx bx-trash text-danger fs-4"></i>
+						</a>
+					  </div>
+					 </span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endfor %}
+			
+            {% elif model_type == 'frais' %}
+              {% for libelle, frais_list in frais_par_libelle.items %}
+                <tr class="role-header bg-light" data-role="{{ libelle }}">
+                  <td colspan="2">
+                    <strong>{{ libelle }}</strong>
+                    <span class="badge bg-secondary float-end">{{ frais_list|length }}</span>
+                  </td>
+                </tr>
+                {% for frais in frais_list %}
+                  <tr class="user-row" data-role="{{ libelle }}" data-filter="{{ libelle }}">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar bg-light rounded-circle me-3 d-flex align-items-center justify-content-center">
+                          <i class="bx bx-coin-stack text-warning fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{ frais.classe }}</h6>
+                          <small class="text-muted">{{ frais.description|default:"Sans description" }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <span class="badge bg-success">{{ frais.montant }} FCFA</span>
+					 <span class="badge">
+					  <div class="d-flex justify-content-end">
+						<!-- Détails -->
+						<a href="{% url 'finance:scolarite-detail' type=model_type pk=frais.pk %}"
+						   class="btn btn-link p-0 me-2" title="Détails">
+						  <i class="bx bx-show text-info fs-4"></i>
+						</a>
+					
+						<!-- Modifier -->
+						<a href="{% url 'finance:scolarite-update' type=model_type pk=frais.pk %}"
+						   class="btn btn-link p-0 me-2" title="Modifier">
+						  <i class="bx bx-edit text-warning fs-4"></i>
+						</a>
+					
+						<!-- Supprimer -->
+						<a href="{% url 'finance:scolarite-delete' type=model_type pk=frais.pk %}"
+						   class="btn btn-link p-0" title="Supprimer"
+						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+						  <i class="bx bx-trash text-danger fs-4"></i>
+						</a>
+					  </div>
+					 </span>
+                      {% if frais.recurrent %}
+                        <span class="badge bg-info ms-1">Récurrent</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endfor %}
+
+            {% else %}
+              {% for statut, inscriptions in inscriptions_by_statut.items %}
+                <tr class="role-header bg-light" data-role="{{ statut }}">
+                  <td colspan="2">
+                    <strong>{{ statut }}</strong>
+                    <span class="badge bg-secondary float-end">{{ inscriptions|length }}</span>
+                  </td>
+                </tr>
+                {% for ins in inscriptions %}
+                  <tr class="user-row" data-role="{{ statut }}" data-filter="{{ statut }}">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar bg-light rounded-circle me-3 d-flex align-items-center justify-content-center">
+                          <i class="bx bx-user text-primary fs-4"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{ ins.etudiant.MNP  }}</h6>
+                          <small class="text-muted">{{ ins.annee_academique }}</small>
+						 </br>
+						 <small class="text-muted">{{ ins.date_evenement }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      {% if ins.statut == 'inscrit' %}
+						  <span class="badge bg-success">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'reinscrit' %}
+						  <span class="badge bg-primary">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'abandon' %}
+						  <span class="badge bg-danger">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'suspendu' %}
+						  <span class="badge bg-warning text-dark">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'exclu' %}
+						  <span class="badge bg-dark">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'en_attente' %}
+						  <span class="badge bg-secondary">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'transfert' %}
+						  <span class="badge bg-info text-dark">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'diplome' %}
+						  <span class="badge bg-success ">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'redoublant' %}
+						  <span class="badge bg-warning text-white">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% elif ins.statut == 'reserviste' %}
+						  <span class="badge bg-light text-dark">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% else %}
+						  <span class="badge bg-secondary">{{ ins.parcours }} - {{ ins.classe.nom }}</span>
+						{% endif %}
+                      <span class="badge">
+					  <div class="d-flex justify-content-end">
+						<!-- Détails -->
+						<a href="{% url 'finance:scolarite-detail' type=model_type pk=ins.pk %}"
+						   class="btn btn-link p-0 me-2" title="Détails">
+						  <i class="bx bx-show text-info fs-4"></i>
+						</a>
+						<!-- Modifier -->
+						<a href="{% url 'finance:scolarite-update' type=model_type pk=ins.pk %}"
+						   class="btn btn-link p-0 me-2" title="Modifier">
+						  <i class="bx bx-edit text-warning fs-4"></i>
+						</a>
+					
+						<!-- Supprimer -->
+						<a href="{% url 'finance:scolarite-delete' type=model_type pk=ins.pk %}"
+						   class="btn btn-link p-0" title="Supprimer"
+						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+						  <i class="bx bx-trash text-danger fs-4"></i>
+						</a>
+					  </div>
+					 </span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+   {% else %}
+  <div class="tab-content">
+	  <div class="tab-pane fade show active">
+		  <div class="alert alert-info"> Choisissez une option en cliquant sur le bouton correspondant.</div>
+	  </div>
+  </div>
+  {% endif %}
+
+<!-- Script de filtrage -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterOptions = document.querySelectorAll('.filter-option');
+    const roleHeaders = document.querySelectorAll('.role-header');
+    const userRows = document.querySelectorAll('.user-row');
+    const filterBtn = document.querySelector('#usersFilterDropdown');
+
+    filterOptions.forEach(option => {
+      option.addEventListener('click', function (e) {
+        e.preventDefault();
+        const selectedFilter = this.getAttribute('data-filter');
+        const selectedLabel = this.getAttribute('data-label');
+
+        // Mettre à jour le bouton
+        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${selectedLabel}`;
+
+        // Gérer l'état actif
+        document.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+
+        applyFilter(selectedFilter);
+      });
+    });
+
+    function applyFilter(filter) {
+      roleHeaders.forEach(header => {
+        const role = header.getAttribute('data-role');
+        let visible = false;
+
+        document.querySelectorAll(`.user-row[data-role="${role}"]`).forEach(row => {
+          const rowFilter = row.getAttribute('data-filter');
+          const show = (filter === 'all' || rowFilter === filter);
+          row.style.display = show ? '' : 'none';
+          if (show) visible = true;
+        });
+
+        header.style.display = visible ? '' : 'none';
+      });
+    }
+  });
+</script>
+</div>
+
+
+    <!-- Boutons flottants en bas à droite -->
+  <div class="fixed-action-buttons">
+   {% if model_type %}
+	  <a href="{% url 'finance:scolarite-create' model_type %}" class="btn btn-add">
+		  <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+	  </a>
+   {% endif %}
+  </div>
+{% endblock %}

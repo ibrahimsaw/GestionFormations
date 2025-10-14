@@ -1,0 +1,137 @@
+<!-- En-tête de la carte -->
+<div class="bg-primary py-3 px-4 rounded mb-4">
+  <h5 class="mb-0 text-center text-white">Informations {{ role_utilisateur }}</h5>
+</div>
+
+<!-- Corps de la carte -->
+<div class="row">
+ <small class="text-light">Spécialités disponibles</small>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+    {% for specialite in specialites %}
+    <div class="col">
+      <div class="form-check p-3 border rounded shadow-sm bg-light h-100">
+        <input type="checkbox" name="specialites" value="{{ specialite.id }}"
+               class="form-check-input" id="spec_{{ specialite.id }}">
+        <label class="form-check-label ms-2" for="spec_{{ specialite.id }}">
+          {{ specialite.nom }}
+        </label>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Champ Autres spécialités -->
+<div class="row">
+<div class="row mb-3 mt-4">
+  <label class="col-sm-2 col-form-label fw-bold" for="{{ form.autres_specialites.id_for_label }}">Autres spécialités</label>
+  <div class="col-sm-10">
+    <div class="input-group input-group-merge">
+      <span class="input-group-text"><i class="bx bx-text"></i></span>
+      <input type="text"
+             id="{{ form.autres_specialites.id_for_label }}"
+             name="{{ form.autres_specialites.html_name }}"
+             class="form-control"
+             placeholder="Spécialité 1, Spécialité 2 ..."
+             value="{{ form.autres_specialites.value|default:'' }}">
+    </div>
+    {% for error in form.autres_specialites.errors %}
+    <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Bouton ouvrir modal -->
+<div class="text-end">
+  <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAjouterSpecialite">
+    ➕ Ajouter une spécialité
+  </button>
+</div>
+</div>
+
+<!-- Modale -->
+<div class="modal fade" id="modalAjouterSpecialite" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Ajouter une spécialité</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="nomSpecialite" class="form-label">Nom de la spécialité</label>
+          <input type="text" class="form-control" id="nomSpecialite" placeholder="Ex : Réseaux informatiques">
+          <div class="invalid-feedback" id="errorSpecialite"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="btnAjouterSpecialite">Ajouter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const btnAjouter = document.getElementById('btnAjouterSpecialite');
+  const nomSpecialite = document.getElementById('nomSpecialite');
+  const errorSpecialite = document.getElementById('errorSpecialite');
+
+  btnAjouter.addEventListener('click', function () {
+    const nom = nomSpecialite.value.trim();
+
+    // Réinitialiser erreurs
+    nomSpecialite.classList.remove('is-invalid');
+    errorSpecialite.textContent = "";
+
+    if (!nom) {
+      errorSpecialite.textContent = "Veuillez saisir un nom.";
+      nomSpecialite.classList.add('is-invalid');
+      return;
+    }
+
+    fetch("{% url 'utilisateur:ajouter_specialite' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ nom: nom })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Ajouter dynamiquement la nouvelle case à cocher
+        const grid = document.querySelector(".row.row-cols-1");
+        const col = document.createElement('div');
+        col.className = 'col';
+        col.innerHTML = `
+          <div class="form-check p-3 border rounded shadow-sm bg-light h-100">
+            <input type="checkbox" name="specialites" value="${data.id}"
+                   class="form-check-input" id="spec_${data.id}" checked>
+            <label class="form-check-label ms-2" for="spec_${data.id}">
+              ${data.nom}
+            </label>
+          </div>
+        `;
+        grid.appendChild(col);
+
+        // Fermer la modale
+        const modalElement = document.getElementById('modalAjouterSpecialite');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+        nomSpecialite.value = '';
+      } else {
+        errorSpecialite.textContent = data.error || "Erreur lors de l'ajout.";
+        nomSpecialite.classList.add('is-invalid');
+      }
+    })
+    .catch(() => {
+      errorSpecialite.textContent = "Erreur de connexion.";
+      nomSpecialite.classList.add('is-invalid');
+    });
+  });
+});
+</script>

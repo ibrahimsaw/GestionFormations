@@ -1,0 +1,295 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+{% block content %}
+          <!-- Content wrapper -->
+                <div class="col-md-12">
+				 <div class="d-sm-flex align-items-center justify-content-between">
+					<h6 class="text-muted">{{ titre_page }}</h6>
+					<nav aria-label="breadcrumb" class="d-none d-sm-block">
+					   <ol class="breadcrumb">
+						 {% for item in breadcrumb %}
+						   {% if item.is_last %}
+							 <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+						   {% elif item.is_first %}
+							 <li class="breadcrumb-item">{{ item.name }}</li>
+						   {% else %}
+							 <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+						   {% endif %}
+						 {% endfor %}
+					   </ol>
+				   </nav>
+				  </div>
+				   <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+					 <li class="nav-item" style="max-width: 300px; margin: 0 auto;">
+					   <p class="nav-link active d-flex justify-content-center align-items-center gap-2">
+						 <i class="tf-icons bx bx-book"></i>
+						 <span>{{utilisateur.get_role_display}}</span>
+					   </p>
+					 </li>
+				   </ul>
+                  <div class="card mb-4">
+                    <hr class="my-0" />
+                    <div class="card-body">
+                      <form id="formAccountSettings" method="POST">
+					   {% csrf_token %}
+                        <div class="row">
+                          <div class="mb-3 col-md-6">
+                            <label for="Matricule" class="form-label">Matricule</label>
+                            <input
+                              class="form-control"
+                              type="text"
+                              id="Matricule"
+                              name="firstName"
+                              value="{{ utilisateur.matricule|default:'Non défini' }}"
+                              readonly
+                            />
+                          </div>
+                          <div class="mb-3 col-md-6">
+                            <label class="form-label">Date d'inscription</label>
+                            <input
+                              class="form-control"
+                              type="text"
+                              name="firstName"
+                              value="{{ utilisateur.date_inscription|date:'d/m/Y' }}"
+                              readonly
+                            />
+                          </div>
+                          <div class="mb-3 col-md-6">
+                            <label for="Nom" class="form-label">Nom</label>
+                            <input
+                              class="form-control"
+                              type="text"
+                              id="Nom"
+                              name="firstName"
+                              value="{{ utilisateur.last_name|default:'Non défini'}}"
+                              readonly
+                            />
+                          </div>
+                          <div class="mb-3 col-md-6">
+                            <label for="Prénom" class="form-label">Prénom</label>
+                            <input
+                              class="form-control"
+                              type="text"
+                              id="Prénom"
+                              name="firstName"
+                              value="{{ utilisateur.first_name|default:'Non défini' }}"
+                              readonly
+                            />
+                          </div>
+                          <div class="mb-3 col-md-6">
+                            <label for="rol" class="form-label">Role</label>
+                            <input
+                              class="form-control"
+                              type="text"
+                              id="rol"
+                              name="firstName"
+                              value="{{ utilisateur.get_role_display_name|default:'Non défini' }}"
+                              readonly
+                            />
+                          </div>
+                        </div>
+					   	<div class="row">
+							<!-- Mot de passe -->
+						<div class="col-md-6 mb-3">
+								  <label class="form-label" for="nouveau_mot_de_passe">Nouveau mot de passe</label>
+							   <div class="col-sm-12">
+								   <div class="input-group input-group-merge ">
+									   <span class="input-group-text"><i class="bx bx-lock"></i></span>
+									   <input type="password"
+											  id="nouveau_mot_de_passe"
+											  name="nouveau_mot_de_passe"
+											  class="form-control"
+											  placeholder="8 caractères minimum avec chiffres et lettres"
+											  oninput="validatePassword()">
+									   <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('nouveau_mot_de_passe')">
+										   <i class="bx bx-show"></i>
+									   </button>
+								   </div>
+								   <!-- Indicateur de force du mot de passe -->
+								   <div id="password-strength-indicator" class="mt-2 fw-bold"></div>
+								   <!-- Exigences du mot de passe -->
+								   <div id="password-requirements" style="display: none;" class="border rounded p-3 bg-light mt-2">
+									   <div id="length-requirement" class="d-flex align-items-center mb-2 invalid">
+										   <i id="length-icon" class="bi bi-x-circle me-2"></i>
+										   <span>Au moins 8 caractères</span>
+									   </div>
+									<div id="uppercase-requirement" class="d-flex align-items-center mb-2 invalid">
+									   <i id="uppercase-icon" class="bi bi-x-circle me-2"></i>
+									   <span>Inclure une lettre majuscule</span>
+									 </div>
+									 <div id="special-requirement" class="d-flex align-items-center mb-2 invalid">
+									   <i id="special-icon" class="bi bi-x-circle me-2"></i>
+									   <span>Inclure un caractère spécial (ex: !@#$%)</span>
+									 </div>
+									   <div id="numeric-requirement" class="d-flex align-items-center mb-2 invalid">
+										   <i id="numeric-icon" class="bi bi-x-circle me-2"></i>
+										   <span>Inclure un chiffre</span>
+									   </div>
+									   <div id="letter-requirement" class="d-flex align-items-center mb-2 invalid">
+										   <i id="letter-icon" class="bi bi-x-circle me-2"></i>
+										   <span>Inclure une lettre</span>
+									   </div>
+									   <div id="match-requirement" class="d-flex align-items-center invalid">
+										   <i id="match-icon" class="bi bi-x-circle me-2"></i>
+										   <span>Les mots de passe doivent correspondre</span>
+									   </div>
+								   </div>
+								   <div id="password-match-error" class="text-danger mt-1"></div>
+								   {% if utilisateur_form.password1.help_text %}
+									   <small class="form-text text-muted">{{ utilisateur_form.password1.help_text }}</small>
+								   {% endif %}
+								   {% for error in utilisateur_form.password1.errors %}
+									   <div class="text-danger small">⚠️ {{ error }}</div>
+								   {% endfor %}
+							   </div>
+						   </div>
+						   <!-- Confirmation du mot de passe -->
+						<div class="col-md-6 mb-3">
+							   <label class="form-label" for="confirmation">Confirmer le mot de passe</label>
+							   <div class="col-sm-12">
+								   <div class="input-group input-group-merge">
+									   <span class="input-group-text"><i class="bx bx-lock-alt"></i></span>
+									   <input type="password"
+											  id="confirmation"
+											  name="confirmation"
+											  class="form-control"
+											  placeholder="Répétez le même mot de passe"
+											  oninput="validatePassword()">
+									   <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmation')">
+										   <i class="bx bx-show"></i>
+									   </button>
+								   </div>
+								   <div id="password-confirm-error" class="text-danger mt-1"></div>
+								   {% for error in utilisateur_form.password2.errors %}
+									   <div class="text-danger small">⚠️ {{ error }}</div>
+								   {% endfor %}
+							   </div>
+						   </div>
+						<script>
+						function togglePassword(id) {
+							const passwordField = document.getElementById(id);
+							if (passwordField) {
+								const icon = passwordField.nextElementSibling.querySelector('i');
+								if (passwordField.type === "password") {
+									passwordField.type = "text";
+									icon.classList.replace('bx-show', 'bx-hide');
+								} else {
+									passwordField.type = "password";
+									icon.classList.replace('bx-hide', 'bx-show');
+								}
+							}
+						}
+						
+						function updateRequirement(id, condition) {
+							const icon = document.getElementById(id + '-icon');
+							const item = document.getElementById(id + '-requirement');
+							if (condition) {
+								icon.className = 'bi bi-check-circle me-2';
+								item.classList.remove('invalid');
+								item.classList.add('valid');
+							} else {
+								icon.className = 'bi bi-x-circle me-2';
+								item.classList.remove('valid');
+								item.classList.add('invalid');
+							}
+						}
+						
+						function validatePassword() {
+							const p1 = document.getElementById("nouveau_mot_de_passe").value;
+							const p2 = document.getElementById("confirmation").value;
+							const strength = document.getElementById('password-strength-indicator');
+							const matchError = document.getElementById('password-match-error');
+							const confirmError = document.getElementById('password-confirm-error');
+						
+							const hasMinLength = p1.length >= 8;
+							const hasNumber = /\d/.test(p1);
+							const hasLetter = /[a-zA-Z]/.test(p1);
+							const match = p1 === p2 && p1 !== '';
+							const hasUppercase = /[A-Z]/.test(p1);
+							const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(p1);
+						
+							updateRequirement('length', hasMinLength);
+							updateRequirement('numeric', hasNumber);
+							updateRequirement('letter', hasLetter);
+							updateRequirement('match', match);
+							updateRequirement('uppercase', hasUppercase);
+							updateRequirement('special', hasSpecial);
+					
+						
+							const score = [hasMinLength, hasNumber, hasLetter,hasUppercase, hasSpecial].filter(Boolean).length;
+						
+							if (p1.length === 0) {
+								strength.textContent = '';
+								strength.className = '';
+							} else if (score <= 1) {
+								strength.textContent = 'Mot de passe faible';
+								strength.className = 'text-danger fw-bold';
+							} else if (score === 2) {
+								strength.textContent = 'Mot de passe moyen';
+								strength.className = 'text-warning fw-bold';
+							} else {
+								strength.textContent = 'Mot de passe fort';
+								strength.className = 'text-success fw-bold';
+							}
+						
+							matchError.textContent = (!match && p2.length > 0)
+								? 'Les mots de passe ne correspondent pas'
+								: '';
+							confirmError.textContent = matchError.textContent;
+						
+							const submitBtn = document.querySelector('button[type="submit"]');
+							if (submitBtn) {
+								submitBtn.disabled = !(hasMinLength && hasNumber && hasLetter && hasUppercase && hasSpecial && match);
+							}
+						}
+						
+						document.addEventListener('DOMContentLoaded', () => {
+							const p1 = document.getElementById("nouveau_mot_de_passe");
+							const p2 = document.getElementById("confirmation");
+							const requirements = document.getElementById('password-requirements');
+						
+							const showRequirements = () => requirements.style.display = 'block';
+							const hideRequirements = () => {
+								if (requirementsValid()) requirements.style.display = 'none';
+							};
+						
+							p1.addEventListener('focus', showRequirements);
+							p2.addEventListener('focus', showRequirements);
+							p1.addEventListener('blur', hideRequirements);
+							p2.addEventListener('blur', hideRequirements);
+							p1.addEventListener('input', validatePassword);
+							p2.addEventListener('input', validatePassword);
+						
+							validatePassword();
+						
+							function requirementsValid() {
+								const val1 = p1.value;
+								const val2 = p2.value;
+								return (
+									val1.length >= 8 &&
+									/\d/.test(val1) &&
+									/[a-zA-Z]/.test(val1) &&
+									/[A-Z]/.test(val1) &&
+									/[!@#$%^&*(),.?":{}|<>]/.test(val1) &&
+									val1 === val2
+								);
+							}
+						});
+						</script>
+					   </div>
+					   	<button type="submit" class="btn btn-primary">Mettre à jour</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+          <!-- Content wrapper -->
+<script>
+document.getElementById('formAccountDeactivation').addEventListener('submit', function(e) {
+    if (!confirm('Cette action ne peut pas être annulée. Confirmez-vous la suppression ?')) {
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

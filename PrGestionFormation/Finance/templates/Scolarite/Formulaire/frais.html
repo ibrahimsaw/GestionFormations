@@ -1,0 +1,216 @@
+{% load widget_tweaks %}
+
+<!-- Libellé -->
+<div class="row mb-3">
+  <label for="{{ form.libelle.id_for_label }}" class="col-sm-2 col-form-label">Libellé</label>
+  <div class="col-sm-10">
+    {{ form.libelle|add_class:"form-select" }}
+  </div>
+</div>
+
+<!-- Description (affiché dynamiquement si "AUTRE") -->
+<div class="row mb-3" id="description_field" style="display: none;">
+  <label for="id_description" class="col-sm-2 col-form-label">Description</label>
+  <div class="col-sm-10">
+    <input type="text" name="description" id="id_description" class="form-control" placeholder="Saisir une description...">
+  </div>
+</div>
+
+<!-- Champs conditionnels : année, formation, classes -->
+<div id="classe_fields" style="display: none;">
+  <input type="hidden" name="annee_id" id="hidden_annee">
+  <input type="hidden" name="formation_id" id="hidden_formation">
+
+  <!-- Année académique -->
+  <div class="row mb-3">
+    <label for="annee_select" class="col-sm-2 col-form-label">Année académique</label>
+    <div class="col-sm-10">
+      <select id="annee_select" class="form-select" required>
+        <option value="">-- Sélectionner --</option>
+        {% for annee in annees %}
+          <option value="{{ annee.id }}">{{ annee.nom }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Formation -->
+  <div class="row mb-3">
+    <label for="formation_select" class="col-sm-2 col-form-label">Formation</label>
+    <div class="col-sm-10">
+      <select id="formation_select" class="form-select" disabled required>
+        <option value="">-- Sélectionner --</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Montant global -->
+  <div class="row mb-3">
+    <label for="montant_global" class="col-sm-2 col-form-label">Montant global</label>
+    <div class="col-sm-10">
+      <div class="input-group">
+        <input type="number" id="montant_global" class="form-control" placeholder="0.00" step="0.01">
+        <button type="button" class="btn btn-outline-primary" id="apply_global">Appliquer à toutes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des classes -->
+  <div class="row mb-3">
+    <div class="col-sm-12">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover table-sm">
+          <thead class="table-light">
+            <tr>
+              <th>Classe</th>
+              <th>Montant (FCFA)</th>
+            </tr>
+          </thead>
+          <tbody id="classe_table_body">
+            <!-- Rempli dynamiquement -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Montant standard -->
+<div id="montant_field" class="row mb-3">
+  <label for="{{ form.montant.id_for_label }}" class="col-sm-2 col-form-label">Montant</label>
+  <div class="col-sm-10">
+    {{ form.montant|add_class:"form-control" }}
+  </div>
+</div>
+
+<!-- Récurrent -->
+<div class="row mb-3">
+  <div class="col-sm-10 offset-sm-2">
+    <div class="form-check">
+      {{ form.recurrent|add_class:"form-check-input" }}
+      <label class="form-check-label" for="{{ form.recurrent.id_for_label }}">{{ form.recurrent.label }}</label>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const libelleField = document.getElementById("id_libelle");
+  const descriptionField = document.getElementById("description_field");
+  const descriptionInput = document.getElementById("id_description");
+  const classeFields = document.getElementById("classe_fields");
+  const montantInput = document.getElementById("id_montant");
+  const anneeSelect = document.getElementById("annee_select");
+  const formationSelect = document.getElementById("formation_select");
+  const classeTableBody = document.getElementById("classe_table_body");
+  const form = document.getElementById("scolariteForm");
+  const hiddenAnnee = document.getElementById("hidden_annee");
+  const hiddenFormation = document.getElementById("hidden_formation");
+  const applyBtn = document.getElementById("apply_global");
+  const globalInput = document.getElementById("montant_global");
+
+  function toggleDescription() {
+    if (libelleField.value === "AUTRE") {
+      descriptionField.style.display = "flex"; // ou "block"
+    } else {
+      descriptionField.style.display = "none";
+      if (descriptionInput) descriptionInput.value = "";
+    }
+  }
+
+  function toggleFields() {
+    const libelleChoisi = libelleField.value;
+    const showClasseSection = [
+      "SCOLARITE", "INSCRIPTION", "LABO",
+      "ASSURANCE", "BIBLIOTHEQUE", "AUTRE"
+    ].includes(libelleChoisi);
+
+    classeFields.style.display = showClasseSection ? "block" : "none";
+    if (montantInput) {
+      montantInput.disabled = showClasseSection;
+      montantInput.required = !showClasseSection;
+      if (showClasseSection) montantInput.value = "";
+    }
+  }
+
+  libelleField.addEventListener("change", () => {
+    toggleDescription();
+    toggleFields();
+  });
+
+  toggleDescription(); // Initialiser à l'ouverture
+  toggleFields();
+
+  anneeSelect.addEventListener("change", async function () {
+    const anneeId = this.value;
+    hiddenAnnee.value = anneeId;
+    formationSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
+    classeTableBody.innerHTML = "";
+
+    if (!anneeId) {
+      formationSelect.disabled = true;
+      return;
+    }
+
+    try {
+      const response = await fetch(`/utilisateur/get_parcours_options/?annee_academique=${anneeId}`);
+      if (!response.ok) throw new Error("Erreur serveur");
+
+      const data = await response.json();
+      formationSelect.disabled = false;
+
+      data.forEach(formation => {
+        const option = new Option(formation.nom, formation.id);
+        option.dataset.classes = JSON.stringify(formation.classes);
+        formationSelect.add(option);
+      });
+    } catch (error) {
+      alert("Erreur lors du chargement des formations");
+    }
+  });
+
+  formationSelect.addEventListener("change", function () {
+    const selectedOption = this.options[this.selectedIndex];
+    hiddenFormation.value = this.value;
+    classeTableBody.innerHTML = "";
+
+    if (!selectedOption?.dataset.classes) return;
+
+    try {
+      const classes = JSON.parse(selectedOption.dataset.classes);
+      classes.forEach(classe => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${classe.nom}</td>
+          <td>
+            <input type="number" name="montant_${classe.id}"
+                   class="form-control montant-classe"
+                   step="0.01" min="0"
+                   placeholder="0.00"
+                   onblur="this.value = parseFloat(this.value.replace(',', '.')).toFixed(2);">
+          </td>
+        `;
+        classeTableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  });
+
+  if (applyBtn) {
+    applyBtn.addEventListener("click", function () {
+      const montant = parseFloat(globalInput.value.replace(',', '.')).toFixed(2);
+      document.querySelectorAll('.montant-classe').forEach(input => {
+        input.value = montant;
+      });
+    });
+  }
+
+  form?.addEventListener("submit", function () {
+    document.querySelectorAll(".montant-classe").forEach(input => {
+      input.disabled = false;
+    });
+  });
+});
+</script>
+

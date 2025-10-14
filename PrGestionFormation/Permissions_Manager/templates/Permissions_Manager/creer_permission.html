@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 text-center text-primary">
+        <i class="fas fa-plus-circle me-2"></i> Créer une Nouvelle Permission
+    </h2>
+    
+    <form method="post" novalidate>
+	 {% if form.non_field_errors %}
+<div class="alert alert-danger">
+    {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% for field in form %}
+    {% if field.errors %}
+    <div class="alert alert-danger">
+        {% for error in field.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endfor %}
+        {% csrf_token %}
+
+        <!-- Détails de la permission -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-info-circle me-2"></i> Détails de la Permission
+            </div>
+		 <div class="d-sm-flex align-items-center justify-content-between">
+	 <h6 class="text-muted">{{ titre_page }}</h6>
+	 <nav aria-label="breadcrumb" class="d-none d-sm-block">
+		  <ol class="breadcrumb">
+			{% for item in breadcrumb %}
+			  {% if item.is_last %}
+				<li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+			  {% elif item.is_first %}
+				<li class="breadcrumb-item">{{ item.name }} </li>
+			  {% else %}
+				<li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+			  {% endif %}
+			{% endfor %}
+		  </ol>
+	  </nav>
+	</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.name.label_tag }}
+                        {% if form.name.errors %}
+                            {{ form.name|add_class:"form-control is-invalid" }}
+                            <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                        {% else %}
+                            {{ form.name|add_class:"form-control" }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        {{ form.codename.label_tag }}
+                        {% if form.codename.errors %}
+                            {{ form.codename|add_class:"form-control is-invalid" }}
+                            <div class="invalid-feedback d-block">{{ form.codename.errors }}</div>
+                        {% else %}
+                            {{ form.codename|add_class:"form-control" }}
+                        {% endif %}
+                        {% if form.codename.help_text %}
+                            <small class="form-text text-muted">{{ form.codename.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.content_type.label_tag }}
+                    {{ form.content_type|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.description.label_tag }}
+                    {{ form.description|add_class:"form-control" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Rôles autorisés -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-users-cog me-2"></i> Rôles Autorisés
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for role in form.roles_autorises %}
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check">
+                            {{ role.tag }}
+                            <label class="form-check-label" for="{{ role.id_for_label }}">
+                                {{ role.choice_label }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'Permissions_Manager:permission' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Annuler
+            </a>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Créer la Permission
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

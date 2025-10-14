@@ -1,0 +1,686 @@
+{% load widget_tweaks static %}
+
+<!-- Gestion des erreurs -->
+{% if formset.non_form_errors %}
+  <div class="alert alert-danger">
+    <strong>Erreurs générales :</strong>
+    <ul>
+      {% for error in formset.non_form_errors %}
+        <li>❌ {{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<!-- Indicateur de chargement -->
+<div id="loading-indicator" class="alert alert-info d-none">
+  <i class="bi bi-hourglass-half"></i> Chargement en cours...
+</div>
+
+<!-- Date de l'événement -->
+<div class="row mb-3" id="evenement_section">
+  <label for="id_date_evenement" class="col-sm-2 col-form-label">Date de l'événement</label>
+  <div class="col-sm-10">
+    <div class="input-group input-group-merge">
+      <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+      <input type="text"
+             id="id_date_evenement"
+             name="date_evenement"
+             class="form-control"
+             value="{{ date|date:'d/m/Y H:i' }}"
+             readonly>
+    </div>
+    {% for error in form.date_evenement.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Statut -->
+<div class="row mb-3 align-items-center">
+  <label for="id_statut" class="col-sm-2 col-form-label">Statut</label>
+  <div class="col-sm-10">
+    <div class="input-group input-group-merge">
+      <span class="input-group-text bg-light"><i class="bx bx-list-check"></i></span>
+      <select id="id_statut" name="{{ form.statut.name }}" class="form-select">
+        <option value="">---------</option>
+        {% for value, label in form.statut.field.choices %}
+          <option value="{{ value }}" {% if form.statut.value == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+   {% if form.statut.help_text %}
+      <div class="form-text text-muted">{{ form.statut.help_text }}</div>
+    {% endif %}
+    {% if form.statut.errors %}
+      <div class="text-danger small mt-1">
+        {% for error in form.statut.errors %}
+          <div>⚠️ {{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+
+<!-- Recherche étudiant améliorée -->
+<div class="row mb-3">
+  <label for="searchEtudiants" class="col-sm-2 col-form-label">Rechercher un étudiant</label>
+  <div class="col-sm-10">
+    <div class="input-group">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input type="text"
+             id="searchEtudiants"
+             class="form-control"
+             placeholder="Entrer un matricule ou nom..."
+             autocomplete="off">
+      <button type="button" id="clearSearch" class="btn btn-outline-secondary">
+        <i class="bi bi-x-circle"></i>
+      </button>
+    </div>
+    <div id="searchResults" class="mt-2 d-none">
+      <div class="list-group" id="resultsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Étudiant sélectionné -->
+<div class="row mb-3">
+  <label for="id_etudiant" class="col-sm-2 col-form-label">Étudiant sélectionné</label>
+  <div class="col-sm-10">
+    <div class="input-group">
+      <span class="input-group-text"><i class="bi bi-person"></i></span>
+      <input type="text"
+             id="etudiant_display"
+             class="form-control"
+             readonly
+             placeholder="Aucun étudiant sélectionné">
+      <input type="hidden" id="id_etudiant" name="etudiant" value="">
+    </div>
+    {% for error in form.etudiant.errors %}
+      <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Année / Parcours / Classe -->
+<div class="row mb-3 d-none" id="annee_parcours_classe">
+  <!-- Année académique -->
+  <div class="col-md-4 mb-3">
+    <label class="col-sm-12 col-form-label fw-semibold">Année académique</label>
+    <div class="col-sm-12">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text bg-light"><i class="bx bx-calendar-alt"></i></span>
+        <select id="id_annee" name="annee_academique" class="form-select">
+          <option value="">---------</option>
+          {% for value, label in form.annee_academique.field.choices %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if form.annee_academique.errors %}
+        <div class="text-danger small mt-1">
+          {% for error in form.annee_academique.errors %}
+            <div>⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Parcours -->
+  <div class="col-md-4 mb-3">
+    <label class="col-sm-12 col-form-label fw-semibold">Parcours</label>
+    <div class="col-sm-12">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text bg-light"><i class="bx bx-book"></i></span>
+        <select id="id_parcours" name="parcours" class="form-select">
+          <option value="">---------</option>
+        </select>
+      </div>
+      {% if form.parcours.errors %}
+        <div class="text-danger small mt-1">
+          {% for error in form.parcours.errors %}
+            <div>⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Classe -->
+  <div class="col-md-4 mb-3">
+    <label class="col-sm-12 col-form-label fw-semibold">Classe</label>
+    <div class="col-sm-12">
+      <div class="input-group input-group-merge">
+        <span class="input-group-text bg-light"><i class="bx bx-group"></i></span>
+        <select id="id_classe" name="classe" class="form-select">
+          <option value="">---------</option>
+        </select>
+      </div>
+      {% if form.classe.errors %}
+        <div class="text-danger small mt-1">
+          {% for error in form.classe.errors %}
+            <div>⚠️ {{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Autres champs conditionnels -->
+<div class="row mb-3 d-none" id="resultat_section">
+  <label class="col-sm-2 col-form-label">Résultat année précédente</label>
+  <div class="col-sm-10">
+    {{ form.resultat_annee_precedente|add_class:"form-control" }}
+  </div>
+</div>
+
+<div class="row mb-3 d-none" id="motif_section">
+  <label class="col-sm-2 col-form-label">Motif</label>
+  <div class="col-sm-10">
+    {{ form.motif|add_class:"form-control" }}
+  </div>
+</div>
+
+<div class="row mb-3 d-none" id="duree_section">
+  <label class="col-sm-2 col-form-label">Durée (jours)</label>
+  <div class="col-sm-10">
+    {{ form.duree|add_class:"form-control"|attr:"min=1" }}
+  </div>
+</div>
+
+<div class="row mb-3 d-none" id="etablissement_section">
+  <label class="col-sm-2 col-form-label">Établissement d'accueil</label>
+  <div class="col-sm-10">
+    {{ form.Etablissement_accuiel|add_class:"form-control" }}
+  </div>
+</div>
+
+<!-- Documents -->
+<div class="mb-3 d-none" id="documents_section">
+  <h5 class="mb-3 fw-semibold">Documents à fournir</h5>
+  {{ formset.management_form }}
+  <div id="documents-container"></div>
+</div>
+
+<template id="document-template">
+  <div class="row g-3 mb-3 p-3 border rounded bg-light shadow-sm doc-block">
+    <div class="col-md-5">
+      <label class="form-label fw-semibold">Type de document</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-file-earmark-text"></i></span>
+        <input type="text" class="form-control bg-white" disabled readonly>
+        <input type="hidden" name="__prefix__-type_document" value="">
+      </div>
+    </div>
+    <div class="col-md-5">
+      <label class="form-label fw-semibold">Fichier</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-upload"></i></span>
+        <input type="file" name="__prefix__-fichier" class="form-control" required>
+      </div>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button type="button" class="btn btn-outline-danger w-100 remove-document">
+        <i class="bi bi-trash"></i> Supprimer
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+// Configuration globale
+const CONFIG = {
+  SEARCH_DELAY: 300,
+  URLS: {
+    SEARCH_STUDENTS: "{% url 'utilisateur:search_students' %}",
+    GET_PARCOURS: "{% url 'utilisateur:get_parcours_options' %}",
+    GET_STUDENT_INFO: "{% url 'utilisateur:get_student_info' %}"
+  },
+  CSRF_TOKEN: document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+};
+
+// Classe principale de gestion du formulaire
+class FormManager {
+  constructor() {
+    this.statutField = document.getElementById('id_statut');
+    this.searchInput = document.getElementById('searchEtudiants');
+    this.clearSearchBtn = document.getElementById('clearSearch');
+    this.searchResults = document.getElementById('searchResults');
+    this.resultsList = document.getElementById('resultsList');
+    this.etudiantDisplay = document.getElementById('etudiant_display');
+    this.etudiantHidden = document.getElementById('id_etudiant');
+    this.loadingIndicator = document.getElementById('loading-indicator');
+    
+    this.anneeSelect = document.getElementById('id_annee');
+    this.parcoursSelect = document.getElementById('id_parcours');
+    this.classeSelect = document.getElementById('id_classe');
+    
+    this.documentsContainer = document.getElementById('documents-container');
+    this.totalForms = document.getElementById('id_documents_inscription-TOTAL_FORMS');
+    this.template = document.getElementById('document-template').content;
+    
+    this.searchTimeout = null;
+    this.selectedStudent = null;
+    this.parcoursData = [];
+    
+    this.init();
+  }
+
+  init() {
+    this.setupEventListeners();
+    this.updateFieldsVisibility();
+    this.updateDocumentsForStatus();
+    this.resetAllFields();
+    this.handleStatusChange(); // ✅ le plus important
+  }
+
+  setupEventListeners() {
+    // Recherche d'étudiants
+    this.searchInput.addEventListener('input', this.handleSearch.bind(this));
+    this.clearSearchBtn.addEventListener('click', this.clearSearch.bind(this));
+    
+    // Changement de statut
+    this.statutField.addEventListener('change', this.handleStatusChange.bind(this));
+    
+    // Sélection cascadée
+    this.anneeSelect.addEventListener('change', this.handleAnneeChange.bind(this));
+    this.parcoursSelect.addEventListener('change', this.handleParcoursChange.bind(this));
+    
+    // Clic en dehors pour fermer les résultats
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#searchEtudiants') && !e.target.closest('#searchResults')) {
+        this.hideSearchResults();
+      }
+    });
+  }
+
+  // Gestion de la recherche d'étudiants
+  handleSearch(event) {
+    const query = event.target.value.trim();
+    
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    if (query.length < 2) {
+      this.hideSearchResults();
+      return;
+    }
+    
+    this.searchTimeout = setTimeout(() => {
+      this.searchStudents(query);
+    }, CONFIG.SEARCH_DELAY);
+  }
+
+  async searchStudents(query) {
+    try {
+      this.showLoading();
+      
+      const response = await fetch(`${CONFIG.URLS.SEARCH_STUDENTS}?q=${encodeURIComponent(query)}`, {
+        headers: {
+          'X-CSRFToken': CONFIG.CSRF_TOKEN
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur de recherche');
+      }
+      
+      const data = await response.json();
+      this.displaySearchResults(data.students || []);
+      
+    } catch (error) {
+      console.error('Erreur de recherche:', error);
+      this.showError('Erreur lors de la recherche. Veuillez réessayer.');
+    } finally {
+      this.hideLoading();
+    }
+  }
+
+  displaySearchResults(students) {
+    this.resultsList.innerHTML = '';
+    
+    if (students.length === 0) {
+      this.resultsList.innerHTML = '<div class="list-group-item">Aucun étudiant trouvé</div>';
+    } else {
+      students.forEach(student => {
+        const item = document.createElement('div');
+        item.className = 'list-group-item list-group-item-action';
+        item.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <strong>${student.nom} ${student.prenom}</strong>
+              <small class="text-muted d-block">Matricule: ${student.matricule}</small>
+            </div>
+            <small class="text-muted">${student.classe || 'Sans classe'}</small>
+          </div>
+        `;
+        
+        item.addEventListener('click', () => this.selectStudent(student));
+        this.resultsList.appendChild(item);
+      });
+    }
+    
+    this.showSearchResults();
+  }
+
+  selectStudent(student) {
+    this.selectedStudent = student;
+    this.etudiantDisplay.value = `${student.nom} ${student.prenom} (${student.matricule})`;
+    this.etudiantHidden.value = student.id;
+    this.searchInput.value = '';
+    this.hideSearchResults();
+    
+    // Charger les informations de l'étudiant
+    this.loadStudentInfo(student.id);
+  }
+
+  async loadStudentInfo(studentId) {
+    try {
+      this.showLoading();
+      
+      const response = await fetch(`${CONFIG.URLS.GET_STUDENT_INFO}?etudiant_id=${studentId}`, {
+        headers: {
+          'X-CSRFToken': CONFIG.CSRF_TOKEN
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur de chargement des informations');
+      }
+      
+      const data = await response.json();
+      this.updateStudentFields(data);
+      
+    } catch (error) {
+      console.error('Erreur de chargement:', error);
+      this.showError('Erreur lors du chargement des informations de l\'étudiant.');
+    } finally {
+      this.hideLoading();
+    }
+  }
+
+  updateStudentFields(data) {
+    // Mise à jour de l'année académique
+    if (data.annee_id) {
+      this.anneeSelect.value = data.annee_id;
+      this.loadParcours(data.annee_id, data.parcours_id, data.classe_id);
+    }
+  }
+
+  // Gestion des champs en fonction du statut
+  handleStatusChange() {
+    this.updateFieldsVisibility();
+    this.updateDocumentsForStatus();
+    this.resetConditionalFields();
+  }
+
+  updateFieldsVisibility() {
+    const statut = this.statutField.value;
+    const champsParStatut = {
+      reinscrit: ['annee_parcours_classe', 'resultat_section', 'documents_section'],
+      redoublant: ['annee_parcours_classe', 'resultat_section', 'documents_section'],
+      abandon: ['motif_section'],
+      suspendu: ['motif_section', 'duree_section'],
+      exclu: ['motif_section'],
+      en_attente: ['documents_section'],
+      reserviste: ['documents_section'],
+      transfert: ['etablissement_section', 'motif_section'],
+      diplome: ['resultat_section']
+    };
+
+    const tousLesChamps = [
+      'annee_parcours_classe', 'resultat_section', 'motif_section',
+      'duree_section', 'etablissement_section', 'documents_section'
+    ];
+
+    // Cacher tous les champs
+    tousLesChamps.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) element.classList.add('d-none');
+    });
+
+    // Afficher les champs nécessaires
+    const champsAfficher = champsParStatut[statut] || [];
+    champsAfficher.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) element.classList.remove('d-none');
+    });
+  }
+
+  resetConditionalFields() {
+    // Réinitialiser tous les champs conditionnels
+    const fieldsToReset = [
+      'id_annee', 'id_parcours', 'id_classe',
+      'resultat_annee_precedente', 'motif', 'duree', 'Etablissement_accuiel'
+    ];
+    
+    fieldsToReset.forEach(fieldId => {
+      const field = document.querySelector(`[name="${fieldId}"]`);
+      if (field) {
+        field.value = '';
+      }
+    });
+    
+    // Réinitialiser les sélects
+    this.resetSelect(this.parcoursSelect);
+    this.resetSelect(this.classeSelect);
+  }
+
+  // Gestion des parcours et classes
+  async handleAnneeChange() {
+    const anneeId = this.anneeSelect.value;
+    this.resetSelect(this.parcoursSelect);
+    this.resetSelect(this.classeSelect);
+    
+    if (!anneeId) return;
+    
+    await this.loadParcours(anneeId);
+  }
+
+  async loadParcours(anneeId, selectedParcoursId = null, selectedClasseId = null) {
+    try {
+      this.showLoading();
+      
+      const response = await fetch(`${CONFIG.URLS.GET_PARCOURS}?annee_academique=${anneeId}`, {
+        headers: {
+          'X-CSRFToken': CONFIG.CSRF_TOKEN
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur de chargement des parcours');
+      }
+      
+      const data = await response.json();
+      this.parcoursData = data;
+      
+      // Remplir le select des parcours
+      data.forEach(parcours => {
+        const option = new Option(parcours.nom, parcours.id);
+        this.parcoursSelect.add(option);
+      });
+      
+      // Sélectionner le parcours si spécifié
+      if (selectedParcoursId) {
+        this.parcoursSelect.value = selectedParcoursId;
+        await this.loadClasses(selectedParcoursId, selectedClasseId);
+      }
+      
+    } catch (error) {
+      console.error('Erreur de chargement des parcours:', error);
+      this.showError('Erreur lors du chargement des parcours.');
+    } finally {
+      this.hideLoading();
+    }
+  }
+
+  async handleParcoursChange() {
+    const parcoursId = this.parcoursSelect.value;
+    this.resetSelect(this.classeSelect);
+    
+    if (!parcoursId) return;
+    
+    await this.loadClasses(parcoursId);
+  }
+
+  async loadClasses(parcoursId, selectedClasseId = null) {
+    const selectedParcours = this.parcoursData.find(p => p.id == parcoursId);
+    if (selectedParcours) {
+      selectedParcours.classes.forEach(classe => {
+        const option = new Option(classe.nom, classe.id);
+        this.classeSelect.add(option);
+      });
+      
+      // Sélectionner la classe si spécifiée
+      if (selectedClasseId) {
+        this.classeSelect.value = selectedClasseId;
+      }
+    }
+  }
+
+  // Gestion des documents
+  updateDocumentsForStatus() {
+    const statut = this.statutField.value;
+    console.log("Statut détecté :", statut);
+    const documentsParStatut = {
+      en_attente: ['formulaire', 'naissance', 'cni'],
+      reserviste: ['formulaire', 'diplome', 'bulletin'],
+      reinscrit: ['formulaire', 'frais'],
+      redoublant: ['formulaire']
+    };
+
+    const docs = documentsParStatut[statut] || [];
+    this.resetDocuments();
+    docs.forEach((type, i) => this.addDocument(type, i));
+  }
+
+  resetDocuments() {
+    this.documentsContainer.innerHTML = '';
+    this.totalForms.value = 0;
+  }
+
+  addDocument(type_document, index) {
+    const clone = this.template.cloneNode(true);
+    clone.querySelector('[name$="-type_document"]').name = `documents_inscription-${index}-type_document`;
+    clone.querySelector('[name$="-type_document"]').value = type_document;
+    clone.querySelector('[type="text"]').value = type_document.charAt(0).toUpperCase() + type_document.slice(1).replace('_', ' ');
+    clone.querySelector('[name$="-fichier"]').name = `documents_inscription-${index}-fichier`;
+
+    clone.querySelector('.remove-document').addEventListener('click', (e) => {
+      e.target.closest('.doc-block').remove();
+      this.updateTotalForms();
+    });
+
+    this.documentsContainer.appendChild(clone);
+    this.updateTotalForms();
+  }
+
+  updateTotalForms() {
+    this.totalForms.value = this.documentsContainer.querySelectorAll('.doc-block').length;
+  }
+
+  // Utilitaires
+  resetSelect(selectElement, placeholder = '---------') {
+    selectElement.innerHTML = '';
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = placeholder;
+    selectElement.appendChild(option);
+  }
+
+  resetAllFields() {
+    // Réinitialiser la recherche
+    this.searchInput.value = '';
+    this.etudiantDisplay.value = '';
+    this.etudiantHidden.value = '';
+    this.selectedStudent = null;
+    
+    // Réinitialiser tous les champs
+    this.resetConditionalFields();
+    this.resetDocuments();
+    this.hideSearchResults();
+  }
+
+  clearSearch() {
+    this.resetAllFields();
+  }
+
+  showSearchResults() {
+    this.searchResults.classList.remove('d-none');
+  }
+
+  hideSearchResults() {
+    this.searchResults.classList.add('d-none');
+  }
+
+  showLoading() {
+    this.loadingIndicator.classList.remove('d-none');
+  }
+
+  hideLoading() {
+    this.loadingIndicator.classList.add('d-none');
+  }
+
+  showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+    errorDiv.innerHTML = `
+      <strong>Erreur!</strong> ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container') || document.body;
+    container.insertBefore(errorDiv, container.firstChild);
+    
+    // Supprimer automatiquement après 5 secondes
+    setTimeout(() => {
+      if (errorDiv.parentNode) {
+        errorDiv.remove();
+      }
+    }, 5000);
+  }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  new FormManager();
+});
+</script>
+
+<style>
+.list-group-item-action:hover {
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+#searchResults {
+  position: relative;
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background: white;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+#loading-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+.doc-block {
+  transition: all 0.3s ease;
+}
+
+.doc-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+</style>

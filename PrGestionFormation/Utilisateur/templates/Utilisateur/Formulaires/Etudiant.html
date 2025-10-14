@@ -1,0 +1,125 @@
+<!-- Titre -->
+<div class="bg-primary py-3 px-4 rounded mb-4">
+  <h5 class="mb-0 text-center text-white">Informations {{ role_utilisateur }}</h5>
+</div>
+<div class="row">
+   <!-- Sélection de l'année académique -->
+   <div class="col-md-4 mb-3">
+	 <label class="col-sm-12 col-form-label fw-semibold">Année académique</label>
+	 <div class="col-sm-12">
+	   <div class="input-group input-group-merge">
+		 <span class="input-group-text bg-light"><i class="bx bx-calendar-alt"></i></span>
+		 <select id="id_annee" name="annee_academique" class="form-select">
+		   {% for value, label in form.annee_academique.field.choices %}
+			 <option value="{{ value }}" {% if form.annee_academique.value == value %}selected{% endif %}>{{ label }}</option>
+		   {% endfor %}
+		 </select>
+	   </div>
+	   {% if form.annee_academique.errors %}
+		 <div class="text-danger small mt-1">
+		   {% for error in form.annee_academique.errors %}
+			 <div>⚠️ {{ error }}</div>
+		   {% endfor %}
+		 </div>
+	   {% endif %}
+	 </div>
+   </div>
+   
+   <!-- Parcours -->
+   <div class="col-md-4 mb-3">
+	 <label class="col-sm-12 col-form-label fw-semibold">Parcours</label>
+	 <div class="col-sm-12">
+	   <div class="input-group input-group-merge">
+		 <span class="input-group-text bg-light"><i class="bx bx-book"></i></span>
+		 <select id="id_parcours" name="parcours" class="form-select">
+		   <option value="">---------</option>
+		 </select>
+	   </div>
+	   {% if form.parcours.errors %}
+		 <div class="text-danger small mt-1">
+		   {% for error in form.parcours.errors %}
+			 <div>⚠️ {{ error }}</div>
+		   {% endfor %}
+		 </div>
+	   {% endif %}
+	 </div>
+   </div>
+   
+   <!-- Classe -->
+   <div class="col-md-4 mb-3">
+	 <label class="col-sm-12 col-form-label fw-semibold">Classe</label>
+	 <div class="col-sm-12">
+	   <div class="input-group input-group-merge">
+		 <span class="input-group-text bg-light"><i class="bx bx-group"></i></span>
+		 <select id="id_classe" name="classe" class="form-select">
+		   <option value="">---------</option>
+		 </select>
+	   </div>
+	   {% if form.classe.errors %}
+		 <div class="text-danger small mt-1">
+		   {% for error in form.classe.errors %}
+			 <div>⚠️ {{ error }}</div>
+		   {% endfor %}
+		 </div>
+	   {% endif %}
+	 </div>
+   </div>
+</div>
+
+
+<!-- Script JavaScript amélioré -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const anneeSelect = document.getElementById('id_annee');
+  const parcoursSelect = document.getElementById('id_parcours');
+  const classeSelect = document.getElementById('id_classe');
+  let parcoursData = [];
+
+  // Réinitialise un <select>
+  function resetSelect(selectElement, placeholder = '---------') {
+    selectElement.innerHTML = '';
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = placeholder;
+    selectElement.appendChild(option);
+  }
+
+  // Charger les parcours lors du changement d'année
+  anneeSelect.addEventListener('change', function () {
+    const anneeId = this.value;
+    resetSelect(parcoursSelect);
+    resetSelect(classeSelect);
+
+    if (!anneeId) return;
+
+    fetch("{% url 'utilisateur:get_parcours_options' %}?annee_academique=" + anneeId)
+      .then(response => response.json())
+      .then(data => {
+        parcoursData = data;
+        data.forEach(parcours => {
+          const option = new Option(parcours.nom, parcours.id);
+          parcoursSelect.add(option);
+        });
+      })
+      .catch(error => {
+        console.error("Erreur lors de la récupération des parcours :", error);
+      });
+  });
+
+  // Charger les classes en fonction du parcours sélectionné
+  parcoursSelect.addEventListener('change', function () {
+    const parcoursId = this.value;
+    resetSelect(classeSelect);
+
+    if (!parcoursId) return;
+
+    const selectedParcours = parcoursData.find(p => p.id == parcoursId);
+    if (selectedParcours) {
+      selectedParcours.classes.forEach(classe => {
+        const option = new Option(classe.nom, classe.id);
+        classeSelect.add(option);
+      });
+    }
+  });
+});
+</script>

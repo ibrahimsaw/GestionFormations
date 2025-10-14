@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV SAWADOGO Ibrahim - Développeur Full-Stack</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+ <style>
+  @media print {
+  html, body {
+    zoom: 90%; /* Tu peux ajuster ici à 120%, 80%, etc. */
+    width: 100%;
+    height: auto;
+  }
+
+  #content {
+    width: 900px !important;
+    max-width: 900px !important;
+    transform: scale(1);
+    transform-origin: top left;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 1cm;
+  }
+
+  .d-print-none {
+    display: none !important;
+  }
+}
+  @media (min-width: 576px) {
+    .col-md-9 {
+        flex: 0 0 auto;
+        width: 75%;
+    }
+}
+  @media (min-width: 576px) {
+    .col-md-3 {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+}
+
+ </style>
+</head>
+<body class="bg-light">
+	<div class="card shadow-lg border-0">
+		<div class="card-body p-4 p-md-5">
+			<!-- Header Section -->
+			<div class="row align-items-center border-bottom border-primary border-3 pb-4 mb-4">
+				<div class="col-12 col-md-3 col-lg-3 text-center mb-3">
+					<div class="border border-primary border-3 rounded bg-light d-flex align-items-center justify-content-center text-muted small lh-sm" style="width: 120px; height: 150px; margin: 0 auto;">
+						Insérer<br>Photo<br>Profil<br>120x150px
+					</div>
+				</div>
+				<div class="col-12 col-md-9 col-lg-9">
+					<h5 class="display-4 fw-bold text-primary text-center text-uppercase mb-2" style="letter-spacing: 1px;">SAWADOGO Ibrahim</h5>
+					<h6 class="h4 text-center text-muted fst-italic fw-normal mb-3">Développeur Full-Stack Senior</h6>
+					<div class="row g-1">
+						<div class="col-12 col-sm-4 col-lg-4">
+							<div class="small text-secondary">
+								<strong class="text-primary"><i class="fas fa-phone me-1"></i> Téléphone:</strong><br>
+								+226 74 53 46 94<br>+226 63 69 69 61
+							</div>
+						</div>
+						<div class="col-12 col-sm-4 col-lg-4">
+							<div class="small text-secondary">
+								<strong class="text-primary"><i class="fas fa-envelope me-1"></i> Email:</strong><br>
+								ibrahimsaw19@gmail.com
+							</div>
+						</div>
+						<div class="col-12 col-sm-4 col-lg-4">
+							<div class="small text-secondary">
+								<strong class="text-primary"><i class="fab fa-linkedin me-1"></i> LinkedIn:</strong><br>
+								linkedin.com/in/ibrahim-swd
+							</div>
+						</div>
+						<div class="col-12 col-sm-4 col-lg-4">
+							<div class="small text-secondary">
+								<strong class="text-primary"><i class="fab fa-github me-1"></i> GitHub:</strong><br>
+								github.com/ibrahimsaw
+							</div>
+						</div>
+						<div class="col-12 col-sm-4 col-lg-4">
+							<div class="small text-secondary">
+								<strong class="text-primary"><i class="fas fa-map-marker-alt me-1"></i> Adresse:</strong><br>
+								Rue 17.418, Pissy Ouagadougou
+							</div>
+						</div>
+						<div class="col-12 col-sm-4 col-lg-4">
+							<div class="small text-secondary">
+								<strong class="text-primary"><i class="fas fa-info-circle me-1"></i> Âge:</strong><br>
+								32 ans • Permis A1 B C
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Profil Professionnel -->
+			<div class="mb-4">
+				<h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Profil Professionnel</h3>
+				<p class=" lh-base" style="text-align: justify;">Développeur Full-Stack passionné avec 8 ans d'expérience dans la conception et le développement d'applications web et mobiles. Expert en technologies modernes (React, Node.js, Python, AWS) avec une forte orientation résultats et esprit d'équipe. Spécialisé dans l'architecture de systèmes scalables et l'optimisation des performances.</p>
+			</div>
+
+			<!-- Compétences Techniques -->
+			<div class="mb-4">
+				 <h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Compétences Techniques</h3>
+				 <div class="row" id="competences-container"></div>
+			 </div>
+
+			<!-- Expérience Professionnelle -->
+			<div style="text-align: justify;" class="mb-4">
+				<h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Expérience Professionnelle</h3>
+				<div class="row">
+				<div class="col-12 col-sm-6 col-md-6 mb-3">
+				  <div class="border-start border-secondary border-3 ps-3 mb-4">
+					  <h4 class="h6 fw-bold text-primary mb-1">Lead Developer Full-Stack</h4>
+					  <p class="small text-muted fst-italic mb-2">TechCorp Solutions | Septembre 2020 - Présent</p>
+					  <ul class="small lh-base">
+						  <li class="mb-1">Encadrement d'une équipe de 5 développeurs sur des projets web complexes</li>
+						  <li class="mb-1">Architecture et développement d'une plateforme e-commerce générant 2M€ de CA annuel</li>
+						  <li class="mb-1">Optimisation des performances : réduction du temps de chargement de 60%</li>
+						  <li class="mb-1">Migration vers une architecture microservices avec Docker et AWS</li>
+					  </ul>
+					  <div class="small text-primary fw-bold">Technologies : React, Node.js, PostgreSQL, AWS, Docker</div>
+				  </div>
+				 </div>
+<div class="col-12 col-sm-6 col-md-6 mb-3">
+				  <div class="border-start border-secondary border-3 ps-3 mb-4">
+					  <h4 class="h6 fw-bold text-primary mb-1">Développeur Full-Stack</h4>
+					  <p class="small text-muted fst-italic mb-2">StartupTech | Janvier 2019 - Août 2020</p>
+					  <ul class="small lh-base">
+						  <li class="mb-1">Développement d'une application SaaS de gestion de projets (5000+ utilisateurs)</li>
+						  <li class="mb-1">Intégration d'APIs tierces (Stripe, Mailchimp, Slack)</li>
+						  <li class="mb-1">Mise en place de tests automatisés et déploiement continu</li>
+						  <li class="mb-1">Collaboration directe avec l'équipe produit et design</li>
+					  </ul>
+					  <div class="small text-primary fw-bold">Technologies : Vue.js, Django, MySQL, GitLab CI/CD</div>
+				  </div>
+</div>
+				 
+				 <div class="col-12 col-sm-6 col-md-6 mb-3">
+
+				  <div class="border-start border-secondary border-3 ps-3 mb-4">
+					  <h4 class="h6 fw-bold text-primary mb-1">Développeur Frontend</h4>
+					  <p class="small text-muted fst-italic mb-2">WebAgency Pro | Mars 2017 - Décembre 2018</p>
+					  <ul class="small lh-base">
+						  <li class="mb-1">Création de sites web responsives pour des clients grands comptes</li>
+						  <li class="mb-1">Intégration de maquettes Figma/Photoshop avec pixel-perfect</li>
+						  <li class="mb-1">Optimisation SEO et performances web (PageSpeed 90+)</li>
+						  <li class="mb-1">Formation des clients sur les CMS (WordPress, Drupal)</li>
+					  </ul>
+					  <div class="small text-primary fw-bold">Technologies : React, WordPress, PHP, SASS</div>
+				  </div>
+				  </div>
+				 
+		   <div class="col-12 col-sm-6 col-md-4 mb-6">
+				  <div class="border-start border-secondary border-3 ps-3 mb-4">
+					  <h4 class="h6 fw-bold text-primary mb-1">Développeur Junior</h4>
+					  <p class="small text-muted fst-italic mb-2">Digital Solutions | Juin 2016 - Février 2017</p>
+					  <ul class="small lh-base">
+						  <li class="mb-1">Développement de modules e-commerce sous Prestashop et Magento</li>
+						  <li class="mb-1">Maintenance et debug d'applications legacy</li>
+						  <li class="mb-1">Support technique client et documentation</li>
+					  </ul>
+					  <div class="small text-primary fw-bold">Technologies : PHP, MySQL, jQuery, CSS</div>
+				  </div>
+			</div>
+			 </div>
+			 </div>
+
+			<!-- Projets Personnels -->
+			<div class="mb-4">
+				<h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Projets Personnels & Contributions</h3>
+				 <div class="row">
+				  <div class="col-12 col-sm-6 col-md-6 mb-3">
+				<div class="border-start border-secondary border-3 ps-3 mb-4">
+					<h4 class="h6 fw-bold text-primary mb-1">EcoTracker (2023)</h4>
+					<p class="small mb-2">Application mobile de suivi carbone personnel développée en React Native</p>
+					<ul class="small lh-base">
+						<li class="mb-1">1000+ téléchargements sur les stores</li>
+						<li class="mb-1">Intégration d'APIs de géolocalisation et météo</li>
+						<li class="mb-1"><strong>GitHub:</strong> github.com/jpmartin/ecotracker</li>
+					</ul>
+				</div>
+				 </div>
+				 <div class="col-12 col-sm-6 col-md-6 mb-3">
+				<div class="border-start border-secondary border-3 ps-3 mb-4">
+					<h4 class="h6 fw-bold text-primary mb-1">OpenSource Contributor</h4>
+					<ul class="small lh-base">
+						<li class="mb-1">Contributions régulières à des projets React et Node.js</li>
+						<li class="mb-1">50+ pull requests acceptées</li>
+						<li class="mb-1">Maintenance d'une bibliothèque npm avec 500+ téléchargements/semaine</li>
+					</ul>
+				</div>
+				  </div>
+		 </div>
+			</div>
+
+			<!-- Formation -->
+			<div class="mb-4">
+				<h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Formation</h3>
+				
+				<div class="mb-3">
+					<h4 class="h6 fw-bold text-primary mb-1">Master en Informatique</h4>
+					<p class="small text-muted fst-italic mb-2">Université Pierre et Marie Curie | 2014 - 2016</p>
+					<div class="small">
+						Spécialisation : Génie Logiciel et Systèmes Distribués<br>
+						<strong>Mention :</strong> Bien<br>
+						<strong>Projet de fin d'études :</strong> Système de recommandation basé sur machine learning
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<h4 class="h6 fw-bold text-primary mb-1">Licence Informatique</h4>
+					<p class="small text-muted fst-italic mb-2">Université Paris Diderot | 2011 - 2014</p>
+					<div class="small">
+						<strong>Mention :</strong> Assez Bien<br>
+						Stages en entreprise : 6 mois chez IBM France
+					</div>
+				</div>
+			</div>
+
+			<!-- Certifications -->
+			<div class="mb-4">
+				<h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Certifications</h3>
+				<div class="row small text-secondary">
+					<div class="col-sm-6 mb-2"><strong class="text-primary">AWS Certified Solutions Architect</strong> (2022)</div>
+					<div class="col-sm-6 mb-2"><strong class="text-primary">Google Cloud Professional Cloud Architect</strong> (2021)</div>
+					<div class="col-sm-6 mb-2"><strong class="text-primary">Scrum Master Certified (PSM I)</strong> (2020)</div>
+					<div class="col-sm-6 mb-2"><strong class="text-primary">MongoDB Certified Developer</strong> (2019)</div>
+				</div>
+			</div>
+
+			<!-- Langues -->
+			<div class="mb-4">
+				<h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Langues</h3>
+				<div class="row">
+					<div class="col-sm-4 mb-2">
+						<div class="small text-secondary"><strong class="text-primary">Mooré :</strong> Langue maternelle</div>
+					</div>
+					<div class=" col-sm-4 mb-2">
+						<div class="small text-secondary"><strong class="text-primary">Français :</strong> Courant</div>
+					</div>
+					<div class="col-sm-4 mb-2">
+						<div class="small text-secondary"><strong class="text-primary">Anglais :</strong> Notions (TOEIC 920/990)</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Centres d'Intérêt -->
+			<div class="mb-4">
+				<h3 class="h5 fw-bold text-primary text-uppercase border-bottom border-primary border-2 pb-2 mb-3" style="letter-spacing: 0.5px;">Centres d'Intérêt</h3>
+				<div class="small text-secondary lh-base">
+					<strong>Technologie :</strong> Veille technologique, participation à des meetups et conférences tech<br>
+					<strong>Sport :</strong> Course à pied (3 marathons), escalade<br>
+					<strong>Voyage :</strong> 25 pays visités, passion pour la découverte de nouvelles cultures<br>
+					<strong>Bénévolat :</strong> Initiation à la programmation pour des jeunes en quartiers prioritaires
+				</div>
+			</div>
+
+			<!-- Boutons d'export -->
+			<div class="text-center mt-4 d-print-none">
+				<button onclick="generatePDF()" class="btn btn-primary me-2">
+					<i class="fas fa-file-pdf me-1"></i> Exporter en PDF
+				</button>
+				<button onclick="generateWord()" class="btn btn-success">
+					<i class="fas fa-file-word me-1"></i> Exporter en Word
+				</button>
+			</div>
+		</div>
+	</div>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.min.js"></script>
+
+
+	<script>
+        function generatePDF() {
+            window.print();
+        }
+
+        function generateWord() {
+            var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+                         "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+                         "xmlns='http://www.w3.org/TR/REC-html40'>" +
+                         "<head><meta charset='utf-8'><title>Export Word</title></head><body>";
+            var footer = "</body></html>";
+            var sourceHTML = header + document.querySelector('.cv-container').innerHTML + footer;
+
+            var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            var fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'CV_SAWADOGO_Ibrahim.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
+    </script>
+<!-- Partie dynamique pour COMPETENCES -->
+<script>
+    const competences = {
+        "Langages de programmation": [
+            { nom: "JavaScript", pourcentage: 95, couleur: "bg-success" },
+            { nom: "TypeScript", pourcentage: 90, couleur: "bg-info" },
+            { nom: "Python", pourcentage: 85, couleur: "bg-warning" },
+            { nom: "PHP", pourcentage: 80, couleur: "bg-danger" },
+            { nom: "Java", pourcentage: 75, couleur: "bg-primary" },
+            { nom: "HTML5/CSS3", pourcentage: 95, couleur: "bg-success" }
+        ],
+        "Frameworks Frontend": [
+            { nom: "React.js", pourcentage: 90, couleur: "bg-info" },
+            { nom: "Vue.js", pourcentage: 85, couleur: "bg-success" },
+            { nom: "Angular", pourcentage: 70, couleur: "bg-warning" },
+            { nom: "Bootstrap", pourcentage: 95, couleur: "bg-primary" }
+        ],
+        "Frameworks Backend": [
+            { nom: "Node.js", pourcentage: 90, couleur: "bg-success" },
+            { nom: "Express.js", pourcentage: 85, couleur: "bg-info" },
+            { nom: "Django", pourcentage: 80, couleur: "bg-warning" },
+            { nom: "Laravel", pourcentage: 75, couleur: "bg-danger" }
+        ],
+        "Bases de données & Cloud": [
+            { nom: "MySQL", pourcentage: 85, couleur: "bg-primary" },
+            { nom: "MongoDB", pourcentage: 80, couleur: "bg-success" },
+            { nom: "AWS", pourcentage: 75, couleur: "bg-warning" },
+            { nom: "Docker", pourcentage: 70, couleur: "bg-info" }
+        ]
+    };
+
+    function genererCompetences() {
+    const container = document.getElementById("competences-container");
+    for (const [categorie, items] of Object.entries(competences)) {
+        const section = document.createElement("div");
+        section.classList.add("mb-3");
+
+        section.innerHTML = `
+            <h5 class="h6 fw-bold text-primary mb-3 border-bottom border-1 pb-1">${categorie}</h5>
+            <div class="row"></div>
+        `;
+
+        const row = section.querySelector(".row");
+
+        items.forEach(item => {
+            const col = document.createElement("div");
+            col.className = "col-6 col-sm-2 col-md-2 mb-3"; // <== FORCÉ à minimum 2 colonnes
+
+            col.innerHTML = `
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small fw-bold">${item.nom}</span>
+                    <span class="small fw-bold">${item.pourcentage}%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar ${item.couleur}" role="progressbar" style="width: ${item.pourcentage}%" aria-valuenow="${item.pourcentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            `;
+
+            row.appendChild(col);
+        });
+
+        container.appendChild(section);
+    }
+}
+
+
+    document.addEventListener("DOMContentLoaded", genererCompetences);
+</script>
+</body>
+</html>

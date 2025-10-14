@@ -1,0 +1,215 @@
+<div class="bg-primary py-3 px-4 rounded mb-4">
+  <h5 class="mb-0 text-center text-white">Informations {{ role_utilisateur }}</h5>
+</div>
+
+
+  <!-- Barre de recherche -->
+  <div class="input-group mb-3">
+	<span class="input-group-text bg-light">
+	  <i class="bi bi-search"></i>
+	</span>
+	<input type="text" class="form-control" id="searchInput" placeholder="Rechercher une fonction...">
+  </div>
+
+  <!-- Sélection globale -->
+  <div class="form-check mb-3">
+	<input class="form-check-input" type="checkbox" id="selectAllFonctions">
+	<label class="form-check-label" for="selectAllFonctions">
+	  Tout sélectionner / Désélectionner
+	</label>
+  </div>
+
+  <div class="row">
+	<div class="col-md-6">
+	  <!-- Fonctions sélectionnées -->
+	  <h5 class="section-title mt-4" id="selectedTitle" style="display:none;">Fonctions sélectionnées</h5>
+	  <ul class="list-group mb-4" id="selectedList"></ul>
+	</div>
+
+	<div class="col-md-6">
+	  <!-- Fonctions disponibles -->
+	  <h5 class="section-title">Fonctions disponibles</h5>
+	  <ul class="list-group" id="itemList"></ul>
+	</div>
+  </div>
+
+  <!-- Champ caché pour Django -->
+  <input type="hidden" name="fonctions_json" id="fonctionsJson" value="">
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const fonctionItems = [
+      {% for fonction in form.fonctions.field.queryset %}
+      {
+        id: {{ fonction.pk }},
+        nom: "{{ fonction.nom|escapejs }}",
+        description: "{{ fonction.description|escapejs }}",
+        responsabilites: [
+          {% for resp in fonction.responsabilites %}
+            "{{ resp|escapejs }}"{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        selected: {% if fonction in form.instance.fonctions.all %}true{% else %}false{% endif %}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const selectedItems = new Map();
+    const searchInput = document.getElementById("searchInput");
+    const selectedList = document.getElementById("selectedList");
+    const selectedTitle = document.getElementById("selectedTitle");
+    const itemList = document.getElementById("itemList");
+    const selectAllCheckbox = document.getElementById("selectAllFonctions");
+    const fonctionsJsonInput = document.getElementById("fonctionsJson");
+
+    fonctionItems.forEach(item => {
+      if (item.selected) selectedItems.set(item.id, item);
+    });
+
+    function updateHiddenInput() {
+      fonctionsJsonInput.value = JSON.stringify(Array.from(selectedItems.keys()));
+    }
+
+    function updateSelectAllState() {
+      const total = fonctionItems.length;
+      const selected = selectedItems.size;
+      selectAllCheckbox.checked = selected === total;
+      selectAllCheckbox.indeterminate = selected > 0 && selected < total;
+    }
+
+    function createListItem(item, isSelected) {
+      const li = document.createElement("li");
+      li.className = `list-group-item d-flex gap-3 ${isSelected ? 'bg-light' : ''}`;
+      li.dataset.id = item.id;
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "form-check-input flex-shrink-0 mt-1";
+      checkbox.checked = isSelected;
+      checkbox.value = item.id;
+      checkbox.name = "fonctions";
+      checkbox.id = `fonction-${item.id}`;
+
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          selectedItems.set(item.id, item);
+        } else {
+          selectedItems.delete(item.id);
+        }
+        updateSelectAllState();
+        renderLists();
+        updateHiddenInput();
+      });
+
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "w-100";
+
+      const title = document.createElement("h6");
+      title.className = "mb-1 fw-bold";
+      title.textContent = item.nom;
+
+      const desc = document.createElement("p");
+      desc.className = "mb-1 small text-muted";
+      desc.textContent = `${item.description} – ${item.responsabilites.length} responsabilité${item.responsabilites.length > 1 ? 's' : ''}`;
+
+      contentDiv.appendChild(title);
+      contentDiv.appendChild(desc);
+
+      if (item.responsabilites.length > 0) {
+        const respContainer = document.createElement("div");
+        respContainer.className = "mt-2";
+
+        const toggleBtn = document.createElement("button");
+        toggleBtn.className = "btn btn-sm btn-outline-secondary py-0 mb-1";
+        toggleBtn.type = "button";
+        toggleBtn.dataset.bsToggle = "collapse";
+        toggleBtn.dataset.bsTarget = `#resp${item.id}`;
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.setAttribute("aria-controls", `resp${item.id}`);
+        toggleBtn.innerHTML = `<i class="bi bi-chevron-down me-1 transition-rotate"></i> Voir les responsabilités`;
+
+        toggleBtn.addEventListener("click", () => {
+          toggleBtn.querySelector("i").classList.toggle("rotate-180");
+        });
+
+        const collapse = document.createElement("div");
+        collapse.className = "collapse";
+        collapse.id = `resp${item.id}`;
+
+        const list = document.createElement("ul");
+        list.className = "list-unstyled small";
+
+        item.responsabilites.forEach(resp => {
+          const li = document.createElement("li");
+          li.innerHTML = `<i class='bi bi-check-circle-fill text-success me-2'></i>${resp}`;
+          list.appendChild(li);
+        });
+
+        collapse.appendChild(list);
+        respContainer.appendChild(toggleBtn);
+        respContainer.appendChild(collapse);
+        contentDiv.appendChild(respContainer);
+      }
+
+      li.appendChild(checkbox);
+      li.appendChild(contentDiv);
+
+      li.addEventListener("click", (e) => {
+        if (!['INPUT', 'BUTTON', 'I', 'A'].includes(e.target.tagName)) {
+          checkbox.checked = !checkbox.checked;
+          checkbox.dispatchEvent(new Event("change"));
+        }
+      });
+
+      return li;
+    }
+
+    function renderLists() {
+      selectedList.innerHTML = "";
+      itemList.innerHTML = "";
+      selectedTitle.style.display = "none";
+
+      const filter = searchInput.value.toLowerCase().trim();
+
+      Array.from(selectedItems.values()).forEach(item => {
+        if (!filter || item.nom.toLowerCase().includes(filter)) {
+          selectedList.appendChild(createListItem(item, true));
+          selectedTitle.style.display = "block";
+        }
+      });
+
+      fonctionItems.forEach(item => {
+        if (!selectedItems.has(item.id) && (!filter || item.nom.toLowerCase().includes(filter))) {
+          itemList.appendChild(createListItem(item, false));
+        }
+      });
+
+      if (filter && selectedList.children.length === 0 && itemList.children.length === 0) {
+        const li = document.createElement("li");
+        li.className = "list-group-item text-muted text-center";
+        li.textContent = "Aucun résultat trouvé";
+        itemList.appendChild(li);
+      }
+    }
+
+    selectAllCheckbox.addEventListener("change", () => {
+      if (selectAllCheckbox.checked) {
+        fonctionItems.forEach(item => selectedItems.set(item.id, item));
+      } else {
+        selectedItems.clear();
+      }
+      renderLists();
+      updateHiddenInput();
+    });
+
+    let searchTimeout;
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(renderLists, 300);
+    });
+
+    updateSelectAllState();
+    updateHiddenInput();
+    renderLists();
+  });
+</script>

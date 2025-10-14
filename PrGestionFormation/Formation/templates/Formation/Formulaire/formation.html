@@ -1,0 +1,95 @@
+<form method="post" class="needs-validation" novalidate>
+  {% csrf_token %}
+  <!-- Parcours -->
+  <div class="row mb-3">
+	<label class="col-sm-3 col-form-label" for="{{ form.parcours.id_for_label }}">Parcours</label>
+	<div class="col-sm-9">
+	  <div class="input-group input-group-merge">
+		<span class="input-group-text"><i class="bx bx-map"></i></span>
+		{{ form.parcours }}
+	  </div>
+	  {% for error in form.parcours.errors %}
+		<div class="invalid-feedback d-block">⚠️ {{ error }}</div>
+	  {% endfor %}
+	</div>
+  </div>
+
+  <!-- Nom -->
+  <div class="row mb-3">
+	<label class="col-sm-3 col-form-label" for="{{ form.nom.id_for_label }}">Nom de la Formation</label>
+	<div class="col-sm-9">
+	  <div class="input-group input-group-merge">
+		<span class="input-group-text"><i class="bx bx-book"></i></span>
+		{{ form.nom }}
+	  </div>
+	  {% for error in form.nom.errors %}
+		<div class="invalid-feedback d-block">⚠️ {{ error }}</div>
+	  {% endfor %}
+	</div>
+  </div>
+
+  <!-- Durée -->
+  <div class="row mb-3" id="duree-field">
+	<label class="col-sm-3 col-form-label" for="{{ form.duree.id_for_label }}">Durée</label>
+	<div class="col-sm-9">
+	  <div class="input-group input-group-merge">
+		<span class="input-group-text"><i class="bx bx-time"></i></span>
+		{{ form.duree }}
+		<span class="input-group-text">mois</span>
+	  </div>
+	  {% for error in form.duree.errors %}
+		<div class="invalid-feedback d-block">⚠️ {{ error }}</div>
+	  {% endfor %}
+	</div>
+  </div>
+
+  <!-- Checkboxes -->
+  <div class="row mb-3">
+	<div class="col-sm-9 offset-sm-3">
+	  <div class="form-check mb-2">
+		{{ form.est_professionnelle }}
+		<label class="form-check-label" for="{{ form.est_professionnelle.id_for_label }}">
+		  Formation professionnelle
+		</label>
+	  </div>
+	  <div class="form-check">
+		{{ form.avec_classes }}
+		<label class="form-check-label" for="{{ form.avec_classes.id_for_label }}">
+		  Générer automatiquement les classes
+		</label>
+	  </div>
+	</div>
+  </div>
+
+  <div class="row justify-content-end">
+	<div class="col-sm-9 offset-sm-3">
+	  <button type="submit" class="btn btn-primary">Enregistrer</button>
+	</div>
+  </div>
+</form>
+
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+   const parcoursSelect = document.getElementById("id_parcours");
+   const dureeField = document.getElementById("duree-field");
+   
+   // Fonction de vérification
+   function checkTypeFormation() {
+	 const selectedOption = parcoursSelect.options[parcoursSelect.selectedIndex];
+	 const selectedText = selectedOption.textContent.toLowerCase();
+	 if (selectedText.includes("professionnel")) {
+	   dureeField.style.display = "flex"; // ou "block"
+	   document.getElementById("id_duree").required = true;
+	 } else {
+	   dureeField.style.display = "none";
+	   document.getElementById("id_duree").required = false;
+	 }
+   }
+   
+   // Initial check
+   checkTypeFormation();
+   
+   // Quand l'utilisateur change le parcours
+   parcoursSelect.addEventListener("change", checkTypeFormation);
+   });
+</script>

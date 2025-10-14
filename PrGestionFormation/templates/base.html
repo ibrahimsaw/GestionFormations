@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include 'includes/head.html' %}
+    <style>
+        /* Conteneur principal */
+        .layout-container {
+            display: flex;
+            height: 100vh;
+            background-color: #dbe0fcff;
+        }
+        .layout-container {
+            display: flex;
+            height: 100vh;
+            background:
+                linear-gradient(rgba(219, 224, 252, 0.6), rgba(219, 224, 252, 0.6)),
+                url('/static/assets/img/illustrations/bg1.jpeg');
+            background-position: center;
+            background-repeat: repeat; /* L'image se répète pour combler tout l'espace */
+            background-size: 200px;
+        }
+
+        /* Masquer la scrollbar mais garder le défilement */
+        .layout-container > :first-child::-webkit-scrollbar {
+            display: none; /* Chrome, Safari et Opera */
+        }
+        
+        /* Contenu principal */
+        .layout-page {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; /* Important pour le contenu défilant */
+        }
+        
+        /* Zone de contenu défilante */
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .content-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="layout-wrapper">
+        <div class="layout-container">
+            <!-- Sidebar (fixe) -->
+            {% include 'includes/sidebar.html' %}
+            <!-- Contenu principal -->
+            <div class="layout-page">
+                <!-- Navbar (fixe en haut) -->
+                <div class="navbar-container">
+                    {% include 'includes/navbar.html' %}
+                </div>
+                <!-- Contenu défilant (sans scrollbar visible) -->
+                <div class="content-wrapper">
+                    <div class="container-xxl flex-grow-1 container-p-y">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <!-- Footer -->
+                {% include 'includes/footer.html' %}
+            </div>
+        </div>
+    </div>
+    {% include 'includes/scripts.html' %}
+</body>
+</html>

@@ -1,0 +1,463 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load dict_extras %}
+{% load form_tags %}
+{% block content %}
+
+<div class="col-xl-12">
+  <div class="row g-3 mb-4 align-items-center justify-content-between">
+         <!-- En-tête avec breadcrumb modernisé -->
+      {% include "nav_ol.html" %}
+	<div class="col-auto">
+		 <div class="page-utilities">
+			<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
+				<div class="col-auto">
+					<form method="get" class="table-search-form row gx-1 align-items-center">
+						<div class="col-auto">
+							<input type="text" id="search-orders" name="q" class="form-control search-orders" placeholder="Rechercher..." value="{{ request.GET.q }}">
+						</div>
+						<div class="col-auto">
+							<button type="submit" class="btn app-btn-secondary">Rechecher</button>
+						</div>
+					</form>
+				</div>
+				<div class="col-auto">
+					<select name="periode" class="form-select w-auto" onchange="this.form.submit()">
+						<option value="" {% if not request.GET.periode %}selected{% endif %}>Tout</option>
+						<option value="semaine" {% if request.GET.periode == "semaine" %}selected{% endif %}>Cette semaine</option>
+						<option value="mois" {% if request.GET.periode == "mois" %}selected{% endif %}>Ce mois</option>
+						<option value="3mois" {% if request.GET.periode == "3mois" %}selected{% endif %}>3 derniers mois</option>
+					</select>
+				</div>
+				<div class="col-auto">
+					<a class="btn app-btn-secondary" onclick="telechargerPDF('Table {{ titre_page }}')">
+						<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+							<path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+						</svg>
+						Télécharger en pdf
+					</a>
+				</div>
+			</div><!--//row-->
+		</div><!--//table-utilities-->
+	</div><!--//col-auto-->
+</div><!--//row-->
+  <div class="nav-align-top mb-4">
+		{% include "Utilisateur/Formulaires/nav.html" %}
+	  {% if role_utilisateur %}
+      <div class="card mb-4">
+		<div class="tab-content">
+			<div class="tab-pane fade show active">
+			 <div class="text-center">
+		  <div class="alert bg-primary">
+			<h5 class="mb-0 text-white">Table {{ titre_page }}
+            <span class="badge bg-white text-dark float-end">{{ paginator.count }}</span>
+            </h5>
+		  </div>
+		</div>
+		<div class="table-responsive scrollbar">
+		  <table id="tableau" class="table table-bordered table-striped fs-10 mb-0">
+			<thead class="bg-200">
+			  <tr>
+				  <th class="text-900 sort">pk</th>
+				  <th class="text-900 sort">Matricule</th>
+				  <th class="text-900 sort">Date d'inscription</th>
+				  <th class="text-900 sort">Nom et Prénom</th>
+<!--				  <th>Prénom</th>-->
+				  <th class="text-900 sort">Genre</th>
+<!--				  <th>Date de Naissance</th>-->
+<!--				  <th>Email</th>-->
+<!--				  <th>Telephone</th>-->
+			   
+			   {% if role_utilisateur == 'Utilisateur' %}
+				  <th class="text-900 sort">Role</th>
+			   {% endif %}
+				  {% if titre_formulaire == "Administrateur Système" %}
+				  <th class="text-900 sort">Superuser</th>
+					{% endif %}
+				  {% if titre_formulaire == "Agent d'Administration" %}
+				  <th class="text-900 sort">Fonction</th>
+					{% endif %}
+				  {% if titre_formulaire == "Parent d'étudiant" %}
+					<th class="text-900 sort">Enfants</th>
+					{% endif %}
+				  {% if titre_formulaire == "Étudiant" %}
+					<th class="text-900 sort">Classe</th>
+					{% endif %}
+				  {% if titre_formulaire == "Enseignant" %}
+					<th class="text-900 sort">Spécialités</th>
+				  <th class="text-900 sort">Autres Spécialités</th>
+					{% endif %}
+				  <th class="text-900 sort">Action</th>
+			  </tr>
+			</thead>
+			  <tbody class="table-border-bottom-0">
+				{% for agent in agents %}
+				<tr>
+					<td>
+					{% if agent.utilisateur.pk %}
+					  {{ agent.utilisateur.pk }}
+					  {% elif agent.pk %}
+					  {{ agent.pk }}
+					{% else %}
+					  <div class="text-warning"> --- </div>
+					{% endif %}
+
+
+				  </td>
+					<td>
+						<a href="
+							{% if role_utilisateur == 'Utilisateur' %}
+								{% url 'utilisateur:utilisateur_detail' role=agent.role|lower pk=agent.pk %}
+							 {% else %}
+								{% url 'utilisateur:utilisateur_detail' role=agent.utilisateur.role|lower pk=agent.pk %}
+							 {% endif %}"
+					   class="text-decoration-none">
+						{% if agent.utilisateur.matricule %}
+							{{ agent.utilisateur.matricule }}
+						{% elif agent.matricule %}
+							{{ agent.matricule }}
+						{% else %}
+							<<div class="text-warning"> --- </div>
+						{% endif %}
+					</a>
+
+					</td>
+
+
+				  <td>
+					{% if agent.utilisateur.date_inscription %}
+					  {{ agent.utilisateur.date_inscription }}
+					  {% elif agent.date_inscription %}
+					  {{ agent.date_inscription }}
+					{% else %}
+					  <div class="text-warning"> --- </div>
+					{% endif %}
+				  </td>
+
+				  <td>
+					  {% if agent.utilisateur.iget_full_name %}
+						   <div class="d-flex align-items-center">
+							 <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center"
+								  style="width: 40px; height: 40px;">
+							   <span class="text-white fw-bold">{{ agent.utilisateur.get_initials }}</span>
+							 </div>
+							 <span class="fw-semibold">{{ agent.utilisateur.iget_full_name }}</span>
+						   </div>
+						 {% elif agent.iget_full_name %}
+						   <div class="d-flex align-items-center">
+							 <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 d-flex align-items-center justify-content-center"
+								  style="width: 40px; height: 40px;">
+							   <span class="text-white fw-bold">{{ agent.get_initials }}</span>
+							 </div>
+							 <span class="fw-semibold">{{ agent.iget_full_name }}</span>
+						   </div>
+						 {% else %}
+						   <span class="text-warning">---</span>
+						 {% endif %}
+					</td>
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.first_name %}-->
+<!--						{{ agent.utilisateur.first_name }}-->
+<!--					  {% elif agent.first_name %}-->
+<!--						{{ agent.first_name }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">---</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+					<td>
+					  {% if agent.utilisateur.genre %}
+						{{ agent.utilisateur.genre }}
+					  {% elif agent.genre %}
+						{{ agent.genre }}
+					  {% else %}
+						<div class="text-center">
+						  <div class="text-warning"> --- </div>
+						</div>
+					  {% endif %}
+					</td>
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.date_nais %}-->
+<!--						{{ agent.utilisateur.date_nais }}-->
+<!--					  {% elif agent.date_nais %}-->
+<!--						{{ agent.date_nais }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">Date de naissance manquante</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.email %}-->
+<!--						{{ agent.utilisateur.email }}-->
+<!--					  {% elif agent.email %}-->
+<!--						{{ agent.email }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">Email manquant</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+<!--					<td>-->
+<!--					  {% if agent.utilisateur.telephone %}-->
+<!--						{{ agent.utilisateur.telephone }}-->
+<!--					  {% elif agent.telephone %}-->
+<!--						{{ agent.telephone }}-->
+<!--					  {% else %}-->
+<!--						<div class="alert alert-warning d-inline">Téléphone manquant</div>-->
+<!--					  {% endif %}-->
+<!--					</td>-->
+				 {% if role_utilisateur == 'Utilisateur' %}
+					<td>
+					  {% if agent.utilisateur.role %}
+						{{ agent.utilisateur.get_role_display_name }}
+					  {% elif agent.role %}
+						{{ agent.get_role_display_name }}
+					  {% else %}
+						<div class="text-warning"> --- </div>
+					  {% endif %}
+					</td>
+				 {% endif %}
+
+					{% if titre_formulaire == "Administrateur Système" %}
+					<td class="text-center">
+                          {% if agent.utilisateur.is_superuser %}
+                            <span class="badge bg-success">
+                              <i class="bx bx-check me-1"></i>Oui
+                            </span>
+                          {% else %}
+                            <span class="badge bg-secondary">
+                              <i class="bx bx-x me-1"></i>Non
+                            </span>
+                          {% endif %}
+                        </td>
+				{% endif %}
+
+					{% if titre_formulaire == "Agent d'Administration" %}
+					 <th>
+						 {% if agent.fonctions.all %}
+							 <div style="display: flex; flex-direction: column; gap: 4px;">
+								 {% for fonction in agent.fonctions.all %}
+									 <span style="display: inline-flex; align-items: center; gap: 6px;">
+										 <i class="bx bx-briefcase-alt" style="color: #696cff;"></i>
+										 {{ fonction.nom }}
+									 </span>
+								 {% endfor %}
+							 </div>
+						 {% else %}
+							 <span class=" text-warning text-muted"> --- </span>
+						 {% endif %}
+					 </th>
+				 {% endif %}
+					{% if titre_formulaire == "Étudiant" %}
+					<th>{{ agent.classe_actuelle }}</th>
+					{% endif %}
+					{% if titre_formulaire == "Parent d'étudiant" %}
+					<th>
+						{% for etudiant in agent.enfants.all %}
+							<div>{{ etudiant.utilisateur.matricule }} {{ etudiant.utilisateur.last_name }} {{ etudiant.utilisateur.first_name }}</div>
+						{% empty %}
+							<div class="text-center">
+							   <div class="text-warning"> --- </div>
+							 </div>
+						{% endfor %}
+					</th>
+					{% endif %}
+					{% if titre_formulaire == "Enseignant" %}
+					<th>
+						{% for specialite in agent.specialites.all %}
+							<div>{{ specialite }}</div>
+						{% empty %}
+							<div class="text-center">
+							  <div class="text-warning"> --- </div>
+							</div>
+						{% endfor %}
+					</th>
+					<td>
+						{% if agent.autres_specialites%}
+							{{ agent.autres_specialites }}
+						{% else %}
+							<div class="text-center">
+							  <div class="text-warning"> --- </div>
+							</div>
+						{% endif %}
+					</td>
+
+					{% endif %}
+
+					<td class="text-end">
+					  <div class="d-flex justify-content-end">
+						<!-- Détails -->
+						<a href="{% if role_utilisateur == 'Utilisateur' %}
+								  #
+								 {% else %}
+								  {% url 'utilisateur:utilisateur_detail' role=agent.utilisateur.role|lower pk=agent.pk %}
+								 {% endif %}"
+						   class="btn btn-link p-0 me-2" title="Détails">
+						  <i class="bx bx-show text-info fs-4"></i>
+						</a>
+					
+						<!-- Modifier -->
+						<a href="{% if role_utilisateur == 'Utilisateur' %}
+								  #
+								 {% else %}
+								  {% url 'utilisateur:utilisateur_modifier' role=agent.utilisateur.role|lower pk=agent.pk %}
+								 {% endif %}"
+						   class="btn btn-link p-0 me-2" title="Modifier">
+						  <i class="bx bx-edit text-warning fs-4"></i>
+						</a>
+					
+						<!-- Supprimer -->
+						<a href="{% if role_utilisateur == 'Utilisateur' %}
+								  #
+								 {% else %}
+								  {% url 'utilisateur:utilisateur_supprimer' role=agent.utilisateur.role|lower pk=agent.pk %}
+								 {% endif %}"
+						   class="btn btn-link p-0" title="Supprimer"
+						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+						  <i class="bx bx-trash text-danger fs-4"></i>
+						</a>
+					  </div>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="5">Aucun agent enregistré.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		  </table>
+		 <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
+{% if is_paginated %}
+  <div class="card-footer bg-light border-0 p-4">
+    <div class="text-center mb-3">
+      <small class="text-muted">
+        Page {{ page_obj.number }} sur {{ paginator.num_pages }} — Total : {{ paginator.count }} éléments
+      </small>
+    </div>
+
+    <nav aria-label="Pagination">
+      <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link rounded-pill me-2" href="?page={{ page_obj.previous_page_number }}">
+              <i class="bx bx-chevron-left"></i>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link rounded-pill me-2">
+              <i class="bx bx-chevron-left"></i>
+            </span>
+          </li>
+        {% endif %}
+
+        {% for num in paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li class="page-item active">
+              <span class="page-link rounded-pill mx-1">{{ num }}</span>
+            </li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+              <a class="page-link rounded-pill mx-1" href="?page={{ num }}">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link rounded-pill ms-2" href="?page={{ page_obj.next_page_number }}">
+              <i class="bx bx-chevron-right"></i>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link rounded-pill ms-2">
+              <i class="bx bx-chevron-right"></i>
+            </span>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+{% endif %}
+
+		</div>
+		</div>
+	</div>
+</div>
+          </div>
+ 
+ <div class="fixed-action-buttons">
+	  <a href="{% url 'utilisateur:utilisateur_create' model_type %}" class="btn btn-add">
+		  <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+	  </a>
+  </div>
+  {% else %}
+  <div class="tab-content">
+	  <div class="tab-pane fade show active">
+		  <div class="alert alert-info d-none d-sm-flex"> {{ erreur }} </br> Choisissez une option en cliquant sur le bouton correspondant.</div>
+          <div class="alert alert-info d-sm-flex d-sm-none mb-3"> {{ erreur }} </br> Choisissez dans la liste deroulante une option en cliquant sur le bouton correspondant.</div>
+	  </div>
+  </div>
+  {% endif %}
+       </div>
+     </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    async function telechargerPDF(titre) {
+        const { jsPDF } = window.jspdf;
+        const element = document.getElementById("tableau");
+
+        // Cibler les lignes du tableau (en-tête et corps)
+        let rows = element.querySelectorAll('tr');
+
+        // Supprimer la dernière colonne de chaque ligne
+        rows.forEach(row => {
+            let cells = row.querySelectorAll('th, td'); // Sélectionne toutes les cellules (th et td)
+            if (cells.length > 0) {
+                cells[cells.length - 1].remove(); // Supprime la dernière cellule (colonne)
+            }
+        });
+
+        const canvas = await html2canvas(element, {
+            scale: 2, // améliore la qualité du rendu
+            useCORS: true
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({
+            orientation: "landscape", // Format paysage
+            unit: "mm",
+            format: "a4"
+        });
+
+        // Définir les marges (en mm)
+        const margin = 10;
+        const pdfWidth = pdf.internal.pageSize.getWidth() - margin * 2;  // Largeur du PDF avec les marges
+        const pdfHeight = pdf.internal.pageSize.getHeight() - margin * 2; // Hauteur du PDF avec les marges
+
+        // Ajouter un titre en haut de la première page
+        pdf.setFontSize(16);
+        pdf.text(titre, margin, margin + 10);  // Utiliser le titre passé en paramètre
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgWidth = pdfWidth;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+        let position = margin + 20; // Position de l'image (en-dessous du titre)
+
+        // Ajouter la première page avec les marges
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+
+        // Si le contenu est plus grand que la hauteur de la page
+        while (position + pdfHeight < imgHeight) {
+            position += pdfHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', margin, -position + margin, imgWidth, imgHeight);
+        }
+
+        // Télécharger le PDF
+        pdf.save("tableau.pdf");
+    }
+</script>
+{% endblock %}
