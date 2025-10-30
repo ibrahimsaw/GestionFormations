@@ -1,10 +1,180 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="col-12">
-  <div class="card mb-4">
-    <h5 class="card-header">Bienvenue</h5>
+<div class="row">
+  <!-- Utilisateur -->
+  <div class="col-12 mb-3">
+    <div class="row justify-content-centerg-3">
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="card p-3 text-center">
+          <h6>Utilisateurs</h6>
+          <strong>{{ count_utilisateurs }}</strong>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="card p-3 text-center">
+          <h6>Agents</h6>
+          <strong>{{ count_agents }}</strong>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="card p-3 text-center">
+          <h6>Enseignants</h6>
+          <strong>{{ count_enseignants }}</strong>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="card p-3 text-center">
+          <h6>Étudiants</h6>
+          <strong>{{ count_etudiants }}</strong>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="card p-3 text-center">
+          <h6>Parents</h6>
+          <strong>{{ count_parents }}</strong>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Graphiques -->
+  <div class="col-lg-6 mb-4">
+    <div class="card p-3">
+      <h6 class="mb-3">Utilisateurs par rôle</h6>
+      <canvas id="chartRoles"></canvas>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="card p-3">
+      <h6 class="mb-3">Formations par type</h6>
+      <canvas id="chartFormations"></canvas>
+    </div>
+  </div>
+
+  <div class="col-12 mb-4">
+    <div class="card p-3">
+      <h6 class="mb-3">Inscriptions (6 derniers mois)</h6>
+      <canvas id="chartInscriptions"></canvas>
+    </div>
+  </div>
+    <!-- Résumé rapide -->
+  <div class="col-12 mb-3">
+    <div class="row g-3">
+      <div class="col-md-2">
+        <div class="card p-3 text-center">
+          <h6>Formations</h6>
+          <strong>{{ formations_count }}</strong>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card p-3 text-center">
+          <h6>Parcours</h6>
+          <strong>{{ formations_count }}</strong>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card p-3 text-center">
+          <h6>Années Académiques</h6>
+          <strong>{{ formations_count }}</strong>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card p-3 text-center">
+          <h6>Classes</h6>
+          <strong>{{ classes_count }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nouveaux graphiques -->
+  <div class="col-lg-6 mb-4">
+    <div class="card p-3">
+      <h6 class="mb-3">Étudiants par formation</h6>
+      <canvas id="chartStudentsByFormation"></canvas>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="card p-3">
+      <h6 class="mb-3">Répartition par genre (étudiants)</h6>
+      <canvas id="chartGender"></canvas>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="card p-3">
+      <h6 class="mb-3">Étudiants par classe (top)</h6>
+      <canvas id="chartStudentsByClass"></canvas>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="card p-3">
+      <h6 class="mb-3">Inscriptions par formation (6 derniers mois)</h6>
+      <canvas id="chartInscriptionsByFormation"></canvas>
+    </div>
+  </div>
+
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // Données injectées depuis le contexte Django
+  const dataRoles = {
+    labels: ['Agents','Enseignants','Étudiants','Parents'],
+    datasets: [{
+      label: 'Nombre',
+      data: {{ roles_data_json|safe }},
+      backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e']
+    }]
+  };
+
+  const ctxRoles = document.getElementById('chartRoles').getContext('2d');
+  new Chart(ctxRoles, { type: 'bar', data: dataRoles, options: { responsive: true } });
+
+  const formationsLabels = {{ formations_labels_json|safe }};
+  const formationsData = {{ formations_data_json|safe }};
+  const ctxForm = document.getElementById('chartFormations').getContext('2d');
+  new Chart(ctxForm, { type: 'doughnut', data: { labels: formationsLabels, datasets: [{ data: formationsData, backgroundColor: ['#36b9cc','#4e73df','#1cc88a','#f6c23e'] }] }, options: { responsive: true } });
+
+  const inscriptionsLabels = {{ inscriptions_labels_json|safe }};
+  const inscriptionsData = {{ inscriptions_data_json|safe }};
+  const ctxIns = document.getElementById('chartInscriptions').getContext('2d');
+  new Chart(ctxIns, { type: 'line', data: { labels: inscriptionsLabels, datasets: [{ label: 'Inscriptions', data: inscriptionsData, borderColor: '#4e73df', fill: false }] }, options: { responsive: true } });
+
+  // Nouveaux charts — sécuriser les valeurs
+  const studentsByFormationLabels = {{ students_by_formation_labels_json|default:'[]'|safe }};
+  const studentsByFormationData = {{ students_by_formation_data_json|default:'[]'|safe }};
+  if (studentsByFormationLabels.length) {
+    const ctxSBF = document.getElementById('chartStudentsByFormation').getContext('2d');
+    new Chart(ctxSBF, { type: 'bar', data: { labels: studentsByFormationLabels, datasets: [{ label: 'Étudiants', data: studentsByFormationData, backgroundColor: '#36b9cc' }] }, options: { responsive: true } });
+  }
+
+  const genderLabels = {{ gender_labels_json|default:'[]'|safe }};
+  const genderData = {{ gender_data_json|default:'[]'|safe }};
+  if (genderLabels.length) {
+    const ctxGender = document.getElementById('chartGender').getContext('2d');
+    new Chart(ctxGender, { type: 'doughnut', data: { labels: genderLabels, datasets: [{ data: genderData, backgroundColor: ['#4e73df','#1cc88a','#f6c23e'] }] }, options: { responsive: true } });
+  }
+
+  const studentsByClassLabels = {{ students_by_class_labels_json|default:'[]'|safe }};
+  const studentsByClassData = {{ students_by_class_data_json|default:'[]'|safe }};
+  if (studentsByClassLabels.length) {
+    const ctxSBC = document.getElementById('chartStudentsByClass').getContext('2d');
+    new Chart(ctxSBC, { type: 'bar', data: { labels: studentsByClassLabels, datasets: [{ label: 'Étudiants', data: studentsByClassData, backgroundColor: '#4e73df' }] }, options: { responsive: true, indexAxis: 'y' } });
+  }
+
+  const inscriptionsByFormationLabels = {{ inscriptions_by_formation_labels_json|default:'[]'|safe }};
+  const inscriptionsByFormationData = {{ inscriptions_by_formation_data_json|default:'[]'|safe }};
+  if (inscriptionsByFormationLabels.length) {
+    const ctxIBF = document.getElementById('chartInscriptionsByFormation').getContext('2d');
+    new Chart(ctxIBF, { type: 'bar', data: { labels: inscriptionsByFormationLabels, datasets: [{ label: 'Inscriptions', data: inscriptionsByFormationData, backgroundColor: '#1cc88a' }] }, options: { responsive: true } });
+  }
+</script>
 
 {% endblock %}

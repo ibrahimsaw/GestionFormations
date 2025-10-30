@@ -1,6 +1,7 @@
 import json
 import logging
 from itertools import chain
+from django.db.models import Count
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -65,6 +66,92 @@ class Bienvenu(BaseContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        from Utilisateur.models import Utilisateur, AgentAdministration, Enseignant, Etudiant, Parent
+        from Formation.models import Formation
+        from Finance.models import Inscription
+        # Comptages par rôle
+        context['count_utilisateurs'] = Utilisateur.objects.count()
+        context['count_agents'] = AgentAdministration.objects.count()
+        context['count_enseignants'] = Enseignant.objects.count()
+        context['count_etudiants'] = Etudiant.objects.count()
+        context['count_parents'] = Parent.objects.count()
+
+        # Formations par type
+        types = Formation.objects.values_list('parcours__type_formation__nom', flat=True)
+        from collections import Counter
+        context['formations_par_type'] = dict(Counter(types))
+
+        # Comptes supplémentaires
+        context['formations_count'] = Formation.objects.count()
+        context['classes_count'] = Classe.objects.count()
+
+        # Calculer la fenêtre temporelle (6 derniers mois)
+        from django.utils import timezone
+        import datetime
+        now = timezone.now()
+        six_months_ago = now - datetime.timedelta(days=180)
+
+        # Répartition des étudiants par formation (étudiants distincts via inscriptions)
+        students_by_formation_qs = Inscription.objects.filter(date_inscription__gte=six_months_ago).values('classe__formation__nom').annotate(nb_etudiants=Count('etudiant', distinct=True))
+        students_by_formation = {item['classe__formation__nom'] or 'Inconnu': item['nb_etudiants'] for item in students_by_formation_qs}
+        context['students_by_formation'] = students_by_formation
+
+        # Répartition par sexe pour les utilisateurs de rôle étudiant
+        from django.db.models import Q
+        try:
+            gender_qs = Utilisateur.objects.filter(role=Utilisateur.Role.ETUDIANT).values('genre__libelle').annotate(count=Count('id'))
+            gender_dist = {g['genre__libelle'] or 'Non précisé': g['count'] for g in gender_qs}
+        except Exception:
+            gender_dist = {}
+        context['gender_distribution'] = gender_dist
+
+        # Nombre d'étudiants par classe (dernière inscription par annee)
+        classes_counts_qs = Classe.objects.annotate(nb_etudiants=Count('inscriptions__etudiant', distinct=True)).values('nom', 'nb_etudiants')
+        classes_counts = {c['nom']: c['nb_etudiants'] for c in classes_counts_qs}
+        context['students_by_class'] = classes_counts
+
+        # Inscriptions par formation (6 derniers mois)
+        inscriptions_by_formation_qs = Inscription.objects.filter(date_inscription__gte=six_months_ago).values('classe__formation__nom').annotate(count=Count('id'))
+        inscriptions_by_formation = {item['classe__formation__nom'] or 'Inconnu': item['count'] for item in inscriptions_by_formation_qs}
+        context['inscriptions_by_formation'] = inscriptions_by_formation
+
+        # Inscriptions par mois (6 derniers mois)
+        inscriptions = Inscription.objects.filter(date_inscription__gte=six_months_ago)
+        mois_counts = {}
+        # Noms des mois en français
+        mois_fr = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+                'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+        
+        for ins in inscriptions:
+            # Format : "octobre 2025"
+            m_num = ins.date_inscription.month - 1  # 0-based index
+            m = f"{mois_fr[m_num]} {ins.date_inscription.year}"
+            mois_counts[m] = mois_counts.get(m, 0) + 1
+        
+        # Trier par date (année-mois) mais garder l'affichage en français
+        context['inscriptions_par_mois'] = dict(sorted(mois_counts.items(), 
+            key=lambda x: f"{x[0].split()[-1]}-{mois_fr.index(x[0].split()[0]):02d}"))
+
+        # Sérialisation JSON pour usage direct en JS
+        import json as _json
+        context['roles_data_json'] = _json.dumps([context['count_agents'], context['count_enseignants'], context['count_etudiants'], context['count_parents']])
+        context['formations_labels_json'] = _json.dumps(list(context['formations_par_type'].keys()))
+        context['formations_data_json'] = _json.dumps(list(context['formations_par_type'].values()))
+        context['inscriptions_labels_json'] = _json.dumps(list(context['inscriptions_par_mois'].keys()))
+        context['inscriptions_data_json'] = _json.dumps(list(context['inscriptions_par_mois'].values()))
+
+        # Sérialisation des nouvelles métriques
+        context['formations_count_json'] = _json.dumps(context['formations_count'])
+        context['classes_count_json'] = _json.dumps(context['classes_count'])
+        context['students_by_formation_labels_json'] = _json.dumps(list(context['students_by_formation'].keys()))
+        context['students_by_formation_data_json'] = _json.dumps(list(context['students_by_formation'].values()))
+        context['gender_labels_json'] = _json.dumps(list(context['gender_distribution'].keys()))
+        context['gender_data_json'] = _json.dumps(list(context['gender_distribution'].values()))
+        context['students_by_class_labels_json'] = _json.dumps(list(context['students_by_class'].keys()))
+        context['students_by_class_data_json'] = _json.dumps(list(context['students_by_class'].values()))
+        context['inscriptions_by_formation_labels_json'] = _json.dumps(list(context['inscriptions_by_formation'].keys()))
+        context['inscriptions_by_formation_data_json'] = _json.dumps(list(context['inscriptions_by_formation'].values()))
+
         context['donne'] = 'autre donnée'
         context['titre_page'] = 'Bienvenue'
         return context
@@ -209,7 +296,7 @@ class UtilisateurBaseView(BaseContextView):
                 'bouton': 'Enregistrer la modification',
                 'titre_page': f"Modification d'un {type_name}" if type_name != "Nom inconnu" else "Modification",
             },
-            'utilisateur_delete': {
+            'utilisateur_supprimer': {
                 'label': 'Suppression',
                 'template': self.template_delete,
                 'bouton': '',
@@ -645,14 +732,25 @@ class UtilisateurUpdateView(UtilisateurBaseView, UpdateView):
 
 
 
+
 class UtilisateurDeleteView(UtilisateurBaseView, DeleteView):
     def get_template_names(self):
-        print("[UtilisateurDeleteView] get_template_names called")
         return [self.template_delete]
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        messages.success(request, f"{self.get_type_name()} supprimé avec succès")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('Utilisateur:utilisateur_list', kwargs={'role': self.model_type})
+
+
 
     def get_object(self, queryset=None):
         print(f"[UtilisateurDeleteView] get_object called with kwargs: {self.kwargs}")
-        self.model_type = self.kwargs.get('type')
+        self.model_type = self.kwargs.get('role')  # cohérent avec tes urls
         if not self.model_type:
             raise Http404("Type d'utilisateur non spécifié")
 
@@ -666,28 +764,23 @@ class UtilisateurDeleteView(UtilisateurBaseView, DeleteView):
     def get_context_data(self, **kwargs):
         print("[UtilisateurDeleteView] get_context_data called")
         context = super().get_context_data(**kwargs)
+        # On affiche Nom Prénom si possible
+        try:
+            nom = self.object.utilisateur.last_name
+            prenom = self.object.utilisateur.first_name
+            object_name = f"{nom} {prenom}"
+        except Exception:
+            object_name = str(self.object)
         context.update({
             'type_name': self.get_type_name(),
-            'object_name': str(self.object),
+            'object_name': object_name,
             'titre_suppression': f"Supprimer {self.get_type_name()}",
-            'type': self.model_type,  # Ajout crucial pour les URLs
-            'pk': self.object.pk  # Ajout crucial pour les URLs
+            'role': self.model_type,   # <-- important : cohérence avec tes URLs
+            'pk': self.object.pk
         })
         print(f"[UtilisateurDeleteView] Final context: {context}")
         return context
 
-    def delete(self, request, *args, **kwargs):
-        print("[UtilisateurDeleteView] delete called")
-        self.object = self.get_object()
-        success_url = self.get_success_url()
-        self.object.delete()
-        messages.success(request, f"{self.get_type_name()} supprimé avec succès")
-        return HttpResponseRedirect(success_url)
-
-    def get_success_url(self):
-        url = reverse('utilisateur_list', kwargs={'type': self.model_type})  # Changé de 'role' à 'type'
-        print(f"[UtilisateurDeleteView] Success URL: {url}")
-        return url
 
 
 

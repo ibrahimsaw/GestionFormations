@@ -261,10 +261,19 @@ class BaseContextView(ContextMixin):
 
         print(message)
 
+        # Ajout du nom de la vue courante pour l'activation du menu
+        current_url_name = None
+        try:
+            if hasattr(self.request, 'resolver_match') and self.request.resolver_match:
+                current_url_name = self.request.resolver_match.url_name
+        except Exception:
+            pass
+
         return {
             "user": user,
             "data": data,
-            "date": datetime.now()
+            "date": datetime.now(),
+            "current_url_name": current_url_name
         }
 
     def get_context_data(self, **kwargs):

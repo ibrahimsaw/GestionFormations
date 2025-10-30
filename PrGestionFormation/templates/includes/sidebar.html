@@ -14,40 +14,63 @@
   </div>
 
   <ul class="menu-inner py-1">
-    <!-- Menu dynamique depuis navbar -->
+    {# Menu dynamique depuis navbar #}
     {% for item in data.navbar %}
       {% if item.bouton == "true" %}
-        <!-- Bouton simple -->
-        <li class="menu-item">
-          <a href="{% url item.url %}" class="menu-link">
-            <i class="menu-icon tf-icons bx bx-home-circle"></i>
-            <div data-i18n="Analytics">{{ item.ul }}</div>
-          </a>
-        </li>
-      {% else %}
-        <!-- Bouton avec sous-menu -->
-        <li class="menu-item has-sub">
-          <a href="javascript:void(0);" class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-layout"></i>
-            <div data-i18n="Layouts">{{ item.ul }}</div>
-          </a>
-
-          <ul class="menu-sub">
-            {% for sous_item in item.liste %}
-              <li class="menu-item">
-                {% if sous_item.url %}
-                  <a href="{% url sous_item.url %}" class="menu-link">
-                  <div data-i18n="Without menu">{{ sous_item.name }}</div>
-                </a>
-                {% else %}
-                  <a href="#" class="menu-link">
-                  <div data-i18n="Without menu">{{ sous_item.name }}</div>
-                </a>
+        {% if item.url %}
+          {% with url_name=item.url|cut:':'|last %}
+            <li class="menu-item{% if current_url_name == url_name %} active{% endif %}">
+              <a href="{% url item.url %}" class="menu-link{% if current_url_name == url_name %} active{% endif %}">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="Analytics">{{ item.name|default:item.ul }}</div>
+              </a>
+            </li>
+          {% endwith %}
+        {% else %}
+          <li class="menu-item">
+            <a href="#" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-home-circle"></i>
+              <div data-i18n="Analytics">{{ item.name|default:item.ul }}</div>
+            </a>
+          </li>
+        {% endif %}
+      {% elif item.liste %}
+        {% with sub_active_found=False %}
+          {% for sous_item in item.liste %}
+            {% if sous_item.url %}
+              {% with url_name=sous_item.url|cut:':'|last %}
+                {% if current_url_name == url_name %}
+                  {% with sub_active_found=True %}{% endwith %}
                 {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        </li>
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+          <li class="menu-item has-sub{% if sub_active_found %} active open{% endif %}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle{% if sub_active_found %} active{% endif %}" aria-haspopup="true" aria-expanded="{% if sub_active_found %}true{% else %}false{% endif %}">
+              <i class="menu-icon tf-icons bx bx-layout"></i>
+              <div data-i18n="Layouts">{{ item.name|default:item.ul }}</div>
+            </a>
+            <ul class="menu-sub">
+              {% for sous_item in item.liste %}
+                {% if sous_item.url %}
+                  {% with url_name=sous_item.url|cut:':'|last %}
+                    <li class="menu-item{% if current_url_name == url_name %} active{% endif %}">
+                      <a href="{% url sous_item.url %}" class="menu-link{% if current_url_name == url_name %} active{% endif %}">
+                        <div data-i18n="Without menu">{{ sous_item.name }}</div>
+                      </a>
+                    </li>
+                  {% endwith %}
+                {% else %}
+                  <li class="menu-item">
+                    <a href="#" class="menu-link">
+                      <div data-i18n="Without menu">{{ sous_item.name }}</div>
+                    </a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </li>
+        {% endwith %}
       {% endif %}
     {% endfor %}
   </ul>

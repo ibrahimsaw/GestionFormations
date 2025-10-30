@@ -165,6 +165,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin,BaseRoleModel):
             # Récupère la configuration des permissions pour ce rôle
             role = self.role
             print(f"Le role : {role}")
+            print(f"Date Inscription : {self.date_inscription}")
             role_perm = RolePermission.objects.get(role=role)
             print(f"Configuration trouvée: {role_perm}")
 

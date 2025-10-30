@@ -94,8 +94,27 @@ def generer_matricule(prefix):
 def generer_telephone():
     return random.choice(["01","02","03","04","05","06","07","08","09","25","50","51","52","53","54","55","56","57","58","59"]) + ''.join(random.choices(string.digits, k=6))
 
-def creer_utilisateur(role, prenom, nom, genre):
-    return Utilisateur.objects.create_user(
+def generer_date_aleatoire_6mois():
+    """Retourne une datetime aware aléatoire comprise entre maintenant et 6 mois en arrière."""
+    import datetime as _dt
+    now = timezone.now()
+    six_months_ago = now - _dt.timedelta(days=180)
+    # durée en secondes
+    total_seconds = int((now - six_months_ago).total_seconds())
+    rand_seconds = random.randint(0, max(0, total_seconds))
+    rand_dt = six_months_ago + _dt.timedelta(seconds=rand_seconds)
+    # s'assurer que la datetime est timezone-aware
+    try:
+        if timezone.is_naive(rand_dt):
+            rand_dt = timezone.make_aware(rand_dt)
+    except Exception:
+        pass
+    return rand_dt
+
+def creer_utilisateur(role, prenom, nom, genre, date_inscription=None):
+    # On crée l'utilisateur puis on met à jour date_inscription si fourni.
+    # Ceci évite de modifier la définition du modèle (auto_now_add=True).
+    user = Utilisateur.objects.create_user(
         matricule=generer_matricule(role[:3]),
         role=role,
         first_name=nettoyer_nom(prenom),
@@ -105,12 +124,29 @@ def creer_utilisateur(role, prenom, nom, genre):
         telephone=generer_telephone(),
         password="passer123"
     )
+    # Si une date d'inscription est fournie, la convertir en datetime aware
+    if date_inscription:
+        import datetime as _dt
+        dt = date_inscription
+        if isinstance(date_inscription, _dt.date) and not isinstance(date_inscription, _dt.datetime):
+            dt = _dt.datetime.combine(date_inscription, _dt.time.min)
+        # Rendre la datetime timezone-aware si nécessaire
+        try:
+            if timezone.is_naive(dt):
+                dt = timezone.make_aware(dt)
+        except Exception:
+            # Si timezone utilities ne sont pas applicables, on ignore
+            pass
+        user.date_inscription = dt
+        user.save(update_fields=['date_inscription'])
+
+    return user
 
 # Admins
 for _ in range(2):
     prenom = random.choice(prenoms_hommes)
     nom = random.choice(noms_famille)
-    user = creer_utilisateur("ADMIN", prenom, nom, genres["H"])
+    user = creer_utilisateur("ADMIN", prenom, nom, genres["H"], date_inscription=generer_date_aleatoire_6mois())
     AdminSysteme.objects.get_or_create(utilisateur=user)
 
 # Agents
@@ -123,7 +159,7 @@ for f in fonctions:
     prenom = random.choice(prenoms_hommes + prenoms_femmes)
     nom = random.choice(noms_famille)
     genre = genres["H"] if prenom in prenoms_hommes else genres["F"]
-    user = creer_utilisateur("AGENT", prenom, nom, genre)
+    user = creer_utilisateur("AGENT", prenom, nom, genre, date_inscription=generer_date_aleatoire_6mois())
     agent = AgentAdministration.objects.create(utilisateur=user)
     agent.fonctions.add(f)
     fonction_counts[f.code] += 1
@@ -134,7 +170,7 @@ while any(c < 3 for c in fonction_counts.values()):
     prenom = random.choice(prenoms_hommes + prenoms_femmes)
     nom = random.choice(noms_famille)
     genre = genres["H"] if prenom in prenoms_hommes else genres["F"]
-    user = creer_utilisateur("AGENT", prenom, nom, genre)
+    user = creer_utilisateur("AGENT", prenom, nom, genre, date_inscription=generer_date_aleatoire_6mois())
     agent = AgentAdministration.objects.create(utilisateur=user)
     # Sélectionner 1 à plusieurs fonctions qui n'ont pas encore 3 agents
     fonctions_dispo = [f for f in fonctions if fonction_counts[f.code] < 3]
@@ -150,7 +186,7 @@ specialites = list(Specialite.objects.all())
 for _ in range(5):
     prenom = random.choice(prenoms_hommes)
     nom = random.choice(noms_famille)
-    user = creer_utilisateur("ENSEIGNANT", prenom, nom, genres["H"])
+    user = creer_utilisateur("ENSEIGNANT", prenom, nom, genres["H"], date_inscription=generer_date_aleatoire_6mois())
     enseignant = Enseignant.objects.create(utilisateur=user)
     enseignant.specialites.set(random.sample(specialites, k=random.randint(1, 2)))
 
@@ -162,7 +198,7 @@ for classe in classes:
         prenom = random.choice(prenoms_hommes + prenoms_femmes)
         nom = random.choice(noms_famille)
         genre = genres["H"] if prenom in prenoms_hommes else genres["F"]
-        user = creer_utilisateur("ETUDIANT", prenom, nom, genre)
+        user = creer_utilisateur("ETUDIANT", prenom, nom, genre, date_inscription=generer_date_aleatoire_6mois())
         etudiant = Etudiant.objects.create(utilisateur=user)
         Inscription.objects.create(
             etudiant=etudiant,
@@ -195,7 +231,7 @@ while etudiants_disponibles:
 
     prenom = random.choice(prenoms_hommes + prenoms_femmes)
     genre = genres["H"] if prenom in prenoms_hommes else genres["F"]
-    user = creer_utilisateur("PARENT", prenom, nom, genre)
+    user = creer_utilisateur("PARENT", prenom, nom, genre, date_inscription=generer_date_aleatoire_6mois())
     parent = Parent.objects.create(utilisateur=user)
     enfants = random.sample(etudiants, k=random.choice([1, 2]))
     parent.enfants.set(enfants)

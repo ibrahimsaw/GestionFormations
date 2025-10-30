@@ -59,7 +59,7 @@
 		  <table id="tableau" class="table table-bordered table-striped fs-10 mb-0">
 			<thead class="bg-200">
 			  <tr>
-				  <th class="text-900 sort">pk</th>
+				  <!-- <th class="text-900 sort">id</th> -->
 				  <th class="text-900 sort">Matricule</th>
 				  <th class="text-900 sort">Date d'inscription</th>
 				  <th class="text-900 sort">Nom et Prénom</th>
@@ -94,17 +94,19 @@
 			  <tbody class="table-border-bottom-0">
 				{% for agent in agents %}
 				<tr>
-					<td>
+					<!-- <td>
 					{% if agent.utilisateur.pk %}
 					  {{ agent.utilisateur.pk }}
+                        {{ forloop.counter }}
 					  {% elif agent.pk %}
 					  {{ agent.pk }}
+                        {{ forloop.counter }}
 					{% else %}
 					  <div class="text-warning"> --- </div>
 					{% endif %}
 
 
-				  </td>
+				  </td> -->
 					<td>
 						<a href="
 							{% if role_utilisateur == 'Utilisateur' %}
@@ -118,7 +120,7 @@
 						{% elif agent.matricule %}
 							{{ agent.matricule }}
 						{% else %}
-							<<div class="text-warning"> --- </div>
+							<div class="text-warning"> --- </div>
 						{% endif %}
 					</a>
 
