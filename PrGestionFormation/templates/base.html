@@ -53,7 +53,10 @@
     <div class="layout-wrapper">
         <div class="layout-container">
             <!-- Sidebar (fixe) -->
-            {% include 'includes/sidebar.html' %}
+            {% if user.role == "ETUDIANT" %}
+            {% else %}
+                {% include 'includes/sidebar.html' %}
+            {% endif %}
             <!-- Contenu principal -->
             <div class="layout-page">
                 <!-- Navbar (fixe en haut) -->
@@ -73,5 +76,6 @@
         </div>
     </div>
     {% include 'includes/scripts.html' %}
+    
 </body>
 </html>

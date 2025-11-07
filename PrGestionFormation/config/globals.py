@@ -228,6 +228,64 @@ navbar = [
     # }
 ]
 
+navbarEtudiant = [
+    {
+        "ul": "Tableau de bord", "bouton": "true", "role": "Etudiant",
+        "url": "utilisateur:bienvenu",
+        "icon": "bx bx-home me-2"
+    },
+    {
+        "ul": "Calendrier", "bouton": "true", "role": "Etudiant",
+        "url": "utilisateur:bienvenu",
+        "icon": "bx bx-calendar me-2"
+    },
+    {
+        "ul": "Profil", "bouton": "true", "role": "Etudiant",
+        "url": "utilisateur:bienvenu",
+        "icon": "bx bx-user me-2"
+    },
+    {
+        "ul": "Notes", "bouton": "true", "role": "Etudiant",
+        "url": "utilisateur:bienvenu",
+        "icon": "bx bx-line-chart me-2"
+    },
+    {
+        "ul": "Cours", "bouton": "true", "role": "Etudiant",
+        "url": "utilisateur:bienvenu",
+        "icon": "bx bx-book me-2"
+    },
+    {
+        "ul": "Documents", "bouton": "true", "role": "Etudiant",
+        "url": "utilisateur:bienvenu",
+        "icon": "bx bx-file me-2"
+    },
+    ]
+
+navbarParent = [
+    {   
+        "ul": "Tableau de bord", "bouton": "true", "role": "Parent",
+        "url": "utilisateur:bienvenu"
+    },
+    ]
+navbarAdmin = [
+    {
+        "ul": "Tableau de bord", "bouton": "true", "role": "Administrateur",
+        "url": "utilisateur:bienvenu"
+    },
+    ]
+navbarAgent = [
+    {
+        "ul": "Tableau de bord", "bouton": "true", "role": "Agent Administratif",
+        "url": "utilisateur:bienvenu"
+    },
+    ]
+navbarEnseignant = [
+    {
+        "ul": "Tableau de bord", "bouton": "true", "role": "Enseignant",
+        "url": "utilisateur:bienvenu"
+    },
+    ]
+
 data = {
     "nom":"Scholar",
     "navbar":navbar,
@@ -246,6 +304,8 @@ class BaseContextView(ContextMixin):
     def get_base_context(self):
         user = self.request.user
         message = ""
+        print("----- Contexte de la vue -----")
+        print("Vue courante :", getattr(user, 'role', None))
 
         if user.is_authenticated:
             message += f"Utilisateur connecté : {user.id} -- "
@@ -261,6 +321,16 @@ class BaseContextView(ContextMixin):
 
         print(message)
 
+        # Choisir le navbar selon le rôle
+        role_navbars = {
+            "ADMIN": navbarAdmin,
+            "AGENT": navbarAgent,
+            "ENSEIGNANT": navbarEnseignant,
+            "ETUDIANT": navbarEtudiant,
+            "PARENT": navbarParent,
+        }
+        navbar_for_user = role_navbars.get(getattr(user, 'role', None), [])
+
         # Ajout du nom de la vue courante pour l'activation du menu
         current_url_name = None
         try:
@@ -269,9 +339,16 @@ class BaseContextView(ContextMixin):
         except Exception:
             pass
 
+        # Construire le JSON dynamique
+        data_dynamic = {
+            "nom": "Scholar",
+            "navbar": navbar_for_user,
+            "title": "Bienvenue",
+        }
+
         return {
             "user": user,
-            "data": data,
+            "data": data_dynamic,
             "date": datetime.now(),
             "current_url_name": current_url_name
         }
@@ -280,3 +357,4 @@ class BaseContextView(ContextMixin):
         context = super().get_context_data(**kwargs)
         context.update(self.get_base_context())
         return context
+

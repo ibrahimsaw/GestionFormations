@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="col-12">
+  <div class="card mb-4">
+    <h5 class="card-header">Bienvenue {{ user.first_name }} {{ user.last_name }} dans votre tableau de bord enseignant.</h5>
+  </div>
+</div>
+{% endblock %}

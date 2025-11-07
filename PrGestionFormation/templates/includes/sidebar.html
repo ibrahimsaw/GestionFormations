@@ -21,7 +21,7 @@
           {% with url_name=item.url|cut:':'|last %}
             <li class="menu-item{% if current_url_name == url_name %} active{% endif %}">
               <a href="{% url item.url %}" class="menu-link{% if current_url_name == url_name %} active{% endif %}">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <i class="menu-icon tf-icons {{ item.icon }}"></i>
                 <div data-i18n="Analytics">{{ item.name|default:item.ul }}</div>
               </a>
             </li>
@@ -73,5 +73,5 @@
         {% endwith %}
       {% endif %}
     {% endfor %}
-  </ul>
+  </ul>   
 </aside>

@@ -17,9 +17,10 @@ from django.utils.decorators import method_decorator
 # views.py
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, TemplateView
+
+from .decorators import access_required
 
 from .forms import *
 from Formation.models import AnneeAcademique, Classe
@@ -60,13 +61,23 @@ class CustomLoginView(View):
             messages.error(request, "Matricule ou mot de passe incorrect.")
             return render(request, self.template_name, {'titre_page': 'Connexion'})
 
-
+@access_required()
 class Bienvenu(BaseContextView, TemplateView):
     template_name = 'Accuiel/bienvenu.html'
+    def get_template_names(self):
+        """Retourne le template selon le rôle de l'utilisateur"""
+        role_templates = {
+            "ADMIN": "Accuiel/bienvenu.html",
+            "AGENT": "Accuiel/dashboard/agent.html",
+            "ENSEIGNANT": "Accuiel/dashboard/enseignant.html",
+            "ETUDIANT": "Accuiel/dashboard/etudiant.html",
+            "PARENT": "Accuiel/dashboard/parent.html",
+        }
+        user_role = getattr(self.request.user, 'role', None)
+        return [role_templates.get(user_role, 'Accuiel/bienvenu.html')]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from Utilisateur.models import Utilisateur, AgentAdministration, Enseignant, Etudiant, Parent
         from Formation.models import Formation
         from Finance.models import Inscription
         # Comptages par rôle
@@ -157,13 +168,15 @@ class Bienvenu(BaseContextView, TemplateView):
         return context
 
 
-
+@access_required()
 def custom_403(request, exception):
     return render(request, 'errors/403.html', {'exception': exception, 'path': request.path, 'user': request.user}, status=403)
 
+@access_required()
 def custom_404(request, exception):
     return render(request, 'errors/404.html', {'exception': exception, 'path': request.path,'data':data}, status=404)
 
+@access_required()
 def custom_500(request):
     return render(request, 'errors/500.html', {'path': ''}, status=500)
 
