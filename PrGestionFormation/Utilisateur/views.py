@@ -67,10 +67,10 @@ class Bienvenu(BaseContextView, TemplateView):
     def get_template_names(self):
         """Retourne le template selon le rôle de l'utilisateur"""
         role_templates = {
-            "ADMIN": "Accuiel/bienvenu.html",
+            "ADMIN": "Accuiel/Admin/bienvenu.html",
             "AGENT": "Accuiel/dashboard/agent.html",
             "ENSEIGNANT": "Accuiel/dashboard/enseignant.html",
-            "ETUDIANT": "Accuiel/dashboard/etudiant.html",
+            "ETUDIANT": "Accuiel/Etudiant/base.html",
             "PARENT": "Accuiel/dashboard/parent.html",
         }
         user_role = getattr(self.request.user, 'role', None)

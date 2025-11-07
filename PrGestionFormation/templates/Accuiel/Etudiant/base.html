@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block content %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    .valid { color: green; }
+    .invalid { color: red; }
+  </style>
+  <div class="col-xl-12">
+         <!-- En-tête avec breadcrumb modernisé -->
+      {% include "nav_ol.html" %}
+	<div class="nav-align-top mb-4">
+	  {% include "./nav.html" %}
+      <div class="card mb-4">
+		 <div class="card-body">
+              <h5 class="card-header">Bienvenue {{ user.first_name }} {{ user.last_name }} dans votre tableau de bord enseignant..</h5>
+			 </div>
+		</div>
+  </div>
+{% endblock %}
