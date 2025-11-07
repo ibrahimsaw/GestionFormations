@@ -20,9 +20,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, TemplateView
 
-from .decorators import access_required
+from ..decorators import access_required
 
-from .forms import *
+from ..forms import *
 from Formation.models import AnneeAcademique, Classe
 from config.globals import BaseContextView, data, navbar
 
@@ -554,15 +554,12 @@ class UtilisateurListView(UtilisateurBaseView, ListView):
 
     def dispatch(self, request, *args, **kwargs):
         self.model_type = kwargs.get('role')
-        if 'pdf' in request.GET:
-            self.paginate_by = None
-        else:
-            self.paginate_by = 10
+        self.paginate_by = None if 'pdf' in request.GET else 10
 
         print(self.model_mapping)
         print(self.model_type)
-        erreur = "Type inconnu."
         if self.model_type not in self.model_mapping:
+            erreur = "Type inconnu."
             print(erreur)
             return super().dispatch(request, *args, **kwargs)
         return super().dispatch(request, *args, **kwargs)

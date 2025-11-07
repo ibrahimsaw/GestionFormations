@@ -2,42 +2,42 @@
 <ul class="nav nav-pills mb-3 nav-fill d-none d-lg-flex" role="tablist">
 
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'frais' %}active{% endif %}" href="#">
+    <a class="nav-link {% if model_type == 'tableau_bord_etudiant' %}active{% endif %}" href="{% url 'utilisateur:tableau_de_bord_etudiant' %}">
       <i class="tf-icons bx bx-home me-2"></i> Tableau de bord
     </a>
   </li>
 
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'paiement' %}active{% endif %}"
-       href="#">
+    <a class="nav-link {% if model_type == 'calendrier_etudiant' %}active{% endif %}"
+       href="{% url 'utilisateur:calendrier_etudiant' %}">
       <i class="tf-icons bx bx-calendar me-2"></i> Calendrier
     </a>
   </li>
 
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'reinscription' %}active{% endif %}"
-       href="#">
+    <a class="nav-link {% if model_type == 'profil_etudiant' %}active{% endif %}"
+       href="{% url 'utilisateur:profil_etudiant' %}">
       <i class="tf-icons bx bx-user me-2"></i> Profil
     </a>
   </li>
   
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'reinscription' %}active{% endif %}"
-       href="#">
+    <a class="nav-link {% if model_type == 'notes_etudiant' %}active{% endif %}"
+       href="{% url 'utilisateur:notes_etudiant' %}">
       <i class="tf-icons bx bx-line-chart me-2"></i> Notes
     </a>
   </li>
 
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'reinscription' %}active{% endif %}"
-       href="#">
+    <a class="nav-link {% if model_type == 'cours_etudiant' %}active{% endif %}"
+       href="{% url 'utilisateur:cours_etudiant' %}">
       <i class="tf-icons bx bx-book me-2"></i> Cours
     </a>
   </li>
 
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'reinscription' %}active{% endif %}"
-       href="#">
+    <a class="nav-link {% if model_type == 'documents_etudiant' %}active{% endif %}"
+       href="{% url 'utilisateur:documents_etudiant' %}">
       <i class="tf-icons bx bx-file me-2"></i> Documents
     </a>
   </li>
@@ -46,8 +46,8 @@
 <!-- ✅ Version mobile (visible uniquement sur petits écrans) -->
 <ul class="nav nav-pills mb-3 nav-fill d-flex d-lg-none" role="tablist">
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'frais' %}active{% endif %}" href="#">
-      <i class="tf-icons bx bx-home me-2"></i> Tableau de bord
+    <a class="nav-link active" href="#">
+      <i class="tf-icons bx bx-home me-2"></i> {{donne}}
     </a>
   </li>
 </ul>

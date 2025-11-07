@@ -14,7 +14,8 @@
 	  {% include "./nav.html" %}
       <div class="card mb-4">
 		 <div class="card-body">
-              <h5 class="card-header">Bienvenue {{ user.first_name }} {{ user.last_name }} dans votre tableau de bord enseignant..</h5>
+        {% block contentetudiant %}
+        {% endblock %}
 			 </div>
 		</div>
   </div>

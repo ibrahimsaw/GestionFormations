@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import *
+from .views.views import *
+from .views.etudiant import *
 
 app_name = 'utilisateur'
 
@@ -44,6 +45,16 @@ urlpatterns = [
     # # path('creation_de_comptes/', views. Creation_de_comptes, name='creation_de_comptes'),
     # # path('liste_utilisateurs/', views. Listes_des_Utilisateurs, name='liste_utilisateurs'),
     path('droits_acces/', Bienvenu.as_view(), name='droits_acces'),
+    
+    ## Etudiant
+    path('tableau_de_bord_etudiant/', EtudiantextViewTableauBord.as_view(), name='tableau_de_bord_etudiant'),
+    path('profil_etudiant/', EtudiantextViewProfil.as_view(), name='profil_etudiant'),
+    path('calendrier_etudiant/', EtudiantextViewCalendrier.as_view(), name='calendrier_etudiant'),
+    path('notes_etudiant/', EtudiantextViewNotes.as_view(), name='notes_etudiant'),
+    path('cours_etudiant/', EtudiantextViewCours.as_view(), name='cours_etudiant'),
+    path('documents_etudiant/', EtudiantextViewDocuments.as_view(), name='documents_etudiant'),
+    
+    
     # path('configuration_generale/', Bienvenu.as_view(), name='configuration_generale'),
     # path('gestion_roles/', Bienvenu.as_view(), name='gestion_roles'),
     # path('activite_systeme/', Bienvenu.as_view(), name='activite_systeme'),
