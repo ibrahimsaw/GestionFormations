@@ -231,32 +231,32 @@ navbar = [
 navbarEtudiant = [
     {
         "ul": "Tableau de bord", "bouton": "true", "role": "Etudiant",
-        "url": "utilisateur:bienvenu",
+        "url": "utilisateur:tableau_de_bord_etudiant",
         "icon": "bx bx-home me-2"
     },
     {
         "ul": "Calendrier", "bouton": "true", "role": "Etudiant",
-        "url": "utilisateur:bienvenu",
+        "url": "utilisateur:calendrier_etudiant",
         "icon": "bx bx-calendar me-2"
     },
     {
         "ul": "Profil", "bouton": "true", "role": "Etudiant",
-        "url": "utilisateur:bienvenu",
+        "url": "utilisateur:profil_etudiant",
         "icon": "bx bx-user me-2"
     },
     {
         "ul": "Notes", "bouton": "true", "role": "Etudiant",
-        "url": "utilisateur:bienvenu",
+        "url": "utilisateur:notes_etudiant",
         "icon": "bx bx-line-chart me-2"
     },
     {
         "ul": "Cours", "bouton": "true", "role": "Etudiant",
-        "url": "utilisateur:bienvenu",
+        "url": "utilisateur:cours_etudiant",
         "icon": "bx bx-book me-2"
     },
     {
         "ul": "Documents", "bouton": "true", "role": "Etudiant",
-        "url": "utilisateur:bienvenu",
+        "url": "utilisateur:documents_etudiant",
         "icon": "bx bx-file me-2"
     },
     ]

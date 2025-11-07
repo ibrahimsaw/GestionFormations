@@ -47,12 +47,12 @@ urlpatterns = [
     path('droits_acces/', Bienvenu.as_view(), name='droits_acces'),
     
     ## Etudiant
-    path('tableau_de_bord_etudiant/', EtudiantextViewTableauBord.as_view(), name='tableau_de_bord_etudiant'),
-    path('profil_etudiant/', EtudiantextViewProfil.as_view(), name='profil_etudiant'),
-    path('calendrier_etudiant/', EtudiantextViewCalendrier.as_view(), name='calendrier_etudiant'),
-    path('notes_etudiant/', EtudiantextViewNotes.as_view(), name='notes_etudiant'),
-    path('cours_etudiant/', EtudiantextViewCours.as_view(), name='cours_etudiant'),
-    path('documents_etudiant/', EtudiantextViewDocuments.as_view(), name='documents_etudiant'),
+    path('tableau_de_bord_etudiant/', TableauBordEtudiantView.as_view(), name='tableau_de_bord_etudiant'),
+    path('profil_etudiant/', ProfilEtudiantView.as_view(), name='profil_etudiant'),
+    path('calendrier_etudiant/', CalendrierEtudiantView.as_view(), name='calendrier_etudiant'),
+    path('notes_etudiant/', NotesEtudiantView.as_view(), name='notes_etudiant'),
+    path('cours_etudiant/', CoursEtudiantView.as_view(), name='cours_etudiant'),
+    path('documents_etudiant/', DocumentsEtudiantView.as_view(), name='documents_etudiant'),
     
     
     # path('configuration_generale/', Bienvenu.as_view(), name='configuration_generale'),
