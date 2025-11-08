@@ -54,6 +54,7 @@
         <div class="layout-container">
             <!-- Sidebar (fixe) -->
             {% if user.role == "ETUDIANT" %}
+                {% include 'includes/sidebar.html' %}
             {% else %}
                 {% include 'includes/sidebar.html' %}
             {% endif %}

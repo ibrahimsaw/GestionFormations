@@ -168,15 +168,15 @@ class Bienvenu(BaseContextView, TemplateView):
         return context
 
 
-@access_required()
+
 def custom_403(request, exception):
     return render(request, 'errors/403.html', {'exception': exception, 'path': request.path, 'user': request.user}, status=403)
 
-@access_required()
+
 def custom_404(request, exception):
     return render(request, 'errors/404.html', {'exception': exception, 'path': request.path,'data':data}, status=404)
 
-@access_required()
+
 def custom_500(request):
     return render(request, 'errors/500.html', {'path': ''}, status=500)
 
@@ -275,8 +275,14 @@ class UtilisateurBaseView(BaseContextView):
     def dispatch(self, request, *args, **kwargs):
         self.message = getattr(self, 'message', '')
         self.view_name = request.resolver_match.view_name.split(':')[-1]
+        
+            
         self.model_type = kwargs.get('role')
 
+        if self.view_name == 'profil_etudiant':
+            self.model_type = 'etudiant'
+            self.view_name = 'utilisateur_detail'
+            
         self.message += f"[dispatch] View name: {self.view_name}\n"
         self.message += f"[dispatch] Type reçu : {self.model_type}\n"
 
@@ -316,7 +322,11 @@ class UtilisateurBaseView(BaseContextView):
                 'titre_page': f"Suppression d'un {type_name}" if type_name != "Nom inconnu" else "Suppression",
             },
         }
-
+        print("################################################################")
+        print("view_name :", self.view_name)
+        print("model_type :", self.model_type)
+        print("template_detail :", self.template_detail)
+        print("################################################################")
         config = view_config.get(self.view_name, {
             'label': 'Action inconnue',
             'template': self.template_form,
@@ -338,7 +348,7 @@ class UtilisateurBaseView(BaseContextView):
         cumulative_path = ''
         self.breadcrumb = []
         for i,part in enumerate(path):
-            cumulative_path += '/' + part
+            cumulative_path += f'/{part}'
             print('name :', part.capitalize())
             print('url :',cumulative_path)
             self.breadcrumb.append({
@@ -379,9 +389,14 @@ class UtilisateurBaseView(BaseContextView):
         return model_class
 
     def get_form_class(self):
-        form_class = self.model_mapping[self.model_type][1]
-        self.message += f"[get_form_class] Classe du formulaire : {form_class}\n"
-        return form_class
+        return self._extracted_from_get_form_class_2(
+            1, '[get_form_class] Classe du formulaire : '
+        )
+
+    def _extracted_from_get_form_class_2(self, arg0, arg1):
+        model_class = self.model_mapping[self.model_type][arg0]
+        self.message += f"{arg1}{model_class}\n"
+        return model_class
 
     def get_form_class_by_type(self, update=False):
         form_class = self.model_mapping[self.model_type][2 if update else 1]
@@ -389,8 +404,7 @@ class UtilisateurBaseView(BaseContextView):
         return form_class
 
     def get_type_name(self):
-        type_info = self.model_mapping.get(self.model_type)
-        if type_info:
+        if type_info := self.model_mapping.get(self.model_type):
             type_name = type_info[-1]
         else:
             type_name = "Nom inconnu"
@@ -416,15 +430,7 @@ class UtilisateurBaseView(BaseContextView):
             'message_debug': self.message,  # Optionnel : pour affichage dans le template
             'breadcrumb': self.breadcrumb,
         })
-
-        # Debug console log
-        # print("[get_context_data] Contexte envoyé :")
-        # for key, value in context.items():
-        #     if key == "form" and value and value.errors:
-        #         print("[get_context_data] Formulaire avec erreurs :")
-        #         print("    form.errors :", value.errors)
-        #     else:
-        #         print(f"    {key}: {value}")
+        
         return context
 
 

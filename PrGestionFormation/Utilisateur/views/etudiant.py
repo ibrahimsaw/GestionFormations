@@ -2,6 +2,8 @@ from django.views.generic import TemplateView
 from django.shortcuts import render
 from .views import *
 
+
+@access_required(roles=['ADMIN', 'AGENT', 'ETUDIANT', 'PARENT'])
 class EtudiantBaseView(BaseContextView, TemplateView):
     """Classe de base pour toutes les vues Étudiant."""
     
@@ -110,11 +112,28 @@ class EtudiantBaseView(BaseContextView, TemplateView):
 # -------------------------
 # Vues Étudiant spécifiques
 # -------------------------
+
 class TableauBordEtudiantView(EtudiantBaseView):
     view_name = 'tableau_bord'
 
-class ProfilEtudiantView(EtudiantBaseView):
-    view_name = 'profil'
+class ProfilEtudiantView(UtilisateurDetailView):
+    model_type = 'etudiant'
+    view_name = 'utilisateur_detail'
+    context_object_name = 'agent'
+    template_detail = 'Utilisateur/Etudiant/profil_etudiant.html'
+
+    def get_object(self, queryset=None):
+        """
+        Retourne l'étudiant lié à l'utilisateur connecté.
+        """
+        model = self.get_model_class()
+        utilisateur = self.request.user  # user connecté
+        
+        # Si ton modèle Etudiant possède un champ OneToOne vers Utilisateur :
+        return model.objects.get(utilisateur=utilisateur)
+
+
+
 
 class CalendrierEtudiantView(EtudiantBaseView):
     view_name = 'calendrier'

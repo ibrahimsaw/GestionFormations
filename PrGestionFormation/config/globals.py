@@ -230,6 +230,11 @@ navbar = [
 
 navbarEtudiant = [
     {
+        "ul": "Liste des utilisateurs", "bouton": "true", "role": "Etudiant",
+        "url": "utilisateur:utilisateur_list",
+        "icon": "bx bx-group"
+    },
+    {
         "ul": "Tableau de bord", "bouton": "true", "role": "Etudiant",
         "url": "utilisateur:tableau_de_bord_etudiant",
         "icon": "bx bx-home me-2"

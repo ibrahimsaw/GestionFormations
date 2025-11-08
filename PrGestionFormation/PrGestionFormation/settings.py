@@ -33,11 +33,6 @@ ALLOWED_HOSTS = ['ibdevexemple.pythonanywhere.com', '127.0.0.1', 'localhost','*'
 
 
 
-handler403 = 'Utilisateur.views.custom_403'
-handler404 = 'Utilisateur.views.custom_404'
-handler500 = 'Utilisateur.views.custom_500'
-
-
 # Application definition
 
 INSTALLED_APPS = [

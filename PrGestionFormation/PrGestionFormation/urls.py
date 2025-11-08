@@ -33,3 +33,8 @@ urlpatterns = [
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+handler403 = 'Utilisateur.views.views.custom_403'
+handler404 = 'Utilisateur.views.views.custom_404'
+handler500 = 'Utilisateur.views.views.custom_500'
