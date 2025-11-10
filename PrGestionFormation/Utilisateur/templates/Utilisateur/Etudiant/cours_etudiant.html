@@ -2,5 +2,76 @@
 {% load static %}
 {% load widget_tweaks %}
 {% block contentetudiant %}
-    <h5 class="card-header">{{ donne }}</h5>
+<div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
+                <!-- Cours -->
+                <!-- En-tête du profil -->
+            <div class="bg-gradient-primary text-white p-4">
+                <div class="d-flex align-items-center">
+                <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+                    <i class="bx bx-book text-primary fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="mb-1 fw-bold">Mes Cours</h3>
+                    <p class="mb-0 opacity-75">Informations sur les modules,leurs Progression et le Prochaine course</p>
+                </div>
+                </div>
+            </div>
+            
+                    <div class="card-body">
+                        <div class="row" id="courses-container">
+                            <!-- Les cours seront générés par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            <script>
+                const studentData = {
+                courses: [
+                { name: "Programmation Web", professor: "Prof. Martin", credits: 6, schedule: "Lundi 14h-17h", progress: 75, color: "primary",horaire: 130 },
+                { name: "Base de Données", professor: "Prof. Dubois", credits: 8, schedule: "Mercredi 9h-12h", progress: 60, color: "success",horaire: 30 },
+                { name: "Algorithmes", professor: "Prof. Leroy", credits: 8, schedule: "Vendredi 8h-11h", progress: 45, color: "warning",horaire: 100 }
+            ]
+            };
+            // Fonction pour générer les cours
+        function generateCourses() {
+            const coursesContainer = document.getElementById('courses-container');
+            
+            studentData.courses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'col-lg-4 col-md-6 mb-4';
+                
+                courseCard.innerHTML = `
+                    <div class="card border-${course.color} h-100">
+                        <div class="card-header bg-${course.color} ${course.color === 'warning' ? 'text-dark' : 'text-white'}">
+                            <h5 class="mb-0">${course.name}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong>Professeur:</strong> ${course.professor}<br>
+                                <strong>Crédit:</strong> ${course.credits} ECTS<br>
+                                <strong>Horaire:</strong> ${course.horaire}
+                            </p>
+                            <div class="mb-3">
+                                <small class="text-muted">Progression:</small>
+                                <div class="progress">
+                                    <div class="progress-bar bg-${course.color}" style="width: ${course.progress}%"></div>
+                                </div>
+                                <small class="text-muted">${course.progress}% complété</small>
+                            </div>
+                            <p class="card-text">
+                                <strong>Prochaine course:</strong> ${course.schedule}<br>
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-sm btn-${course.color}">Voir détails</button>
+                            <button class="btn btn-sm btn-outline-${course.color}">Ressources</button>
+                        </div>
+                    </div>
+                `;
+                coursesContainer.appendChild(courseCard);
+            });
+        }
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', generateCourses);
+            </script>
+
 {% endblock %}

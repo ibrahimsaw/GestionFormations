@@ -2,50 +2,15 @@
 <ul class="nav nav-pills mb-3 nav-fill d-none d-lg-flex" role="tablist">
 
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'tableau_bord_etudiant' %}active{% endif %}" href="{% url 'utilisateur:tableau_de_bord_etudiant' %}">
+    <a class="nav-link {% if model_type == 'tableau_bord_parent' %}active{% endif %}" href="{% url 'utilisateur:tableau_de_bord_parent' %}">
       <i class="tf-icons bx bx-home me-2"></i> Tableau de bord
     </a>
   </li>
 
   <li class="nav-item">
-    <a class="nav-link {% if model_type == 'calendrier_etudiant' %}active{% endif %}"
-       href="{% url 'utilisateur:calendrier_etudiant' %}">
-      <i class="tf-icons bx bx-calendar me-2"></i> Calendrier
-    </a>
-  </li>
-
-  <li class="nav-item">
-    <a class="nav-link {% if model_type == 'etudiant' %}active{% endif %}"
-       href="{% url 'utilisateur:profil_etudiant' %}">
+    <a class="nav-link {% if model_type == 'parent' %}active{% endif %}"
+       href="{% url 'utilisateur:profil_parent' %}">
       <i class="tf-icons bx bx-user me-2"></i> Profil
-    </a>
-  </li>
-  
-  <li class="nav-item">
-    <a class="nav-link {% if model_type == 'notes_etudiant' %}active{% endif %}"
-       href="{% url 'utilisateur:notes_etudiant' %}">
-      <i class="tf-icons bx bx-line-chart me-2"></i> Notes
-    </a>
-  </li>
-
-  <li class="nav-item">
-    <a class="nav-link {% if model_type == 'cours_etudiant' %}active{% endif %}"
-       href="{% url 'utilisateur:cours_etudiant' %}">
-      <i class="tf-icons bx bx-book me-2"></i> Cours
-    </a>
-  </li>
-
-  <li class="nav-item">
-    <a class="nav-link {% if model_type == 'documents_etudiant' %}active{% endif %}"
-       href="{% url 'utilisateur:documents_etudiant' %}">
-      <i class="tf-icons bx bx-file me-2"></i> Documents
-    </a>
-  </li>
-
-  <li class="nav-item">
-    <a class="nav-link {% if model_type == 'assiduite_etudiant' %}active{% endif %}"
-       href="{% url 'utilisateur:assiduite_etudiant' %}">
-      <i class="tf-icons bx bx-calendar-check me-2"></i> Assiduité
     </a>
   </li>
 </ul>

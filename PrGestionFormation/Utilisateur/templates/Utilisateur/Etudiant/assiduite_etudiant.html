@@ -1,0 +1,122 @@
+{% extends 'Accuiel/Etudiant/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block contentetudiant %}
+<div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
+                <!-- Cours -->
+                <!-- En-tête du profil -->
+            <div class="bg-gradient-primary text-white p-4">
+                <div class="d-flex align-items-center">
+                <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+                    <i class="bx bx-calendar-check text-primary fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="mb-1 fw-bold">Assiduité</h3>
+                    <p class="mb-0 opacity-75">Informations sur les Retards, l'Absences et les Présences</p>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Assiduité -->          
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-success">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                                        <h4 class="text-success" id="attendance-rate">95%</h4>
+                                        <small class="text-muted">Taux de présence</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-warning">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-2"></i>
+                                        <h4 class="text-warning" id="total-absences">5</h4>
+                                        <small class="text-muted">Absences totales</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-danger">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-clock fa-3x text-danger mb-2"></i>
+                                        <h4 class="text-danger" id="late-arrivals">3</h4>
+                                        <small class="text-muted">Retards</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-calendar-times fa-3x text-info mb-2"></i>
+                                        <h4 class="text-info" id="justified-absences">2</h4>
+                                        <small class="text-muted">Abs. justifiées</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Matière</th>
+                                        <th>Type</th>
+                                        <th>Motif</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table">
+                                    <!-- Données d'assiduité générées par JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <script>
+                const child = {
+            attendance: [
+                { date: "2025-01-15", subject: "Mathématiques", type: "Absence", reason: "Maladie", status: "Justifiée" },
+                { date: "2025-01-12", subject: "Physique", type: "Retard", reason: "Transport", status: "Justifiée" },
+                { date: "2025-01-10", subject: "Français", type: "Absence", reason: "Non justifiée", status: "Non justifiée" }
+            ],
+            };
+            // Chargement de l'assiduité
+function loadAttendance() {
+    const attendanceTable = document.getElementById('attendance-table');
+    attendanceTable.innerHTML = '';
+    
+    // Mise à jour des statistiques
+    const totalAbsences = child.attendance.filter(a => a.type === 'Absence').length;
+    const lateArrivals = child.attendance.filter(a => a.type === 'Retard').length;
+    const justifiedAbsences = child.attendance.filter(a => a.status === 'Justifiée').length;
+    const attendanceRate = Math.round((1 - totalAbsences / 100) * 100);
+    
+    document.getElementById('attendance-rate').textContent = attendanceRate + '%';
+    document.getElementById('total-absences').textContent = totalAbsences;
+    document.getElementById('late-arrivals').textContent = lateArrivals;
+    document.getElementById('justified-absences').textContent = justifiedAbsences;
+    
+    child.attendance.forEach(attendance => {
+        const row = document.createElement('tr');
+        const statusBadge = attendance.status === 'Justifiée' ? 'bg-success' : 'bg-danger';
+        const typeIcon = attendance.type === 'Absence' ? 'fa-times' : 'fa-clock';
+        
+        row.innerHTML = `
+            <td>${attendance.date}</td>
+            <td>${attendance.subject}</td>
+            <td><i class="fas ${typeIcon} me-2"></i>${attendance.type}</td>
+            <td>${attendance.reason}</td>
+            <td><span class="badge ${statusBadge}">${attendance.status}</span></td>
+        `;
+        attendanceTable.appendChild(row);
+    });
+}
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', loadAttendance);
+            </script>
+
+{% endblock %}

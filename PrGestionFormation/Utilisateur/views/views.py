@@ -282,7 +282,11 @@ class UtilisateurBaseView(BaseContextView):
         if self.view_name == 'profil_etudiant':
             self.model_type = 'etudiant'
             self.view_name = 'utilisateur_detail'
-            
+        
+        if self.view_name == 'profil_parent':
+            self.model_type = 'parent'
+            self.view_name = 'utilisateur_detail'
+        
         self.message += f"[dispatch] View name: {self.view_name}\n"
         self.message += f"[dispatch] Type reçu : {self.model_type}\n"
 

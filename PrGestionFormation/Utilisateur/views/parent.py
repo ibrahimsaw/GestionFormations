@@ -4,10 +4,10 @@ from .views import *
 
 
 @access_required(roles=['ADMIN', 'AGENT', 'ETUDIANT', 'PARENT'])
-class EtudiantBaseView(BaseContextView, TemplateView):
+class ParentBaseView(BaseContextView, TemplateView):
     """Classe de base pour toutes les vues Étudiant."""
     
-    template_name = 'Utilisateur/Etudiant/default.html'  # template par défaut
+    template_name = 'Utilisateur/Parent/default.html'  # template par défaut
     view_name = ""
     page = ""
     bouton = ""
@@ -18,40 +18,15 @@ class EtudiantBaseView(BaseContextView, TemplateView):
 
     # Mapping pour automatiser template et libellé
     view_mapping = {
-        'tableau_de_bord_etudiant': {
-            'template': 'Utilisateur/Etudiant/tableau_de_bord_etudiant.html',
-            'label': 'Tableau de Bord Étudiant',
-            'model_type': 'tableau_bord_etudiant'
+        'tableau_de_bord_parent': {
+            'template': 'Utilisateur/Parent/tableau_de_bord_parent.html',
+            'label': 'Tableau de Bord Parent',
+            'model_type': 'tableau_bord_parent'
         },
-        'profil_etudiant': {
-            'template': 'Utilisateur/Etudiant/profil_etudiant.html',
-            'label': 'Profil Étudiant',
-            'model_type': 'profil_etudiant'
-        },
-        'calendrier_etudiant': {
-            'template': 'Utilisateur/Etudiant/calendrier_etudiant.html',
-            'label': 'Calendrier Étudiant',
-            'model_type': 'calendrier_etudiant'
-        },
-        'notes_etudiant': {
-            'template': 'Utilisateur/Etudiant/notes_etudiant.html',
-            'label': 'Notes Étudiant',
-            'model_type': 'notes_etudiant'
-        },
-        'cours_etudiant': {
-            'template': 'Utilisateur/Etudiant/cours_etudiant.html',
-            'label': 'Cours Étudiant',
-            'model_type': 'cours_etudiant'
-        },
-        'documents_etudiant': {
-            'template': 'Utilisateur/Etudiant/documents_etudiant.html',
-            'label': 'Documents Étudiant',
-            'model_type': 'documents_etudiant'
-        },
-        'assiduite_etudiant': {
-            'template': 'Utilisateur/Etudiant/assiduite_etudiant.html',
-            'label': 'Assiduité Étudiant',
-            'model_type': 'assiduite_etudiant'
+        'profil_parent': {
+            'template': 'Utilisateur/Parent/profil_parent.html',
+            'label': 'Profil Parent',
+            'model_type': 'profil_parent'
         },
     }
 
@@ -80,7 +55,7 @@ class EtudiantBaseView(BaseContextView, TemplateView):
         print(self.view_mapping)
         if self.view_name not in self.view_mapping:
             self.message += "[dispatch] Vue non reconnue, chargement erreur.\n"
-            return render(request, 'Utilisateur/Etudiant/error.html', {
+            return render(request, 'Utilisateur/Parent/error.html', {
                 'erreur': "Vue inconnue.",
                 'message': self.message,
                 'page': self.page,
@@ -118,14 +93,16 @@ class EtudiantBaseView(BaseContextView, TemplateView):
 # Vues Étudiant spécifiques
 # -------------------------
 
-class TableauBordEtudiantView(EtudiantBaseView):
+class TableauBordParentView(ParentBaseView):
     view_name = 'tableau_bord'
+    context_object_name = 'agent'
+    
 
-class ProfilEtudiantView(UtilisateurDetailView):
-    model_type = 'etudiant'
+class ProfilParentView(UtilisateurDetailView):
+    model_type = 'parent'
     view_name = 'utilisateur_detail'
     context_object_name = 'agent'
-    template_detail = 'Utilisateur/Etudiant/profil_etudiant.html'
+    template_detail = 'Utilisateur/Parent/profil_parent.html'
 
     def get_object(self, queryset=None):
         """
@@ -138,19 +115,3 @@ class ProfilEtudiantView(UtilisateurDetailView):
         return model.objects.get(utilisateur=utilisateur)
 
 
-
-
-class CalendrierEtudiantView(EtudiantBaseView):
-    view_name = 'calendrier'
-
-class NotesEtudiantView(EtudiantBaseView):
-    view_name = 'notes'
-
-class CoursEtudiantView(EtudiantBaseView):
-    view_name = 'cours'
-
-class DocumentsEtudiantView(EtudiantBaseView):
-    view_name = 'documents'
-
-class AssiduiteEtudiantView(EtudiantBaseView):
-    view_name = 'assiduite'

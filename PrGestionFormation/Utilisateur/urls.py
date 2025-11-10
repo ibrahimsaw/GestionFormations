@@ -1,4 +1,6 @@
 from django.urls import path
+
+from .views.parent import *
 from .views.views import *
 from .views.etudiant import *
 
@@ -53,7 +55,11 @@ urlpatterns = [
     path('notes_etudiant/', NotesEtudiantView.as_view(), name='notes_etudiant'),
     path('cours_etudiant/', CoursEtudiantView.as_view(), name='cours_etudiant'),
     path('documents_etudiant/', DocumentsEtudiantView.as_view(), name='documents_etudiant'),
+    path('assiduite_etudiant/', AssiduiteEtudiantView.as_view(), name='assiduite_etudiant'),
     
+## Parent
+    path('tableau_de_bord_parent/', TableauBordParentView.as_view(), name='tableau_de_bord_parent'),
+    path('profil_parent/', ProfilParentView.as_view(), name='profil_parent'),
     
     # path('configuration_generale/', Bienvenu.as_view(), name='configuration_generale'),
     # path('gestion_roles/', Bienvenu.as_view(), name='gestion_roles'),

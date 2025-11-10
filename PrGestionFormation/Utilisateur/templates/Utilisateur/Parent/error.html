@@ -1,0 +1,24 @@
+{% extends 'Accuiel/Parent/base.html' %}
+{% load static %}
+
+{% block contentetudiant %}
+<link rel="stylesheet" href="{% static 'assets/vendor/css/pages/page-misc.css' %}" />
+
+<div class="container-xxl container-p-y">
+    <div class="misc-wrapper">
+        <h2 class="mb-2 mx-2">Erreur - Vue non trouvée</h2>
+        <p class="mb-4 mx-2">Oops! 😖 La vue demandée n'existe pas ou est inaccessible.</p>
+        <p class="mx-2">Chemin demandé : {{ path }}</p>
+        <a href="{% url 'utilisateur:tableau_de_bord_parent' %}" class="btn btn-primary">
+            Retour à l'accueil Parent
+        </a>
+        <div class="mt-3">
+            <img src="{% static 'illustrations/page-misc-error-light.png' %}" 
+                alt="Erreur" width="500" class="img-fluid" />
+        </div>
+        {% if message_debug %}
+            <pre class="mt-3 text-danger">{{ message_debug }}</pre>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

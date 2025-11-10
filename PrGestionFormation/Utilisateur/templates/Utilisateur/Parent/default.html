@@ -1,0 +1,18 @@
+{% extends 'Accuiel/Parent/base.html' %}
+{% load static %}
+
+{% block contentetudiant %}
+<div class="container-xxl container-p-y">
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ titre_page }}</h4>
+        </div>
+        <div class="card-body">
+            <p>{{ donne }}</p>
+            {% if message_debug %}
+                <pre class="text-muted">{{ message_debug }}</pre>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
