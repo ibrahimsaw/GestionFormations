@@ -107,6 +107,11 @@ navbarParent = [
         "url": "utilisateur:profil_parent",
         "icon": "bx bx-user me-2"
     },
+    {
+        "ul": "Enfants", "bouton": "true", "role": "Parent",
+        "url": "utilisateur:enfants_parent",
+        "icon": "bx bx-group me-2"
+    },
     ]
 navbarAdmin = [
     {
@@ -133,6 +138,7 @@ data = {
     "title":"title",
 }
 
+import contextlib
 from datetime import datetime
 
 from django.views.generic.base import ContextMixin
@@ -145,11 +151,6 @@ class BaseContextView(ContextMixin):
     def get_base_context(self):
         user = self.request.user
         message = ""
-        print("----- Contexte de la vue de base -----")
-        print("Récupération des informations utilisateur...")
-        print(f"Utilisateur : {user}")
-        print(f"Authentifié : {user.is_authenticated}")
-        print(f"Enfants du parent : {user.parent.enfants.all() if hasattr(user, 'parent') else 'N/A'}")
         if user.is_authenticated:
             message += f"Utilisateur connecté : {user.id} -- "
             message += f"Rôle de l'utilisateur : {user.role} -- "
@@ -176,11 +177,9 @@ class BaseContextView(ContextMixin):
 
         # Ajout du nom de la vue courante pour l'activation du menu
         current_url_name = None
-        try:
-            if hasattr(self.request, 'resolver_match') and self.request.resolver_match:
-                current_url_name = self.request.resolver_match.url_name
-        except Exception:
-            pass
+        with contextlib.suppress(Exception):
+             if hasattr(self.request, 'resolver_match') and self.request.resolver_match:
+                 current_url_name = self.request.resolver_match.url_name
 
         # Construire le JSON dynamique
         data_dynamic = {

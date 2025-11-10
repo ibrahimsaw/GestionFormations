@@ -1,0 +1,109 @@
+<!-- ✅ Barre de navigation visible sur écrans moyens et grands -->
+<ul class="nav nav-pills mb-3 nav-fill d-none d-lg-flex" role="tablist">
+  <li class="nav-item">
+    <a
+      class="nav-link {% if model_type == 'tableau_bord_etudiant' %}active{% endif %}"
+      href="{% url 'utilisateur:tableau_de_bord_etudiant' %}"
+    >
+      <i class="tf-icons bx bx-home me-2"></i> Vue d'ensemble
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a
+      class="nav-link {% if model_type == 'calendrier_etudiant' %}active{% endif %}"
+      href="{% url 'utilisateur:calendrier_etudiant' %}"
+    >
+      <i class="tf-icons bx bx-calendar me-2"></i> Calendrier
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a
+      class="nav-link {% if model_type == 'notes_etudiant' %}active{% endif %}"
+      href="{% url 'utilisateur:notes_etudiant' %}"
+    >
+      <i class="tf-icons bx bx-line-chart me-2"></i> Notes
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a
+      class="nav-link {% if model_type == 'documents_etudiant' %}active{% endif %}"
+      href="{% url 'utilisateur:documents_etudiant' %}"
+    >
+      <i class="tf-icons bx bx-file me-2"></i> Documents
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a
+      class="nav-link {% if model_type == 'assiduite_etudiant' %}active{% endif %}"
+      href="{% url 'utilisateur:assiduite_etudiant' %}"
+    >
+      <i class="tf-icons bx bx-calendar-check me-2"></i> Assiduité
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a
+      class="nav-link {% if model_type == 'cours_etudiant' %}active{% endif %}"
+      href="{% url 'utilisateur:cours_etudiant' %}"
+    >
+      <i class="tf-icons bx bx-book me-2"></i> Communications
+    </a>
+  </li>
+</ul>
+
+<!-- ✅ Version mobile (visible uniquement sur petits écrans) -->
+<ul class="nav nav-pills mb-3 nav-fill d-flex d-lg-none" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" href="#">
+      <i class="tf-icons bx bx-home me-2"></i> {{donne}}
+    </a>
+  </li>
+</ul>
+<!-- ✅ Style -->
+<style>
+  #roleSelect {
+    color: white;
+    background-color: #696cff;
+    padding-left: 2rem;
+  }
+  #roleSelect option {
+    color: #000;
+    background-color: #fff;
+  }
+</style>
+
+<!-- ✅ Script -->
+<script>
+  function updateRoleIcon() {
+    const select = document.getElementById("roleSelect");
+    const icon = document.getElementById("roleIcon");
+    const value = select.options[select.selectedIndex].text.trim();
+
+    icon.className = "tf-icons position-absolute";
+    icon.style.color = "#fff";
+    icon.style.left = "10px";
+    icon.style.top = "50%";
+    icon.style.transform = "translateY(-50%)";
+
+    switch (value) {
+      case "Frais":
+        icon.classList.add("bx", "bx-money");
+        break;
+      case "Paiements":
+        icon.classList.add("bx", "bx-credit-card");
+        break;
+      case "Statut de l'inscription":
+        icon.classList.add("bx", "bx-book");
+        break;
+      default:
+        icon.classList.add("bx", "bx-user");
+    }
+  }
+
+  // Initialisation
+  updateRoleIcon();
+</script>

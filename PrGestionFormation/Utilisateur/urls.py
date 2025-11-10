@@ -60,6 +60,8 @@ urlpatterns = [
 ## Parent
     path('tableau_de_bord_parent/', TableauBordParentView.as_view(), name='tableau_de_bord_parent'),
     path('profil_parent/', ProfilParentView.as_view(), name='profil_parent'),
+    path('enfants_parent/', EnfantsParentView.as_view(), name='enfants_parent'),
+    path("enfant/<uuid:pk>/", EnfantDetailView.as_view(), name="enfant_detail"),
     
     # path('configuration_generale/', Bienvenu.as_view(), name='configuration_generale'),
     # path('gestion_roles/', Bienvenu.as_view(), name='gestion_roles'),

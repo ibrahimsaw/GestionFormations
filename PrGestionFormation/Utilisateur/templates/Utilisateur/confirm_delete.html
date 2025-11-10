@@ -1,7 +1,4 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 <div class="container py-5">
   <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
     <!-- Bande rouge de danger -->
@@ -23,16 +20,17 @@
       <div class="alert alert-danger border-0 mb-4">
         <i class="bx bx-error-circle me-2 fs-4"></i>
         <div>
-          <h6 class="alert-heading fw-bold mb-1">⚠️ Attention : Action irréversible</h6>
+          <h6 class="alert-heading fw-bold mb-1">
+            ⚠️ Attention : Action irréversible
+          </h6>
           <p class="mb-0">
-            {% if object_name %}
-              Vous êtes sur le point de supprimer définitivement 
-              <strong>ID unique : {{ pk }}</strong>.
-            {% else %}
-              Vous êtes sur le point de supprimer un compte utilisateur.
-            {% endif %}
-            <br>
-            Cette action ne peut pas être annulée et toutes les données associées seront perdues.
+            {% if object_name %} Vous êtes sur le point de supprimer
+            définitivement
+            <strong>ID unique : {{ pk }}</strong>. {% else %} Vous êtes sur le
+            point de supprimer un compte utilisateur. {% endif %}
+            <br />
+            Cette action ne peut pas être annulée et toutes les données
+            associées seront perdues.
           </p>
         </div>
       </div>
@@ -41,33 +39,46 @@
       <div class="mb-4 p-3 border rounded bg-light">
         <h6 class="fw-bold mb-2">🧾 Détails de l'utilisateur :</h6>
         <ul class="mb-0 list-unstyled">
-            <li><strong>ID unique :</strong> {{ pk }}</li>
-            <li><strong>Rôle :</strong> {{ role }}</li>
-            <li><strong>Info :</strong> {{ object_name }}</li>
-            <li><strong>Type :</strong> {{ type_name }}</li>
+          <li><strong>ID unique :</strong> {{ pk }}</li>
+          <li><strong>Rôle :</strong> {{ role }}</li>
+          <li><strong>Info :</strong> {{ object_name }}</li>
+          <li><strong>Type :</strong> {{ type_name }}</li>
         </ul>
       </div>
 
       <!-- Formulaire de suppression -->
-<form method="POST" action="{% url 'utilisateur:utilisateur_supprimer' role=role|lower pk=pk %}" id="formAccountDeactivation">
-    {% csrf_token %}
-    <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" name="confirmation" id="confirmation" required />
-        <label class="form-check-label fw-semibold" for="confirmation">
-            Je comprends que cette action est irréversible et je confirme la suppression définitive
-        </label>
-    </div>
+      <form
+        method="POST"
+        action="{% url 'utilisateur:utilisateur_supprimer' role=role|lower pk=pk %}"
+        id="formAccountDeactivation"
+      >
+        {% csrf_token %}
+        <div class="form-check mb-3">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            name="confirmation"
+            id="confirmation"
+            required
+          />
+          <label class="form-check-label fw-semibold" for="confirmation">
+            Je comprends que cette action est irréversible et je confirme la
+            suppression définitive
+          </label>
+        </div>
 
-    <div class="d-flex justify-content-between">
-        <a href="{% url 'utilisateur:utilisateur_list' role %}" class="btn btn-secondary">
+        <div class="d-flex justify-content-between">
+          <a
+            href="{% url 'utilisateur:utilisateur_list' role %}"
+            class="btn btn-secondary"
+          >
             <i class="bx bx-arrow-back me-2"></i>Annuler
-        </a>
-        <button type="submit" class="btn btn-danger">
+          </a>
+          <button type="submit" class="btn btn-danger">
             <i class="bx bx-trash me-2"></i>Supprimer définitivement
-        </button>
-    </div>
-</form>
-
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

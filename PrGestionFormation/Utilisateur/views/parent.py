@@ -28,6 +28,11 @@ class ParentBaseView(BaseContextView, TemplateView):
             'label': 'Profil Parent',
             'model_type': 'profil_parent'
         },
+        'enfants_parent': {
+            'template': 'Utilisateur/Parent/enfants.html',
+            'label': 'Enfants Parent',
+            'model_type': 'enfants_parent'
+        },
     }
 
     def dispatch(self, request, *args, **kwargs):
@@ -94,8 +99,7 @@ class ParentBaseView(BaseContextView, TemplateView):
 # -------------------------
 
 class TableauBordParentView(ParentBaseView):
-    view_name = 'tableau_bord'
-    context_object_name = 'agent'
+    view_name = 'tableau_de_bord_parent'
     
 
 class ProfilParentView(UtilisateurDetailView):
@@ -114,4 +118,16 @@ class ProfilParentView(UtilisateurDetailView):
         # Si ton modèle Etudiant possède un champ OneToOne vers Utilisateur :
         return model.objects.get(utilisateur=utilisateur)
 
+class EnfantsParentView(ParentBaseView):
+    view_name = 'enfants_parent'
+    
 
+class EnfantDetailView(TemplateView):
+    template_name = "Utilisateur/Parent/enfants.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        enfant = get_object_or_404(Etudiant, utilisateur__pk=self.kwargs["pk"])
+        context["enfant"] = enfant
+        context["active_view"] = self.request.GET.get("view", "profil")
+        return context
