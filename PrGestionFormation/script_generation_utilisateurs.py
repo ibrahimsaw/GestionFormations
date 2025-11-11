@@ -1,21 +1,51 @@
+import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PrGestionFormation.settings")
+django.setup()
 import random
 import string
 import uuid
 from datetime import date
 from unidecode import unidecode
 from django.utils import timezone
-from Utilisateur.models import Genre, FonctionAgent, Specialite, Utilisateur, AdminSysteme, AgentAdministration, Enseignant, Etudiant, Parent
+from Utilisateur.models import Genre, FonctionAgent, Utilisateur, AdminSysteme, AgentAdministration, Enseignant, Etudiant, Parent
+from Cours.models import Salle, Matiere, Chapitre, Evaluation, Note, Cours
 from Formation.models import TypeFormation, Specification, Parcours, Formation, Classe, AnneeAcademique
 from Finance.models import Inscription
+from Utilisateur.models import RolePermission
+
+
 
 # 1. Initialisation des données de référence
 Genre.initialiser_genres()
+RolePermission.init_permissions()
 FonctionAgent.initialiser_fonctions()
 Specification.initialiser_specifications_par_defaut()
 TypeFormation.initialiser_types_par_defaut()
 
-for nom in ["Mathématiques", "Français", "SVT", "Histoire", "Anglais", "Physique", "Philosophie", "Informatique", "Comptabilité"]:
-    Specialite.objects.get_or_create(nom=nom)
+matieres = [
+    {"nom": "Mathématiques", "code": "MAT101", "coefficient": 4, "volume_horaire": 6},
+    {"nom": "Français", "code": "FR101", "coefficient": 3, "volume_horaire": 5},
+    {"nom": "SVT", "code": "SVT101", "coefficient": 2, "volume_horaire": 4},
+    {"nom": "Histoire", "code": "HIS101", "coefficient": 2, "volume_horaire": 3},
+    {"nom": "Anglais", "code": "ANG101", "coefficient": 2, "volume_horaire": 4},
+    {"nom": "Physique", "code": "PHY101", "coefficient": 3, "volume_horaire": 5},
+    {"nom": "Philosophie", "code": "PHI101", "coefficient": 1, "volume_horaire": 2},
+    {"nom": "Informatique", "code": "INFO101", "coefficient": 4, "volume_horaire": 6},
+    {"nom": "Comptabilité", "code": "COM101", "coefficient": 3, "volume_horaire": 5},
+]
+
+for m in matieres:
+    Matiere.objects.get_or_create(
+        nom=m["nom"],
+        defaults={
+            "code": m["code"],
+            "coefficient": m["coefficient"],
+            "volume_horaire": m["volume_horaire"]
+        }
+    )
+# 2. Création des années académiques, parcours, formations et classes
+
 
 annee, _ = AnneeAcademique.objects.get_or_create(
     nom="2025-2026",
@@ -182,13 +212,13 @@ while any(c < 3 for c in fonction_counts.values()):
     agents.append(agent)
 
 # Enseignants
-specialites = list(Specialite.objects.all())
+specialites = list(Matiere.objects.all())
 for _ in range(5):
     prenom = random.choice(prenoms_hommes)
     nom = random.choice(noms_famille)
     user = creer_utilisateur("ENSEIGNANT", prenom, nom, genres["H"], date_inscription=generer_date_aleatoire_6mois())
     enseignant = Enseignant.objects.create(utilisateur=user)
-    enseignant.specialites.set(random.sample(specialites, k=random.randint(1, 2)))
+    enseignant.matieres.set(random.sample(specialites, k=random.randint(1, 2)))
 
 # Étudiants
 etudiants = []

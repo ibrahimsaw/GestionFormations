@@ -3,6 +3,9 @@
 {% load widget_tweaks %}
 {% block contentetudiant %}
 <div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
-    <h5 class="card-header">{{ donne }}</h5>
+    <h5 class="card-header">{{ label }}</h5>
+    <div class="card-body">
+        <p>{{ info }}</p>
+    </div>
 </div>
 {% endblock %}

@@ -2,7 +2,24 @@
 {% load static %}
 {% load widget_tweaks %}
 {% block contentetudiant %}
-<div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
-    <h5 class="card-header">{{ donne }}</h5>
-</div>
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+
+<div id="calendar"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    events: [
+      // Ici tu peux générer tes événements à partir de Django (json)
+      { title: 'Cours de Math', start: '2025-11-12T10:00:00' },
+      { title: 'Examen Chimie', start: '2025-11-15' }
+    ]
+  });
+  calendar.render();
+});
+</script>
+
 {% endblock %}

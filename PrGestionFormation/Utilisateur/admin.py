@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Utilisateur, AdminSysteme, AgentAdministration, Enseignant, Etudiant, Parent,
-     FonctionAgent, Specialite
+     FonctionAgent
 )
 
 
@@ -77,24 +77,25 @@ class UtilisateurAdmin(admin.ModelAdmin):
 #
 #     def get_fonctions(self, obj):
 #         return ", ".join([f.nom for f in obj.fonctions.all()])
-#
+#get_specialite
 #     get_fonctions.short_description = 'Fonctions'
 
-
-@admin.register(Specialite)
-class SpecialiteAdmin(admin.ModelAdmin):
-    list_display = ('nom',)
 
 
 @admin.register(Enseignant)
 class EnseignantAdmin(admin.ModelAdmin):
-    list_display = [f.__name__ for f in get_utilisateur_fields()] + ['get_specialites', 'autres_specialites']
+    # On génère les colonnes utilisateur dynamiquement
+    list_display = [f.__name__ for f in get_utilisateur_fields()] + ['get_matieres', 'autres_matieres']
+
+    # Ajouter dynamiquement les méthodes utilisateur
     for f in get_utilisateur_fields():
         locals()[f.__name__] = f
 
-    def get_specialites(self, obj):
-        return ", ".join([s.nom for s in obj.specialites.all()])
-    get_specialites.short_description = "Spécialités"
+    # Méthode pour afficher les matières comme texte
+    def get_matieres(self, obj):
+        return ", ".join([m.nom for m in obj.matieres.all()])
+    get_matieres.short_description = "Matières enseignées"
+
 
 
 @admin.register(Etudiant)
@@ -121,10 +122,6 @@ class ParentAdmin(admin.ModelAdmin):
             enfants_info.append(info)
         return ", ".join(enfants_info) if enfants_info else "Aucun enfant"
     enfants_details.short_description = "Enfants"
-
-
-
-
 
 @admin.register(FonctionAgent)
 class FonctionAgentAdmin(admin.ModelAdmin):

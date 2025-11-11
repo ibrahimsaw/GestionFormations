@@ -1,0 +1,136 @@
+
+            <!-- Infos générales -->
+            <div class="mb-3" id="student-summary">
+                <!-- Rempli par JS -->
+            </div>
+
+            <!-- Moyenne générale -->
+            <div class="alert alert-success mb-3" id="overall-grade">
+                <!-- Rempli par JS -->
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Matière</th>
+                            <th>Professeur</th>
+                            <th>Coeff</th>
+                            <th>Note 1</th>
+                            <th>Note 2</th>
+                            <th>Note 3</th>
+                            <th class="d-none d-md-table-cell">Moy. Classe</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grades-table">
+                        <!-- Rempli par JS -->
+                    </tbody>
+                </table>
+            </div>
+
+
+<script>
+// =======================
+// Données de l'étudiant
+// =======================
+const studentData = {
+    rank: 5, // Rang dans la classe
+    totalSubjects: 18, // total matières
+    validatedSubjects: 15,
+    failedSubjects: 3,
+    trimesters: [
+        {
+            name: "1er Trimestre",
+            average: 13.5,
+            mention: "Assez Bien",
+            subjects: [
+                { name: "Mathématiques", coeff: 3, grade1: 18, grade2: 16, grade3: 20, classAvg: 12.5, professor: "Prof. Moreau", status: "Validé" },
+                { name: "Algorithmes", coeff: 4, grade1: 7, grade2: 16, grade3: 19, classAvg: 11.0, professor: "Prof. Leroy", status: "Validé" },
+                { name: "Physique", coeff: 3, grade1: 9, grade2: 16, grade3: 8, classAvg: 13.2, professor: "Prof. Bernard", status: "Validé" },
+            ]
+        },
+        {
+            name: "2e Trimestre",
+            average: 14.8,
+            mention: "Bien",
+            subjects: [
+                { name: "Mathématiques", coeff: 3, grade1: 8, grade2: 6, grade3: 10, classAvg: 13.2, professor: "Prof. Moreau", status: "Validé" },
+                { name: "Algorithmes", coeff: 4, grade1: 18, grade2: 16, grade3: 8, classAvg: 12.3, professor: "Prof. Leroy", status: "Validé" },
+                { name: "Physique", coeff: 3, grade1: 14, grade2: 10, grade3: 8,classAvg: 12.8, professor: "Prof. Bernard", status: "Validé" },
+            ]
+        },
+        {
+            name: "3e Trimestre",
+            average: 15.7,
+            mention: "Très Bien",
+            subjects: [
+                { name: "Mathématiques", coeff: 3, grade1: 13, grade2: 11, grade3: 8, classAvg: 14.5, professor: "Prof. Moreau", status: "Validé" },
+                { name: "Algorithmes", coeff: 4, grade1: 15, grade2: 6, grade3: 10, classAvg: 13.5, professor: "Prof. Leroy", status: "Validé" },
+                { name: "Physique", coeff: 3, grade1: 14, grade2: 14, grade3: 8, classAvg: 12.9, professor: "Prof. Bernard", status: "Validé" },
+            ]
+        }
+    ]
+};
+
+// Calcul automatique de la moyenne générale
+studentData.globalAverage = Number(
+    (studentData.trimesters.reduce((sum, t) => sum + t.average, 0) / studentData.trimesters.length).toFixed(2)
+);
+
+// =======================
+// Génération du tableau
+// =======================
+function generateGradesTable() {
+    const summaryDiv = document.getElementById('student-summary');
+    const overallGradeDiv = document.getElementById('overall-grade');
+    const gradesTable = document.getElementById('grades-table');
+
+    // Infos générales
+    summaryDiv.innerHTML = `
+        <p><strong>Rang dans la classe:</strong> ${studentData.rank}</p>
+        <p><strong>Matières validées:</strong> ${studentData.validatedSubjects} / ${studentData.totalSubjects}</p>
+        <p><strong>Matières à rattraper:</strong> ${studentData.failedSubjects}</p>
+    `;
+
+    // Moyenne générale
+    overallGradeDiv.innerHTML = `
+        <h5><i class="fas fa-trophy me-2"></i>Moyenne Générale Année: 
+        <strong>${studentData.globalAverage}/20</strong></h5>
+    `;
+
+    gradesTable.innerHTML = '';
+
+    studentData.trimesters.forEach(trimester => {
+        // Ligne titre du trimestre
+        const titleRow = document.createElement('tr');
+        titleRow.innerHTML = `<td colspan="8" class="table-primary fw-bold">${trimester.name} — Moyenne: ${trimester.average}/20 (${trimester.mention})</td>`;
+        gradesTable.appendChild(titleRow);
+
+        // Matières du trimestre
+        trimester.subjects.forEach(subject => {
+            const row = document.createElement('tr');
+            const grade1Class = subject.grade1 >= 17 ? 'text-success' : subject.grade1 >= 10 ? 'text-warning' : 'text-danger';
+            const grade2Class = subject.grade2 >= 17 ? 'text-success' : subject.grade2 >= 10 ? 'text-warning' : 'text-danger';
+            const grade3Class = subject.grade3 >= 17 ? 'text-success' : subject.grade3 >= 10 ? 'text-warning' : 'text-danger';
+            const statusClass = subject.status === 'Validé' ? 'bg-success' : 'bg-danger';
+
+            row.innerHTML = `
+                <td>${subject.name}</td>
+                <td>${subject.professor}</td>
+                <td><span class="badge bg-primary">${subject.coeff}</span></td>
+                <td><span class="${grade1Class} fw-bold">${subject.grade1}/20</span></td>
+                <td><span class="${grade2Class} fw-bold">${subject.grade2}/20</span></td>
+                <td><span class="${grade3Class} fw-bold">${subject.grade3}/20</span></td>
+                <td class="d-none d-md-table-cell">${subject.classAvg}/20</td>
+                <td><span class="badge ${statusClass}">${subject.status}</span></td>
+            `;
+            gradesTable.appendChild(row);
+        });
+    });
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', generateGradesTable);
+
+</script>

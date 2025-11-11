@@ -85,8 +85,8 @@
 					<th class="text-900 sort">Classe</th>
 					{% endif %}
 				  {% if titre_formulaire == "Enseignant" %}
-					<th class="text-900 sort">Spécialités</th>
-				  <th class="text-900 sort">Autres Spécialités</th>
+					<th class="text-900 sort">Matière</th>
+				  <th class="text-900 sort">Autres matières</th>
 					{% endif %}
 				  <th class="text-900 sort">Action</th>
 			  </tr>
@@ -94,19 +94,6 @@
 			  <tbody class="table-border-bottom-0">
 				{% for agent in agents %}
 				<tr>
-					<!-- <td>
-					{% if agent.utilisateur.pk %}
-					  {{ agent.utilisateur.pk }}
-                        {{ forloop.counter }}
-					  {% elif agent.pk %}
-					  {{ agent.pk }}
-                        {{ forloop.counter }}
-					{% else %}
-					  <div class="text-warning"> --- </div>
-					{% endif %}
-
-
-				  </td> -->
 					<td>
 						<a href="
 							{% if role_utilisateur == 'Utilisateur' %}
@@ -158,15 +145,6 @@
 						   <span class="text-warning">---</span>
 						 {% endif %}
 					</td>
-<!--					<td>-->
-<!--					  {% if agent.utilisateur.first_name %}-->
-<!--						{{ agent.utilisateur.first_name }}-->
-<!--					  {% elif agent.first_name %}-->
-<!--						{{ agent.first_name }}-->
-<!--					  {% else %}-->
-<!--						<div class="alert alert-warning d-inline">---</div>-->
-<!--					  {% endif %}-->
-<!--					</td>-->
 					<td>
 					  {% if agent.utilisateur.genre %}
 						{{ agent.utilisateur.genre }}
@@ -178,33 +156,6 @@
 						</div>
 					  {% endif %}
 					</td>
-<!--					<td>-->
-<!--					  {% if agent.utilisateur.date_nais %}-->
-<!--						{{ agent.utilisateur.date_nais }}-->
-<!--					  {% elif agent.date_nais %}-->
-<!--						{{ agent.date_nais }}-->
-<!--					  {% else %}-->
-<!--						<div class="alert alert-warning d-inline">Date de naissance manquante</div>-->
-<!--					  {% endif %}-->
-<!--					</td>-->
-<!--					<td>-->
-<!--					  {% if agent.utilisateur.email %}-->
-<!--						{{ agent.utilisateur.email }}-->
-<!--					  {% elif agent.email %}-->
-<!--						{{ agent.email }}-->
-<!--					  {% else %}-->
-<!--						<div class="alert alert-warning d-inline">Email manquant</div>-->
-<!--					  {% endif %}-->
-<!--					</td>-->
-<!--					<td>-->
-<!--					  {% if agent.utilisateur.telephone %}-->
-<!--						{{ agent.utilisateur.telephone }}-->
-<!--					  {% elif agent.telephone %}-->
-<!--						{{ agent.telephone }}-->
-<!--					  {% else %}-->
-<!--						<div class="alert alert-warning d-inline">Téléphone manquant</div>-->
-<!--					  {% endif %}-->
-<!--					</td>-->
 				 {% if role_utilisateur == 'Utilisateur' %}
 					<td>
 					  {% if agent.utilisateur.role %}
@@ -263,8 +214,8 @@
 					{% endif %}
 					{% if titre_formulaire == "Enseignant" %}
 					<th>
-						{% for specialite in agent.specialites.all %}
-							<div>{{ specialite }}</div>
+						{% for specialite in agent.matieres.all %}
+							<div>{{ specialite.nom }}</div>
 						{% empty %}
 							<div class="text-center">
 							  <div class="text-warning"> --- </div>
@@ -272,8 +223,8 @@
 						{% endfor %}
 					</th>
 					<td>
-						{% if agent.autres_specialites%}
-							{{ agent.autres_specialites }}
+						{% if agent.autres_matieres %}
+							{{ agent.autres_matieres }}
 						{% else %}
 							<div class="text-center">
 							  <div class="text-warning"> --- </div>

@@ -139,8 +139,9 @@ class Formation(BaseRoleModel):
         if not self.avec_classes:
             return
 
-        annee_active = AnneeAcademique.objects.filter(classes_standards_creees=True).first()
-        if annee_active:
+        if annee_active := AnneeAcademique.objects.filter(
+            classes_standards_creees=True
+        ).first():
             self.creer_classes(annee_active)
 
     def creer_classes(self, annee_academique):
@@ -216,3 +217,4 @@ class AnneeAcademique(BaseRoleModel):
 def creer_classes_auto(sender, instance, created, **kwargs):
     if created:
         instance.creer_classes_standards()
+

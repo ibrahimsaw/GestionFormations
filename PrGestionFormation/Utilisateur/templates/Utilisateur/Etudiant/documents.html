@@ -1,0 +1,67 @@
+
+                        <div class="row" id="documents-container">
+                            <!-- Les documents seront générés par JavaScript -->
+                        </div>
+                    
+            <script>
+                const studentData = {
+                documents: {
+                academic: [
+                    { name: "Relevé de notes S1", icon: "fas fa-file-pdf text-danger", type: "pdf" },
+                    { name: "Certificat de scolarité", icon: "fas fa-file-pdf text-danger", type: "pdf" },
+                    { name: "Emploi du temps", icon: "fas fa-file-word text-primary", type: "word" }
+                ],
+                resources: [
+                    { name: "Cours BDD - Chapitre 1", icon: "fas fa-file-powerpoint text-warning", type: "ppt" },
+                    { name: "TP Programmation Web", icon: "fas fa-file-archive text-info", type: "archive" },
+                    { name: "Guide Algorithmes", icon: "fas fa-file-pdf text-danger", type: "pdf" }
+                ]
+            }
+            };
+            // Fonction pour générer les documents
+        function generateDocuments() {
+            const documentsContainer = document.getElementById('documents-container');
+            
+            const docSections = [
+                { title: "Documents Académiques", color: "info", docs: studentData.documents.academic },
+                { title: "Ressources Pédagogiques", color: "success", docs: studentData.documents.resources }
+            ];
+
+            docSections.forEach(section => {
+                const sectionCard = document.createElement('div');
+                sectionCard.className = 'col-md-6 mb-4';
+                
+                let docList = '';
+                section.docs.forEach(doc => {
+                    docList += `
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="${doc.icon} me-2"></i>
+                                ${doc.name}
+                            </div>
+                            <button class="btn btn-sm btn-outline-${section.color}">
+                                <i class="bx bx-download"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                sectionCard.innerHTML = `
+                    <div class="card border-${section.color}">
+                        <div class="card-header bg-${section.color} text-white">
+                            <h5 class="mb-0">${section.title}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                ${docList}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                documentsContainer.appendChild(sectionCard);
+            });
+        }
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', generateDocuments);
+            </script>
+

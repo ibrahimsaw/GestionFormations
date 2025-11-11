@@ -59,7 +59,7 @@ class Genre(models.Model):
     def get_default_genre(cls):
         try:
             return cls.objects.get(est_par_defaut=True).id
-        except:
+        except Exception:
             return None  # Retourne None si la table n'existe pas ou aucun défaut
 
     class Meta:
@@ -307,8 +307,6 @@ class FonctionAgent(models.Model):
                     'name': codename,
                     'description': description
                 }))
-                print(codame)
-                print(description)
             permissions.append((model, model_perms))
         return permissions
 
@@ -366,12 +364,30 @@ class FonctionAgent(models.Model):
 
     @classmethod
     def initialiser_fonctions(cls):
-        try:
-            role_agent = Utilisateur.Role.AGENT
-        except Role.DoesNotExist:
-            raise Exception("Le rôle AGENT doit être créé avant les fonctions")
+        Utilisateur = apps.get_model('Utilisateur', 'Utilisateur')
+        role_agent = Utilisateur.Role.AGENT
 
-        fonctions = [
+
+        for data in cls.get_default_fonctions_data():
+            fonction, created = cls.objects.get_or_create(
+                code=data['code'],
+                defaults={
+                    'nom': data['nom'],
+                    'description': data['description'],
+                    'responsabilites': data.get('responsabilites', []),
+                    'controles': data.get('controles', []),
+                    'protocoles': data.get('protocoles', [])
+                }
+            )
+            if created:
+                print(f"[+] Fonction créée : {fonction.nom}")
+            else:
+                print(f"[-] Fonction existante : {fonction.nom}")
+    
+    @classmethod
+    def get_default_fonctions_data(cls):
+        """Retourne les données des fonctions par défaut sans créer les instances"""
+        return  [
             {
                 'code': 'SECRETAIRE_ADMINISTRATIF',
                 'nom': 'Secrétaire administratif',
@@ -700,23 +716,6 @@ class FonctionAgent(models.Model):
             }
         ]
 
-        for data in fonctions:
-            fonction, created = cls.objects.get_or_create(
-                code=data['code'],
-                defaults={
-                    'nom': data['nom'],
-                    'description': data['description'],
-                    'responsabilites': data.get('responsabilites', []),
-                    'controles': data.get('controles', []),
-                    'protocoles': data.get('protocoles', [])
-                }
-            )
-            if not created:
-                fonction.nom = data['nom']
-                fonction.description = data['description']
-                fonction.save()
-
-
 
 
 class AdminSysteme(BaseRoleModel):
@@ -747,15 +746,6 @@ class AgentAdministration(BaseRoleModel):
         super().save(*args, **kwargs)
 
 
-
-
-class Specialite(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.nom
-
 class Enseignant(BaseRoleModel):
     utilisateur = models.OneToOneField(
         Utilisateur,
@@ -763,11 +753,28 @@ class Enseignant(BaseRoleModel):
         primary_key=True,
         limit_choices_to={'role': 'ENSEIGNANT'}
     )
-    specialites = models.ManyToManyField(Specialite, blank=True)
-    autres_specialites = models.CharField(max_length=255, blank=True)
+    matieres = models.ManyToManyField(
+        'Cours.Matiere',
+        blank=True,
+        related_name='enseignants'
+    )
+    autres_matieres = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Autres matières enseignées"
+    )
+    
+    bureau = models.CharField(max_length=50, blank=True, null=True)
+    date_embauche = models.DateField(blank=True, null=True)
+    grade = models.CharField(max_length=50, blank=True, null=True, help_text="Ex: Professeur, Assistant")
 
     def __str__(self):
-        return f"{self.utilisateur}"
+        return f"{self.utilisateur.last_name} {self.utilisateur.first_name}"
+    
+    class Meta:
+        verbose_name = "Enseignant"
+        verbose_name_plural = "Enseignants"
+        ordering = ['utilisateur__last_name']
 
 class Etudiant(BaseRoleModel):
     utilisateur = models.OneToOneField(

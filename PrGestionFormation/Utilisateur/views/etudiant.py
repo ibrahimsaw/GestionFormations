@@ -10,6 +10,8 @@ class EtudiantBaseView(BaseContextView, TemplateView):
     template_name = 'Utilisateur/Etudiant/default.html'  # template par défaut
     view_name = ""
     page = ""
+    info = ""
+    icon = ""
     bouton = ""
     titre_page = ""
     path = ""
@@ -20,38 +22,53 @@ class EtudiantBaseView(BaseContextView, TemplateView):
     view_mapping = {
         'tableau_de_bord_etudiant': {
             'template': 'Utilisateur/Etudiant/tableau_de_bord_etudiant.html',
-            'label': 'Tableau de Bord Étudiant',
-            'model_type': 'tableau_bord_etudiant'
+            'label': 'Tableau de Bord',
+            'model_type': 'tableau_bord_etudiant',
+            'info': 'Aperçu général des informations importantes',
+            'icon': 'bx bx-home'
         },
         'profil_etudiant': {
             'template': 'Utilisateur/Etudiant/profil_etudiant.html',
-            'label': 'Profil Étudiant',
-            'model_type': 'profil_etudiant'
+            'label': 'Profil',
+            'model_type': 'profil_etudiant',
+            'info': 'Informations personnelles de l\'étudiant',
+            'icon': 'bx bx-user'
         },
         'calendrier_etudiant': {
             'template': 'Utilisateur/Etudiant/calendrier_etudiant.html',
-            'label': 'Calendrier Étudiant',
-            'model_type': 'calendrier_etudiant'
+            'label': 'Calendrier',
+            'model_type': 'calendrier_etudiant',
+            'info': 'Informations sur les Événements, les Examens et les Devoirs',
+            'icon': 'bx bx-calendar'
         },
         'notes_etudiant': {
             'template': 'Utilisateur/Etudiant/notes_etudiant.html',
-            'label': 'Notes Étudiant',
-            'model_type': 'notes_etudiant'
+            'label': 'Notes et Résultats',
+            'model_type': 'notes_etudiant',
+            'info': 'Informations sur les Notes, les Moyennes et les Résultats',
+            'icon': 'bx bx-bar-chart-alt-2'
         },
         'cours_etudiant': {
             'template': 'Utilisateur/Etudiant/cours_etudiant.html',
-            'label': 'Cours Étudiant',
-            'model_type': 'cours_etudiant'
+            'label': 'Mes Cours',
+            'model_type': 'cours_etudiant',
+            'info': 'Informations sur les modules,leurs Progression et le Prochaine courses',
+            'icon': 'bx bx-book'
+            
         },
         'documents_etudiant': {
             'template': 'Utilisateur/Etudiant/documents_etudiant.html',
-            'label': 'Documents Étudiant',
-            'model_type': 'documents_etudiant'
+            'label': 'Mes Documents',
+            'model_type': 'documents_etudiant',
+            'info': 'Informations sur les modules,leurs Progression et le Prochaine courses',
+            'icon': 'bx bx-folder-open'
         },
         'assiduite_etudiant': {
             'template': 'Utilisateur/Etudiant/assiduite_etudiant.html',
-            'label': 'Assiduité Étudiant',
-            'model_type': 'assiduite_etudiant'
+            'label': 'Assiduité',
+            'model_type': 'assiduite_etudiant',
+            'info': 'Informations sur les Retards, l\'Absences et les Présences',
+            'icon': 'bx bx-check-shield'
         },
     }
 
@@ -93,6 +110,8 @@ class EtudiantBaseView(BaseContextView, TemplateView):
         self.page = self.view_mapping[self.view_name]['label']
         self.titre_page = self.page
         self.model_type = self.view_mapping[self.view_name]['model_type']
+        self.info = self.view_mapping[self.view_name]['info']
+        self.icon = self.view_mapping[self.view_name]['icon']
 
         self.message += f"[dispatch] Template sélectionné : {self.template_name}\n"
         self.message += f"[dispatch] Model type : {self.model_type}\n"
@@ -102,10 +121,12 @@ class EtudiantBaseView(BaseContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'donne': self.page,
+            'label': self.page,
             'model_type': self.model_type,
             'breadcrumb': self.breadcrumb,
             'page': self.page,
+            'info': self.info,
+            'icon': self.icon,
             'titre_page': self.titre_page,
             'path': self.path,
             'message_debug': self.message,

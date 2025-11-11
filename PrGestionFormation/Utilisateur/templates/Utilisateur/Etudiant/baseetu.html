@@ -1,0 +1,28 @@
+{% extends 'Accuiel/Etudiant/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block contentetudiant %}
+<div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
+  <!-- En-tête du profil -->
+  <div class="bg-gradient-primary text-white p-4">
+    <div class="d-flex align-items-center">
+      <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+        <i class="{{icon}} text-primary fs-3"></i>
+      </div>
+      <div>
+        <h3 class="mb-1 fw-bold">{{label}}</h3>
+        <p class="mb-0 opacity-75">
+          {{info}}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!--body-->
+  <div class="card-body">
+    {% block contentetudiants %}
+        {% endblock %}
+  </div>
+</div>
+{% endblock %}
+

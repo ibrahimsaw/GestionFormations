@@ -1,5 +1,5 @@
-{% extends 'Accuiel/Parent/base.html' %} {% load static %} {% load widget_tweaks
-%} {% block contentetudiant %}
+{% extends 'Accuiel/Parent/base.html' %} {% load static %} 
+{% load widget_tweaks%} {% block contentetudiant %}
 <div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
   <!-- En-tête du enfants_parent -->
   <div class="bg-gradient-primary text-white p-4">
@@ -17,11 +17,12 @@
     {% if user.role == "PARENT" %} {% if user.parent.enfants.all %}
     <div class="row g-3">
       {% for etudiant in user.parent.enfants.all %}
-      <a
-        href="{% url 'utilisateur:enfant_detail' pk=etudiant.utilisateur.pk %}"
-        class="text-decoration-none small"
-      >
         <div class="col-12 col-md-6">
+          <a
+        href="{% url 'utilisateur:enfant_detail' pk=etudiant.utilisateur.pk %}"
+        class="text-decoration-none small text-white-50"
+      >
+          {% if etudiant.utilisateur.pk == pk %}
           <div class="card border-0 bg-primary bg-opacity-10 h-100">
             <div class="card-body p-3">
               <div class="d-flex align-items-center">
@@ -43,29 +44,77 @@
                   {% endif %}
                 </div>
                 <div class="flex-grow-1">
-                  <h6 class="mb-1 fw-bold">
-                    {{ etudiant.utilisateur.last_name }} {{
-                    etudiant.utilisateur.first_name }}
+                  <h6 class="mb-1 fw-bold text-white">
+                    {{ etudiant.utilisateur.last_name }} 
+                    {{ etudiant.utilisateur.first_name }}
                   </h6>
-                  <small class="text-muted d-block"
+                  <small class="text-muted d-block text-white-50"
                     >{{ etudiant.utilisateur.matricule }}</small
                   >
-                  <li class="text-decoration-none small">
+                  <small class="text-decoration-none small text-white-50">
                     {{ etudiant.utilisateur.email }}
-                  </li>
+                  </small>
                 </div>
                 <div class="text-end">
                   <span class="badge bg-warning text-dark">
-                    {% if etudiant.classe_actuelle %} {{
-                    etudiant.classe_actuelle.nom }} {% else %} Non défini {%
-                    endif %}
+                    {% if etudiant.classe_actuelle %} 
+                    {{ etudiant.classe_actuelle.nom }} 
+                    {% else %} 
+                    Non défini
+                    {% endif %}
                   </span>
                 </div>
               </div>
             </div>
           </div>
+          {% else %}
+          <div class="card border-0 bg-light h-100">
+            <div class="card-body p-3">
+              <div class="d-flex align-items-center">
+                <div class="position-relative me-3">
+                  {% if etudiant.utilisateur.photo %}
+                  <img
+                    src="{{ etudiant.utilisateur.photo.url }}"
+                    alt="Photo de {{ etudiant.utilisateur.first_name }}"
+                    class="rounded-circle"
+                    style="width: 50px; height: 50px; object-fit: cover"
+                  />
+                  {% else %}
+                  <img
+                    src="{% static 'assets/img/avatars/1.png' %}"
+                    alt="Avatar par défaut"
+                    class="rounded-circle"
+                    style="width: 50px; height: 50px; object-fit: cover"
+                  />
+                  {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">
+                    {{ etudiant.utilisateur.last_name }} 
+                    {{ etudiant.utilisateur.first_name }}
+                  </h6>
+                  <small class="text-muted d-block"
+                    >{{ etudiant.utilisateur.matricule }}</small
+                  >
+                  <small class="text-decoration-none small">
+                    {{ etudiant.utilisateur.email }}
+                  </small>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-warning text-dark">
+                    {% if etudiant.classe_actuelle %} 
+                    {{ etudiant.classe_actuelle.nom }} 
+                    {% else %} 
+                    Non défini
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          </a>
         </div>
-      </a>
       {% endfor %}
     </div>
     {% else %}
@@ -73,7 +122,8 @@
       <i class="bx bx-user-x text-muted fs-1"></i>
       <p class="text-muted mb-0">Aucun enfant enregistré</p>
     </div>
-    {% endif %} {% endif %}
+    {% endif %} 
+    {% endif %}
   </div>
 </div>
 
@@ -101,27 +151,42 @@
           {% endif %}
         </div>
         <div class="flex-grow-1">
-          <h6 class="mb-1 fw-bold">
-            {{ enfant.utilisateur.last_name }} {{ enfant.utilisateur.first_name
-            }}
+          <h6 class="mb-1 fw-bold text-white">
+            {{ enfant.utilisateur.last_name }} {{ enfant.utilisateur.first_name}} 
           </h6>
           <small class="text-muted d-block"
             >{{ enfant.utilisateur.matricule }}</small
           >
-          <li class="text-decoration-none small">
+          <small class="text-decoration-none small text-white-50">
             {{ enfant.utilisateur.email }}
-          </li>
+          </small>
         </div>
         <div class="text-end">
           <span class="badge bg-warning text-dark">
-            {% if enfant.classe_actuelle %} {{ enfant.classe_actuelle.nom }} {%
-            else %} Non défini {% endif %}
+            {% if enfant.classe_actuelle %} {{ enfant.classe_actuelle.nom }} 
+            {% else %} Non défini {% endif %}
           </span>
         </div>
       </div>
     </div>
   </div>
-  {% include "./Nav/nav_enfants.html" %}
-  <div class="card-body"></div>
+  <div class="nav-align-top mb-4 bg-dark">
+    {% include "./Nav/nav_enfants.html" %}
+  </div>                                                                          
+  <div class="card-body">
+    {% if active_view == "VueEnsemble" %}
+        {% include "Utilisateur/Etudiant/vuedensemble.html" %}
+    {% elif active_view == "notes" %}
+        {% include "Utilisateur/Etudiant/notes.html" %}
+    {% elif active_view == "calendrier" %}
+        {% include "Utilisateur/Etudiant/calendrier_etudiant.html" %}
+    {% elif active_view == "documents" %}
+        {% include "Utilisateur/Etudiant/documents.html" %}
+    {% elif active_view == "communications" %}
+        {% include "Utilisateur/Parent/communications.html" %}
+    {% elif active_view == "assiduite" %}
+        {% include "Utilisateur/Etudiant/assiduite.html" %}
+    {% endif %}
+  </div>
 </div>
 {% endif %} {% endblock %}

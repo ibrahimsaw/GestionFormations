@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from Cours.forms import MatiereForm
+from django.apps import apps
 from .models import *
 from Formation.models import Parcours,Classe,AnneeAcademique
 from Finance.models import Inscription
@@ -47,8 +49,7 @@ class CustomUserCreationForm(UserCreationForm):
             user.role = self.role
 
         # S'assurer que le mot de passe est bien défini s'il est fourni
-        password = self.cleaned_data.get('password1')
-        if password:
+        if password := self.cleaned_data.get('password1'):
             user.set_password(password)
 
         if commit:
@@ -84,11 +85,6 @@ class AdminSystemeForm(forms.ModelForm):
         return super().save(commit=commit)
 
 
-
-
-
-from django import forms
-
 class AgentAdministrationForm(forms.ModelForm):
     fonctions = forms.ModelMultipleChoiceField(
         queryset=FonctionAgent.objects.all(),
@@ -121,32 +117,31 @@ class AgentAdministrationForm(forms.ModelForm):
         return super().save(commit=commit)
 
 
-class SpecialiteForm(forms.Form):
-    nom = forms.CharField(label="Nouvelle spécialité")
 
-
+Matiere = apps.get_model('Cours', 'Matiere')
 
 class EnseignantForm(forms.ModelForm):
-    nouvelle_specialite = forms.CharField(
+    nouvelle_matiere = forms.CharField(
         required=False,
-        label="Nouvelle spécialité à ajouter",
-        help_text="Laissez vide si aucune nouvelle spécialité à créer"
+        label="Nouvelle matière à ajouter",
+        help_text="Laissez vide si aucune nouvelle matière à créer"
     )
+
     class Meta:
         model = Enseignant
-        fields = ['specialites', 'autres_specialites','nouvelle_specialite']  # Corrigé pour correspondre au modèle
+        fields = ['matieres', 'autres_matieres', 'nouvelle_matiere']
         widgets = {
-            'specialites': forms.CheckboxSelectMultiple,
-            'autres_specialites': forms.TextInput(
-                attrs={'placeholder': 'Autres spécialités (séparées par des virgules)'})
+            'matieres': forms.CheckboxSelectMultiple,
+            'autres_matieres': forms.TextInput(
+                attrs={'placeholder': 'Autres matières (séparées par des virgules)'}
+            )
         }
-
 
     def __init__(self, *args, **kwargs):
         self.utilisateur_data = kwargs.pop('utilisateur_data', None)
         super().__init__(*args, **kwargs)
-        self.fields['specialites'].queryset = Specialite.objects.all()
-        self.specialite_form = SpecialiteForm(prefix='specialite')
+        self.fields['matieres'].queryset = Matiere.objects.all()
+        self.matiere_form = MatiereForm(prefix='matiere')
         self.utilisateur_form = CustomUserCreationForm(
             data=self.utilisateur_data,
             prefix='utilisateur',
@@ -157,20 +152,20 @@ class EnseignantForm(forms.ModelForm):
         return super().is_valid() and self.utilisateur_form.is_valid()
 
     def save(self, commit=True):
-        # Sauvegarde l'utilisateur comme avant
+        # Sauvegarde l'utilisateur
         utilisateur = self.utilisateur_form.save(commit=commit)
         self.instance.utilisateur = utilisateur
 
         # Sauvegarde l'enseignant
         instance = super().save(commit=False)
 
-        # Gestion de la nouvelle spécialité
-        nouvelle_specialite = self.cleaned_data.get('nouvelle_specialite')
-        if nouvelle_specialite and nouvelle_specialite.strip():
-            specialite, created = Specialite.objects.get_or_create(
-                nom=nouvelle_specialite.strip()
+        # Gestion de la nouvelle matière
+        nouvelle_matiere = self.cleaned_data.get('nouvelle_matiere')
+        if nouvelle_matiere and nouvelle_matiere.strip():
+            matiere, created = Matiere.objects.get_or_create(
+                nom=nouvelle_matiere.strip()
             )
-            instance.specialites.add(specialite)
+            instance.matieres.add(matiere)
 
         if commit:
             instance.save()
@@ -182,7 +177,6 @@ class EnseignantForm(forms.ModelForm):
         cleaned_data = super().clean()
         print("EnseignantForm cleaned_data:", cleaned_data)
         return cleaned_data
-
 
 class EtudiantForm(forms.ModelForm):
     class Meta:
@@ -423,18 +417,18 @@ class AgentAdministrationUpdateForm(forms.ModelForm):
 
 
 class EnseignantUpdateForm(forms.ModelForm):
-    nouvelle_specialite = forms.CharField(
+    nouvelle_matiere = forms.CharField(
         required=False,
-        label="Nouvelle spécialité à ajouter",
-        help_text="Laissez vide si aucune nouvelle spécialité à créer"
+        label="Nouvelle matière à ajouter",
+        help_text="Laissez vide si aucune nouvelle matière à créer"
     )
 
     class Meta:
         model = Enseignant
-        fields = ['specialites', 'autres_specialites']
+        fields = ['matieres', 'autres_matieres']
         widgets = {
-            'specialites': forms.CheckboxSelectMultiple,
-            'autres_specialites': forms.TextInput(attrs={'placeholder': 'Autres spécialités'}),
+            'matieres': forms.CheckboxSelectMultiple,
+            'autres_matieres': forms.TextInput(attrs={'placeholder': 'Autres matières (séparées par des virgules)'}),
         }
 
     def __init__(self, *args, **kwargs):

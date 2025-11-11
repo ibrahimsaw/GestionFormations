@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'Finance',
     'Formation',
     'Permissions_Manager',
+    'Cours',
     'widget_tweaks',
     'django_select2',
     'simple_history',

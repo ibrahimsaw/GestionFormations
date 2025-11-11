@@ -250,33 +250,33 @@
     {% if agent.utilisateur.role == "ENSEIGNANT" %}
       <div class="p-4 border-top">
         <h5 class="mb-3 fw-bold text-dark">
-          <i class="bx bx-book me-2 text-primary"></i>Spécialités d'enseignement
+          <i class="bx bx-book me-2 text-primary"></i>Matière d'enseignement
         </h5>
         <div class="row g-3">
           <div class="col-12">
             <div class="card border-0 bg-light">
               <div class="card-body p-3">
                 <i class="bx bx-brain text-success fs-4 mb-2"></i>
-                <small class="text-muted d-block">Spécialités principales</small>
+                <small class="text-muted d-block">Matières principales</small>
                 <div class="mt-2">
-                  {% if agent.specialites.all %}
-                    {% for specialite in agent.specialites.all %}
-                      <span class="badge bg-success me-1 mb-1">{{ specialite }}</span>
+                  {% if agent.matieres.all %}
+                    {% for matiere in agent.matieres.all %}
+                      <span class="badge bg-success me-1 mb-1">{{ matiere }}</span>
                     {% endfor %}
                   {% else %}
-                    <span class="text-muted">Aucune spécialité définie</span>
+                    <span class="text-muted">Aucune matière définie</span>
                   {% endif %}
                 </div>
               </div>
             </div>
           </div>
-          {% if agent.autres_specialites %}
+          {% if agent.autres_matieres %}
             <div class="col-12">
               <div class="card border-0 bg-light">
                 <div class="card-body p-3">
                   <i class="bx bx-plus-circle text-info fs-4 mb-2"></i>
-                  <small class="text-muted d-block">Autres spécialités</small>
-                  <span class="fw-semibold">{{ agent.autres_specialites }}</span>
+                  <small class="text-muted d-block">Autres matières</small>
+                  <span class="fw-semibold">{{ agent.autres_matieres }}</span>
                 </div>
               </div>
             </div>

@@ -122,12 +122,14 @@ class EnfantsParentView(ParentBaseView):
     view_name = 'enfants_parent'
     
 
-class EnfantDetailView(TemplateView):
+class EnfantDetailView(BaseContextView, TemplateView):
     template_name = "Utilisateur/Parent/enfants.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         enfant = get_object_or_404(Etudiant, utilisateur__pk=self.kwargs["pk"])
         context["enfant"] = enfant
+        context["pk"] = self.kwargs["pk"]
+        context["model_type"] = 'enfants_parent'
         context["active_view"] = self.request.GET.get("view", "profil")
         return context
