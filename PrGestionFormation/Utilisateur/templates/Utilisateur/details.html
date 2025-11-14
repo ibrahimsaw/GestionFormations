@@ -19,10 +19,12 @@
 <div class="fixed-action-buttons">
   <div class="btn-group-vertical shadow-lg">
     <a href="{% url 'utilisateur:utilisateur_create' model_type %}" class="btn btn-primary btn-add rounded-pill mb-2">
-      <i class="bx bx-plus me-2"></i>Ajouter
+      <i class="bx bx-plus me-2"></i>
+        <span class="d-none d-sm-inline">Ajouter</span>
     </a>
     <a href="{% url 'utilisateur:utilisateur_list' model_type %}" class="btn btn-outline-primary btn-list rounded-pill">
-      <i class="bx bx-list-ul me-2"></i>Listes
+      <i class="bx bx-list-ul me-2"></i>
+        <span class="d-none d-sm-inline">Listes</span>
     </a>
   </div>
 </div>

@@ -129,12 +129,15 @@ class EnseignantForm(forms.ModelForm):
 
     class Meta:
         model = Enseignant
-        fields = ['matieres', 'autres_matieres', 'nouvelle_matiere']
+        fields = ['matieres', 'autres_matieres', 'bureau','date_embauche','grade']
         widgets = {
-            'matieres': forms.CheckboxSelectMultiple,
+            'matieres': forms.CheckboxSelectMultiple(),
             'autres_matieres': forms.TextInput(
                 attrs={'placeholder': 'Autres matières (séparées par des virgules)'}
-            )
+            ),
+            'date_embauche': forms.DateInput(attrs={'type': 'date'}),
+            'bureau': forms.TextInput(attrs={'class': 'form-control'}),
+            'grade': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -425,7 +428,7 @@ class EnseignantUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Enseignant
-        fields = ['matieres', 'autres_matieres']
+        fields = ['matieres', 'autres_matieres','bureau','date_embauche','grade']
         widgets = {
             'matieres': forms.CheckboxSelectMultiple,
             'autres_matieres': forms.TextInput(attrs={'placeholder': 'Autres matières (séparées par des virgules)'}),
@@ -450,9 +453,8 @@ class EnseignantUpdateForm(forms.ModelForm):
         self.instance.utilisateur = utilisateur
 
         instance = super().save(commit=False)
-        nouvelle_specialite = self.cleaned_data.get('nouvelle_specialite')
-        if nouvelle_specialite:
-            specialite, _ = Specialite.objects.get_or_create(nom=nouvelle_specialite.strip())
+        if nouvelle_specialite := self.cleaned_data.get('nouvelle_matiere'):
+            specialite, _ = Matiere.objects.get_or_create(nom=nouvelle_specialite.strip())
             instance.specialites.add(specialite)
 
         if commit:

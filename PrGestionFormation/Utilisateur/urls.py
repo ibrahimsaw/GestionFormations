@@ -22,7 +22,7 @@ urlpatterns = [
     # -----------------Creation-------------------
     path('ajouter/', UtilisateurCreateView.as_view(), name='utilisateur_create'),
     path('ajouter/<str:role>/', UtilisateurCreateView.as_view(), name='utilisateur_create'),
-    path('ajouter-specialite/', ajouter_specialite, name='ajouter_specialite'),
+    path('ajouter-matiere/', ajouter_matiere, name='ajouter_matiere'),
 
     # -----------------Liste-------------------
     # path('utilisateur/', views.ChoixListes_des_Utilisateurs.as_view(), name='liste_utilisateurs'),

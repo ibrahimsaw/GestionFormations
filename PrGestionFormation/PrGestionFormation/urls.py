@@ -28,6 +28,7 @@ urlpatterns = [
     path('utilisateur/', include('Utilisateur.urls')),
     path('finance/', include('Finance.urls')),
     path('permissions/', include('Permissions_Manager.urls')),
+    path('cours/', include('Cours.urls',namespace='cours')),
     path('formation/', include('Formation.urls',namespace='formation')),
     path('select2/', include('django_select2.urls')),
 ]

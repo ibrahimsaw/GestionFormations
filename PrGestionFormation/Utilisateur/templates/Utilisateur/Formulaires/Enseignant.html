@@ -3,39 +3,94 @@
   <h5 class="mb-0 text-center text-white">Informations {{ role_utilisateur }}</h5>
 </div>
 
+<!-- Champ date d'embauche,grade et bureau -->
+<div class="row">
+<div class="col-md-6 mb-3">
+  <label class="form-label" for="{{ form.date_embauche.id_for_label }}">Date d'embauche</label>
+  <div class="col-sm-12">
+    <div class="input-group input-group-merge">
+      <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+      <input type="date"
+             id="{{ form.date_embauche.id_for_label }}"
+             name="{{ form.date_embauche.html_name }}"
+             class="form-control"
+             value="{{ form.date_embauche.value|default:'' }}">
+    </div>
+    {% for error in form.date_embauche.errors %}
+    <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+<div class="col-md-6 mb-3">
+  <label class="form-label" for="{{ form.bureau.id_for_label }}">Bureau</label>
+  <div class="col-sm-12">
+    <div class="input-group input-group-merge">
+      <span class="input-group-text"><i class="bx bx-building"></i></span>
+      <input type="text"
+             id="{{ form.bureau.id_for_label }}"
+             name="{{ form.bureau.html_name }}"
+             class="form-control"
+             placeholder="Ex : Bâtiment A, Bureau 101"
+             value="{{ form.bureau.value|default:'' }}">
+    </div>
+    {% for error in form.bureau.errors %}
+    <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+<div class="col-md-6 mb-3">
+  <label class="form-label" for="{{ form.grade.id_for_label }}">Grade</label>
+  <div class="col-sm-12">
+    <div class="input-group input-group-merge">
+      <span class="input-group-text"><i class="bx bx-award"></i></span>
+      <input type="text"
+             id="{{ form.grade.id_for_label }}"
+             name="{{ form.grade.html_name }}"
+             class="form-control"
+             placeholder="Ex : Professeur, Maître de conférences"
+             value="{{ form.grade.value|default:'' }}">
+    </div>
+    {% for error in form.grade.errors %}
+    <div class="text-danger small">⚠️ {{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+</div>
+
 <!-- Corps de la carte -->
 <div class="row">
- <small class="text-light">Spécialités disponibles</small>
+ <small class="text-light">Matières disponibles</small>
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-    {% for specialite in specialites %}
+    {% for matiere in matieres %}
     <div class="col">
       <div class="form-check p-3 border rounded shadow-sm bg-light h-100">
-        <input type="checkbox" name="specialites" value="{{ specialite.id }}"
-               class="form-check-input" id="spec_{{ specialite.id }}">
-        <label class="form-check-label ms-2" for="spec_{{ specialite.id }}">
-          {{ specialite.nom }}
+        <input type="checkbox" name="matieres" value="{{ matiere.id }}"
+               class="form-check-input" id="matiere_{{ matiere.id }}">
+        <label class="form-check-label ms-2" for="matiere_{{ matiere.id }}">
+          {{ matiere.nom }}
         </label>
+        <span class="d-block text-muted small mt-1">{{ matiere.description }}</span>
       </div>
     </div>
     {% endfor %}
   </div>
 </div>
 
-<!-- Champ Autres spécialités -->
+<!-- Champ Autres matières -->
 <div class="row">
 <div class="row mb-3 mt-4">
-  <label class="col-sm-2 col-form-label fw-bold" for="{{ form.autres_specialites.id_for_label }}">Autres spécialités</label>
+  <label class="col-sm-2 col-form-label fw-bold" for="{{ form.autres_matieres.id_for_label }}">Autres matières</label>
   <div class="col-sm-10">
     <div class="input-group input-group-merge">
       <span class="input-group-text"><i class="bx bx-text"></i></span>
       <input type="text"
-             id="{{ form.autres_specialites.id_for_label }}"
-             name="{{ form.autres_specialites.html_name }}"
+             id="{{ form.autres_matieres.id_for_label }}"
+             name="{{ form.autres_matieres.html_name }}"
              class="form-control"
-             placeholder="Spécialité 1, Spécialité 2 ..."
-             value="{{ form.autres_specialites.value|default:'' }}">
+             placeholder="Matière 1, Matière 2 ..."
+             value="{{ form.autres_matieres.value|default:'' }}">
     </div>
-    {% for error in form.autres_specialites.errors %}
+    {% for error in form.autres_matieres.errors %}
     <div class="text-danger small">⚠️ {{ error }}</div>
     {% endfor %}
   </div>
@@ -43,30 +98,32 @@
 
 <!-- Bouton ouvrir modal -->
 <div class="text-end">
-  <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAjouterSpecialite">
-    ➕ Ajouter une spécialité
+  <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAjouterMatiere">
+    ➕ Ajouter une Matière
   </button>
 </div>
 </div>
 
 <!-- Modale -->
-<div class="modal fade" id="modalAjouterSpecialite" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalAjouterMatiere" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Ajouter une spécialité</h5>
+        <h5 class="modal-title text-white fw-bold">Ajouter une matière</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label for="nomSpecialite" class="form-label">Nom de la spécialité</label>
-          <input type="text" class="form-control" id="nomSpecialite" placeholder="Ex : Réseaux informatiques">
-          <div class="invalid-feedback" id="errorSpecialite"></div>
+          <label for="nomMatiere" class="form-label fw-bold">Nom de la matière</label>
+          <input type="text" class="form-control" id="nomMatiere" placeholder="Ex : Réseaux informatiques">
+          <label for="descriptionMatiere" class="form-label fw-bold mt-3">Description</label>
+          <textarea class="form-control" id="descriptionMatiere" rows="3" placeholder="Description de la matière"></textarea>
+          <div class="invalid-feedback" id="errorMatiere"></div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="btnAjouterSpecialite">Ajouter</button>
+        <button type="button" class="btn btn-success" id="btnAjouterMatiere">Ajouter</button>
       </div>
     </div>
   </div>
@@ -75,30 +132,32 @@
 <!-- Script AJAX -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const btnAjouter = document.getElementById('btnAjouterSpecialite');
-  const nomSpecialite = document.getElementById('nomSpecialite');
-  const errorSpecialite = document.getElementById('errorSpecialite');
+  const btnAjouter = document.getElementById('btnAjouterMatiere');
+  const nomMatiere = document.getElementById('nomMatiere');
+  const descriptionMatiere = document.getElementById('descriptionMatiere');
+  const errorMatiere = document.getElementById('errorMatiere');
 
   btnAjouter.addEventListener('click', function () {
-    const nom = nomSpecialite.value.trim();
+    const nom = nomMatiere.value.trim();
 
     // Réinitialiser erreurs
-    nomSpecialite.classList.remove('is-invalid');
-    errorSpecialite.textContent = "";
-
+    nomMatiere.classList.remove('is-invalid');
+    descriptionMatiere.classList.remove('is-invalid');
+    errorMatiere.textContent = "";
     if (!nom) {
-      errorSpecialite.textContent = "Veuillez saisir un nom.";
-      nomSpecialite.classList.add('is-invalid');
+      errorMatiere.textContent = "Veuillez saisir un nom.";
+      nomMatiere.classList.add('is-invalid');
+      descriptionMatiere.classList.add('is-invalid');
       return;
     }
 
-    fetch("{% url 'utilisateur:ajouter_specialite' %}", {
+    fetch("{% url 'utilisateur:ajouter_matiere' %}", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': '{{ csrf_token }}'
       },
-      body: JSON.stringify({ nom: nom })
+      body: JSON.stringify({ nom: nom, description: descriptionMatiere.value.trim() })
     })
     .then(response => response.json())
     .then(data => {
@@ -109,28 +168,28 @@ document.addEventListener('DOMContentLoaded', function () {
         col.className = 'col';
         col.innerHTML = `
           <div class="form-check p-3 border rounded shadow-sm bg-light h-100">
-            <input type="checkbox" name="specialites" value="${data.id}"
-                   class="form-check-input" id="spec_${data.id}" checked>
-            <label class="form-check-label ms-2" for="spec_${data.id}">
-              ${data.nom}
+            <input type="checkbox" name="matieres" value="${data.id}"
+                  class="form-check-input" id="matiere_${data.id}" checked>
+            <label class="form-check-label ms-2" for="matiere_${data.id}">
+              ${data.nom} - ${data.description}
             </label>
           </div>
         `;
         grid.appendChild(col);
 
         // Fermer la modale
-        const modalElement = document.getElementById('modalAjouterSpecialite');
+        const modalElement = document.getElementById('modalAjouterMatiere');
         const modal = bootstrap.Modal.getInstance(modalElement);
         modal.hide();
-        nomSpecialite.value = '';
+        nomMatiere.value = '';
       } else {
-        errorSpecialite.textContent = data.error || "Erreur lors de l'ajout.";
-        nomSpecialite.classList.add('is-invalid');
+        errorMatiere.textContent = data.error || "Erreur lors de l'ajout.";
+        nomMatiere.classList.add('is-invalid');
       }
     })
     .catch(() => {
-      errorSpecialite.textContent = "Erreur de connexion.";
-      nomSpecialite.classList.add('is-invalid');
+      errorMatiere.textContent = "Erreur de connexion.";
+      nomMatiere.classList.add('is-invalid');
     });
   });
 });

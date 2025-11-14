@@ -118,6 +118,11 @@ navbarAdmin = [
         "ul": "Tableau de bord", "bouton": "true", "role": "Administrateur",
         "url": "utilisateur:bienvenu"
     },
+    {
+        "ul": "Liste des utilisateurs", "bouton": "true", "role": "Parent",
+        "url": "utilisateur:utilisateur_list",
+        "icon": "bx bx-group"
+    },
     ]
 navbarAgent = [
     {

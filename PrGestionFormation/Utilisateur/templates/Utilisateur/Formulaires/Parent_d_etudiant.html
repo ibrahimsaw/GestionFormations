@@ -1,201 +1,171 @@
 {% load static %}
 
 <div class="bg-primary py-3 px-4 rounded mb-4">
-  <h5 class="mb-0 text-center text-white">Informations {{ role_utilisateur }}</h5>
+  <h5 class="mb-0 text-center text-white">
+    Informations {{ role_utilisateur }}
+  </h5>
 </div>
 
-  <!-- Barre de recherche -->
-  <div class="input-group mb-3">
-    <span class="input-group-text bg-light">
-      <i class="bi bi-search"></i>
-    </span>
-      <label for="searchEtudiants"></label><input type="text" class="form-control" id="searchEtudiants" placeholder="Rechercher par matricule, nom ou prénom...">
-  </div>
+<!-- Barre de recherche -->
+<div class="input-group mb-3">
+  <span class="input-group-text bg-light">
+    <i class="bi bi-search"></i>
+  </span>
+  <label for="searchEtudiants"></label>
+  <input
+    type="text"
+    class="form-control"
+    id="searchEtudiants"
+    placeholder="Rechercher par matricule, nom ou prénom..."
+  />
+</div>
 
-  <!-- Tout sélectionner / désélectionner -->
-  <div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" id="selectAllEtudiants">
-    <label class="form-check-label" for="selectAllEtudiants">
-      Tout sélectionner / Désélectionner
-    </label>
-  </div>
- 
-  <!-- Éléments sélectionnés -->
-  <h5 class="section-title" id="selectedTitle">Enfants sélectionnés</h5>
-  <ul class="list-group mb-3" id="selectedList"></ul>
+<!-- Tout sélectionner / désélectionner -->
+<div class="form-check mb-3">
+  <input class="form-check-input" type="checkbox" id="selectAllEtudiants" />
+  <label class="form-check-label" for="selectAllEtudiants">
+    Tout sélectionner / Désélectionner
+  </label>
+</div>
 
-  <!-- Résultats filtrés -->
-  <h5 class="section-title" id="etudiantsTitle">Enfants disponibles</h5>
-  <ul class="list-group" id="etudiantsList">
-    {% if not etudiants %}
-    <div class="alert alert-warning">
-      Aucun étudiant disponible pour association.
-    </div>
-    {% endif %}
-  </ul>
+<!-- Éléments sélectionnés -->
+<h5 class="section-title" id="selectedTitle">Enfants sélectionnés</h5>
+<ul class="list-group mb-3" id="selectedList"></ul>
 
-  <!-- Champ caché pour stocker les sélections -->
-  <input type="hidden" name="enfants_json" id="enfantsJson" value="">
-
-
-<script>
-// Amélioration complète du script JavaScript pour gestion des étudiants
-// Design plus élégant, titres dynamiques et comportement intelligent
-
-const etudiantItems = [
+<!-- Résultats filtrés -->
+<h5 class="section-title" id="etudiantsTitle">Enfants disponibles</h5>
+<!-- Conteneur scrollable pour les étudiants disponibles -->
+<div class="overflow-auto border rounded p-2 mb-3" style="max-height: 400px;">
+<ul class="list-group list-group-flush" id="etudiantsList">
   {% for etudiant in etudiants %}
-  {
-    id: {{ etudiant.utilisateur.id }},
-    matricule: "{{ etudiant.utilisateur.matricule|escapejs }}",
-    nom: "{{ etudiant.utilisateur.last_name|escapejs }}",
-    prenom: "{{ etudiant.utilisateur.first_name|escapejs }}",
-    email: "{{ etudiant.utilisateur.email|default:''|escapejs }}",
-    classe: "{{ etudiant.classe_actuelle|default:'Niveau non défini'|escapejs }}",
-    classeNom: "{{ etudiant.classe_actuelle.nom|default:'Niveau non défini'|escapejs }}",
-    photo: "{% if etudiant.utilisateur.photo %}{{ etudiant.utilisateur.photo.url }}{% else %}{% static 'assets/img/avatars/1.png' %}{% endif %}",
-    selected: {% if etudiant in form.instance.enfants.all %}true{% else %}false{% endif %}
-  }{% if not forloop.last %},{% endif %}
+  <li class="list-group-item border rounded shadow-sm mb-2">
+    <div class="d-flex align-items-center gap-1 w-100">
+      <input
+        type="checkbox"
+        class="form-check-input me-2 mt-1"
+        name="enfants"
+        value="{{ etudiant.utilisateur.id }}"
+        id="etudiant-{{ etudiant.utilisateur.id }}"
+        {% if etudiant in form.instance.enfants.all %}checked{% endif %}
+      />
+      <div class="position-relative w-100 d-flex align-items-center gap-1">
+        <img
+          src="{% if etudiant.utilisateur.photo %}{{ etudiant.utilisateur.photo.url }}{% else %}{% static 'assets/img/avatars/1.png' %}{% endif %}"
+          alt="Photo de {{ etudiant.utilisateur.first_name }}"
+          class="rounded-circle"
+          style="width: 60px; height: 60px"
+        />
+        <div class="flex-grow-1">
+          <strong>{{ etudiant.utilisateur.last_name }} {{ etudiant.utilisateur.first_name }}</strong><br />
+          <small>{{ etudiant.utilisateur.matricule }} | {{ etudiant.utilisateur.email }}</small>
+          {% if etudiant.classe_actuelle %}
+            {% if etudiant.classe_actuelle.nom|length > 20 %}
+            <div class="mt-1">
+              <span class="badge bg-warning text-dark">{{ etudiant.classe_actuelle.nom }}</span>
+            </div>
+            {% else %}
+            <span
+              class="badge bg-warning text-dark position-absolute end-0 top-50 translate-middle-y"
+              style="transform: translateY(-50%) rotate(90deg); transform-origin: center;"
+            >{{ etudiant.classe_actuelle.nom }}</span>
+            {% endif %}
+          {% else %}
+            <div class="mt-1">
+              <span class="badge bg-secondary text-white">Niveau non défini</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </li>
   {% endfor %}
-];
+  {% if not etudiants %}
+  <div class="alert alert-warning">
+    Aucun étudiant disponible pour association.
+  </div>
+  {% endif %}
+</ul>
+</div>
 
-const etudiants = etudiantItems.map(e => ({
-  ...e,
-  displayText: `${e.matricule} ${e.nom} ${e.prenom}`.toLowerCase()
-}));
+<!-- Champ caché pour stocker les sélections -->
+<input type="hidden" name="enfants_json" id="enfantsJson" value="" />
 
-const selectedEtudiants = new Map();
-etudiants.forEach(e => { if (e.selected) selectedEtudiants.set(e.id, e); });
+<!-- Script JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("searchEtudiants");
+  const selectedList = document.getElementById("selectedList");
+  const etudiantsList = document.getElementById("etudiantsList");
+  const selectAllCheckbox = document.getElementById("selectAllEtudiants");
+  const enfantsJsonInput = document.getElementById("enfantsJson");
 
-const searchInput = document.getElementById("searchEtudiants");
-const selectedTitle = document.getElementById("selectedTitle");
-const etudiantsTitle = document.getElementById("etudiantsTitle");
-const selectedList = document.getElementById("selectedList");
-const etudiantsList = document.getElementById("etudiantsList");
-const selectAllCheckbox = document.getElementById("selectAllEtudiants");
-const enfantsJsonInput = document.getElementById("enfantsJson");
-
-function createEtudiantItem(etudiant, isSelected) {
-  const li = document.createElement("li");
-  li.className = `list-group-item border rounded shadow-sm mb-2 ${isSelected ? 'bg-light' : ''}`;
-  li.dataset.id = etudiant.id;
-
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.className = "form-check-input me-2 mt-1";
-  checkbox.checked = isSelected;
-  checkbox.value = etudiant.id;
-  checkbox.name = "enfants";
-  checkbox.id = `etudiant-${etudiant.id}`;
-
-  checkbox.addEventListener("change", () => {
-    if (checkbox.checked) selectedEtudiants.set(etudiant.id, etudiant);
-    else selectedEtudiants.delete(etudiant.id);
-    updateSelectAllState();
-    renderLists();
-    updateHiddenInput();
+  // Récupérer tous les étudiants à partir des li existants
+  const etudiants = Array.from(etudiantsList.querySelectorAll("li")).map(li => {
+    const checkbox = li.querySelector("input[type=checkbox]");
+    const nomPrenom = li.querySelector("strong").textContent.trim();
+    const matriculeEmail = li.querySelector("small").textContent.trim();
+    const photo = li.querySelector("img").src;
+    const classe = li.querySelector(".badge").textContent.trim();
+    return {
+      li: li,
+      checkbox: checkbox,
+      nomPrenom: nomPrenom,
+      matriculeEmail: matriculeEmail,
+      photo: photo,
+      classe: classe,
+      selected: checkbox.checked
+    };
   });
 
-  const content = document.createElement("div");
-  content.className = "d-flex align-items-center gap-1 w-100";
+  function render() {
+    selectedList.innerHTML = "";
+    etudiantsList.innerHTML = "";
 
-  const photo = document.createElement("img");
-  photo.src = etudiant.photo;
-  photo.alt = `Photo de ${etudiant.prenom}`;
-  photo.className = "rounded-circle";
-  photo.style.width = "60px";
-  photo.style.height = "60px";
+    const filter = searchInput.value.toLowerCase().trim();
+    let selectedCount = 0;
 
-  const info = document.createElement("div");
-  info.className = "flex-grow-1";
-  const classeNomHtml = etudiant.classeNom.length > 20
-    ? `<div class='mt-1'><span class='badge bg-warning text-dark'>${etudiant.classeNom}</span></div>`
-    : `<span class='badge bg-warning text-dark position-absolute end-0 top-50 translate-middle-y' style='transform: translateY(-50%) rotate(90deg); transform-origin: center;'>${etudiant.classeNom}</span>`;
+    etudiants.forEach(e => {
+      const text = (e.nomPrenom + " " + e.matriculeEmail).toLowerCase();
+      if (!text.includes(filter)) return;
 
-  info.innerHTML = `
-    <strong>${etudiant.nom} ${etudiant.prenom}</strong><br>
-    <small>${etudiant.matricule} | ${etudiant.email}</small>
-    ${classeNomHtml}`;
+      e.checkbox.checked = e.selected; // synchro checkbox
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "position-relative w-100 d-flex align-items-center gap-1";
-  wrapper.appendChild(photo);
-  wrapper.appendChild(info);
+      if (e.selected) {
+        selectedList.appendChild(e.li);
+        selectedCount++;
+      } else {
+        etudiantsList.appendChild(e.li);
+      }
+    });
 
-  content.appendChild(checkbox);
-  content.appendChild(wrapper);
-  li.appendChild(content);
+    // Tout sélectionner / désélectionner
+    selectAllCheckbox.checked = selectedCount === etudiants.length;
+    selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < etudiants.length;
 
-  li.addEventListener("click", e => {
-    if (!["INPUT", "BUTTON", "A"].includes(e.target.tagName)) {
-      checkbox.checked = !checkbox.checked;
-      checkbox.dispatchEvent(new Event("change"));
-    }
-  });
-
-  return li;
-}
-
-function updateSelectAllState() {
-  selectAllCheckbox.checked = selectedEtudiants.size === etudiants.length;
-  selectAllCheckbox.indeterminate = selectedEtudiants.size > 0 && selectedEtudiants.size < etudiants.length;
-}
-
-function updateHiddenInput() {
-  enfantsJsonInput.value = JSON.stringify([...selectedEtudiants.keys()]);
-}
-
-function renderLists() {
-  selectedList.innerHTML = "";
-  etudiantsList.innerHTML = "";
-
-  const filter = searchInput.value.toLowerCase().trim();
-  const showFilter = filter.length > 0;
-
-  let hasSelected = false;
-  let hasUnselected = false;
-
-  [...selectedEtudiants.values()].forEach(e => {
-    if (!showFilter || e.displayText.includes(filter)) {
-      selectedList.appendChild(createEtudiantItem(e, true));
-      hasSelected = true;
-    }
-  });
-
-  etudiants.forEach(e => {
-    if (!selectedEtudiants.has(e.id) && (!showFilter || e.displayText.includes(filter))) {
-      etudiantsList.appendChild(createEtudiantItem(e, false));
-      hasUnselected = true;
-    }
-  });
-
-  if (showFilter && !hasSelected && !hasUnselected) {
-    const li = document.createElement("li");
-    li.className = "list-group-item text-muted text-center";
-    li.textContent = "Aucun étudiant trouvé";
-    etudiantsList.appendChild(li);
+    // Mise à jour champ caché
+    enfantsJsonInput.value = JSON.stringify(etudiants.filter(e => e.selected).map(e => e.checkbox.value));
   }
 
-  selectedTitle.style.display = hasSelected ? 'block' : 'none';
-  etudiantsTitle.style.display = hasUnselected ? 'block' : 'none';
-}
+  // Gestion click sur chaque checkbox
+  etudiants.forEach(e => {
+    e.checkbox.addEventListener("change", () => {
+      e.selected = e.checkbox.checked;
+      render();
+    });
+  });
 
-selectAllCheckbox.addEventListener("change", () => {
-  if (selectAllCheckbox.checked) etudiants.forEach(e => selectedEtudiants.set(e.id, e));
-  else selectedEtudiants.clear();
-  renderLists();
-  updateHiddenInput();
+  // Recherche
+  searchInput.addEventListener("input", () => {
+    render();
+  });
+
+  // Tout sélectionner / désélectionner
+  selectAllCheckbox.addEventListener("change", () => {
+    const check = selectAllCheckbox.checked;
+    etudiants.forEach(e => e.selected = check);
+    render();
+  });
+
+  render(); // rendu initial
 });
-
-let searchTimeout;
-searchInput.addEventListener("input", () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(renderLists, 300);
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  updateSelectAllState();
-  updateHiddenInput();
-  renderLists();
-});
-
 </script>

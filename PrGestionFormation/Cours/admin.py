@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Salle, Matiere, Chapitre, Evaluation, Note, Cours
+from .models import *
 from Utilisateur.models import Etudiant, Enseignant
 from Formation.models import Classe
 
@@ -18,10 +18,9 @@ class SalleAdmin(admin.ModelAdmin):
 # --------------------------
 @admin.register(Matiere)
 class MatiereAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'code', 'coefficient', 'volume_horaire')
-    list_filter = ('classes',)
+    list_display = ('nom', 'code','description')
     search_fields = ('nom', 'code')
-    filter_horizontal = ('classes',)  # pratique pour ManyToMany
+    ordering = ('nom',)
 
 # --------------------------
 # Admin Chapitre
@@ -56,7 +55,21 @@ class NoteAdmin(admin.ModelAdmin):
 # --------------------------
 @admin.register(Cours)
 class CoursAdmin(admin.ModelAdmin):
-    list_display = ('matiere', 'classe', 'enseignant', 'salle', 'date', 'heure_debut', 'heure_fin', 'type_cours')
-    list_filter = ('matiere', 'classe', 'enseignant', 'salle', 'type_cours', 'date')
-    search_fields = ('matiere__nom', 'classe__nom', 'enseignant__nom')
+    list_display = ('enseignement', 'salle', 'date', 'heure_debut', 'heure_fin', 'type_cours')
+    list_filter = ('enseignement__matiere_classe__matiere', 'enseignement__matiere_classe__classe', 'enseignement__enseignant', 'salle', 'type_cours', 'date')
+    search_fields = ('enseignement__matiere_classe__matiere__nom', 'enseignement__matiere_classe__classe__nom', 'enseignement__enseignant__nom')
     date_hierarchy = 'date'
+
+@admin.register(Enseignement)
+class EnseignementAdmin(admin.ModelAdmin):
+    list_display = ('enseignant', 'matiere_classe', 'annee_academique')
+    list_filter = ('annee_academique', 'matiere_classe__matiere', 'matiere_classe__classe')
+    search_fields = ('enseignant__nom', 'matiere_classe__matiere__nom', 'matiere_classe__classe__nom')
+    ordering = ('annee_academique',)
+
+@admin.register(MatiereClasse)
+class MatiereClasseAdmin(admin.ModelAdmin):
+    list_display = ('matiere', 'classe', 'coefficient')
+    list_filter = ('classe', 'matiere')
+    search_fields = ('matiere__nom', 'classe__nom')
+    ordering = ('classe', 'matiere')

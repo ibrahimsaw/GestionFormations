@@ -1,3 +1,4 @@
+import contextlib
 import os
 import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PrGestionFormation.settings")
@@ -9,7 +10,7 @@ from datetime import date
 from unidecode import unidecode
 from django.utils import timezone
 from Utilisateur.models import Genre, FonctionAgent, Utilisateur, AdminSysteme, AgentAdministration, Enseignant, Etudiant, Parent
-from Cours.models import Salle, Matiere, Chapitre, Evaluation, Note, Cours
+from Cours.models import Matiere, MatiereClasse, Salle
 from Formation.models import TypeFormation, Specification, Parcours, Formation, Classe, AnneeAcademique
 from Finance.models import Inscription
 from Utilisateur.models import RolePermission
@@ -24,25 +25,33 @@ Specification.initialiser_specifications_par_defaut()
 TypeFormation.initialiser_types_par_defaut()
 
 matieres = [
-    {"nom": "Mathématiques", "code": "MAT101", "coefficient": 4, "volume_horaire": 6},
-    {"nom": "Français", "code": "FR101", "coefficient": 3, "volume_horaire": 5},
-    {"nom": "SVT", "code": "SVT101", "coefficient": 2, "volume_horaire": 4},
-    {"nom": "Histoire", "code": "HIS101", "coefficient": 2, "volume_horaire": 3},
-    {"nom": "Anglais", "code": "ANG101", "coefficient": 2, "volume_horaire": 4},
-    {"nom": "Physique", "code": "PHY101", "coefficient": 3, "volume_horaire": 5},
-    {"nom": "Philosophie", "code": "PHI101", "coefficient": 1, "volume_horaire": 2},
-    {"nom": "Informatique", "code": "INFO101", "coefficient": 4, "volume_horaire": 6},
-    {"nom": "Comptabilité", "code": "COM101", "coefficient": 3, "volume_horaire": 5},
+    {"nom": "Mathématiques", "code": "MAT101","description":"Cours de mathématiques de base"},
+    {"nom": "Français", "code": "FR101","description":"Cours de langue française"},
+    {"nom": "SVT", "code": "SVT101","description":"Sciences de la Vie et de la Terre"},
+    {"nom": "Histoire", "code": "HIS101","description":"Cours d'histoire générale"},
+    {"nom": "Anglais", "code": "ANG101","description":"Cours de langue anglaise"},
+    {"nom": "Physique", "code": "PHY101","description":"Cours de physique fondamentale"},
+    {"nom": "Philosophie", "code": "PHI101","description":"Introduction à la philosophie"},
+    {"nom": "Informatique", "code": "INFO101","description":"Bases de l'informatique"},
+    {"nom": "Comptabilité", "code": "COM101","description":"Cours de comptabilité de base"},
+    {"nom": "Économie", "code": "ECO101","description":"Principes fondamentaux de l'économie"},
+    {"nom": "Droit", "code": "DRO101","description":"Introduction au droit"},
+    {"nom": "Gestion", "code": "GES101","description":"Principes de gestion d'entreprise"},
+    {"nom": "Marketing", "code": "MAR101","description":"Bases du marketing"},
+    {"nom": "Électronique", "code": "ELE101","description":"Introduction à l'électronique"},
+    {"nom": "Mécanique", "code": "MEC101","description":"Principes de la mécanique"},
+    {"nom": "Chimie", "code": "CHI101","description":"Cours de chimie générale"},     
+    {"nom": "Biologie", "code": "BIO101","description":"Introduction à la biologie"},
+    {"nom": "Géographie", "code": "GEO101","description":"Cours de géographie générale"},
+    {"nom": "Arts Plastiques", "code": "ART101","description":"Introduction aux arts plastiques"},
+    {"nom": "Musique", "code": "MUS101","description":"Bases de la musique"},
+    {"nom": "Sport", "code": "SPO101","description":"Éducation physique et sportive"}
 ]
 
 for m in matieres:
     Matiere.objects.get_or_create(
         nom=m["nom"],
-        defaults={
-            "code": m["code"],
-            "coefficient": m["coefficient"],
-            "volume_horaire": m["volume_horaire"]
-        }
+        defaults={"code": m["code"], "description": m["description"]}
     )
 # 2. Création des années académiques, parcours, formations et classes
 
@@ -109,6 +118,47 @@ for nom in pro_formations:
     formation.creer_classes(annee)
     classes += list(Classe.objects.filter(formation=formation, annee_academique=annee))
 
+# Création des MatiereClasse pour toutes les classes
+for classe in classes:
+    # Pour chaque classe, choisir un sous-ensemble aléatoire de matières
+    nombre_matieres = random.randint(4, len(matieres))  # chaque classe a 4 à n matières
+    matieres_selectionnees = random.sample(matieres, nombre_matieres)
+
+    for m in matieres_selectionnees:
+        matiere = Matiere.objects.get(nom=m["nom"])
+        coefficient = random.randint(1, 5)  # coefficient aléatoire entre 1 et 5
+        volume_horaire = random.randint(10, 200)  # volume horaire entre 10 et 200 h
+
+        MatiereClasse.objects.get_or_create(
+            matiere=matiere,
+            classe=classe,
+            defaults={
+                "coefficient": coefficient,
+                "volume_horaire": volume_horaire
+            }
+        )
+
+salles = [
+    {"nom": "Salle A1", "type": "COURS", "capacite": 30, "projecteur": True},
+    {"nom": "Salle A2", "type": "COURS", "capacite": 25, "projecteur": False},
+    {"nom": "Salle B1", "type": "INFO", "capacite": 20, "ordinateurs": True},
+    {"nom": "Salle B2", "type": "LABO", "capacite": 15, "projecteur": True},
+    {"nom": "Amphi 1", "type": "AMPHI", "capacite": 100, "projecteur": True},
+]
+
+for s in salles:
+    Salle.objects.get_or_create(
+        nom=s["nom"],
+        defaults={
+            "type": s.get("type", "COURS"),
+            "capacite": s.get("capacite", 20),
+            "projecteur": s.get("projecteur", False),
+            "climatisation": s.get("climatisation", False),
+            "ordinateurs": s.get("ordinateurs", False),
+            "tableau_blanc": s.get("tableau_blanc", True),
+        }
+    )
+
 # 4. Génération des utilisateurs
 prenoms_hommes = ["Adama", "Issa", "Salif", "Boureima", "Oumar", "Daouda", "Abdoul", "Ibrahim", "Souleymane"]
 prenoms_femmes = ["Awa", "Mariam", "Aminata", "Fatoumata", "Rasmata", "Safiatou", "Rokiatou", "Alima", "Kadidia"]
@@ -134,11 +184,9 @@ def generer_date_aleatoire_6mois():
     rand_seconds = random.randint(0, max(0, total_seconds))
     rand_dt = six_months_ago + _dt.timedelta(seconds=rand_seconds)
     # s'assurer que la datetime est timezone-aware
-    try:
+    with contextlib.suppress(Exception):
         if timezone.is_naive(rand_dt):
             rand_dt = timezone.make_aware(rand_dt)
-    except Exception:
-        pass
     return rand_dt
 
 def creer_utilisateur(role, prenom, nom, genre, date_inscription=None):
@@ -161,19 +209,16 @@ def creer_utilisateur(role, prenom, nom, genre, date_inscription=None):
         if isinstance(date_inscription, _dt.date) and not isinstance(date_inscription, _dt.datetime):
             dt = _dt.datetime.combine(date_inscription, _dt.time.min)
         # Rendre la datetime timezone-aware si nécessaire
-        try:
+        with contextlib.suppress(Exception):
             if timezone.is_naive(dt):
                 dt = timezone.make_aware(dt)
-        except Exception:
-            # Si timezone utilities ne sont pas applicables, on ignore
-            pass
         user.date_inscription = dt
         user.save(update_fields=['date_inscription'])
 
     return user
 
 # Admins
-for _ in range(2):
+for _ in range(5):
     prenom = random.choice(prenoms_hommes)
     nom = random.choice(noms_famille)
     user = creer_utilisateur("ADMIN", prenom, nom, genres["H"], date_inscription=generer_date_aleatoire_6mois())
@@ -213,7 +258,7 @@ while any(c < 3 for c in fonction_counts.values()):
 
 # Enseignants
 specialites = list(Matiere.objects.all())
-for _ in range(5):
+for _ in range(10):
     prenom = random.choice(prenoms_hommes)
     nom = random.choice(noms_famille)
     user = creer_utilisateur("ENSEIGNANT", prenom, nom, genres["H"], date_inscription=generer_date_aleatoire_6mois())

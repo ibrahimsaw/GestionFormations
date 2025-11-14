@@ -2,7 +2,10 @@ import json
 import logging
 from itertools import chain
 from django.db.models import Count
-
+from django.http import JsonResponse
+from django.utils.text import slugify
+import random
+import string
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -205,7 +208,7 @@ class ModifierMotDePasseUtilisateurView(View):
         cumulative_path = ''
         breadcrumb = []
         for i, part in enumerate(path):
-            cumulative_path += '/' + part
+            cumulative_path += f'/{part}'
             print('name :', part.capitalize())
             print('url :', cumulative_path)
             breadcrumb.append({
@@ -276,7 +279,6 @@ class UtilisateurBaseView(BaseContextView):
         self.message = getattr(self, 'message', '')
         self.view_name = request.resolver_match.view_name.split(':')[-1]
         
-            
         self.model_type = kwargs.get('role')
 
         if self.view_name == 'profil_etudiant':
@@ -464,7 +466,6 @@ class UtilisateurCreateView(UtilisateurBaseView, CreateView):
 
         if hasattr(form, 'utilisateur_form'):
             self.messagecreate += "==> utilisateur_form détecté"
-
             if form.utilisateur_form.is_valid():
                 self.messagecreate += "==> utilisateur_form valide"
 
@@ -514,11 +515,10 @@ class UtilisateurCreateView(UtilisateurBaseView, CreateView):
         context['utilisateur_form'] = getattr(form, 'utilisateur_form', None)
 
         if self.model_type == 'enseignant':
-            context['specialites'] = Specialite.objects.all()
-            context['specialite_form'] = SpecialiteForm(prefix='specialite')
+            context['matieres'] = Matiere.objects.all()
+            context['matiere_form'] = MatiereForm(prefix='matiere')
         elif self.model_type == 'parent':
             context['etudiants'] = Etudiant.objects.all()
-
         return context
 
     print(messagecreate)
@@ -540,7 +540,7 @@ def ajouter_specialite(request):
             }, status=400)
 
         # Créer la nouvelle spécialité
-        specialite = Specialite.objects.create(nom=nom)
+        specialite = Matiere.objects.create(nom=nom)
 
         return JsonResponse({
             "success": True,
@@ -554,6 +554,57 @@ def ajouter_specialite(request):
             "error": str(e)
         }, status=400)
 
+
+
+def generate_code(nom):
+    """Génère un code unique basé sur le nom de la matière."""
+    prefix = slugify(nom)[:3].upper()
+    suffix = ''.join(random.choices(string.digits, k=3))
+    code = f"{prefix}{suffix}"
+    
+    # S'assurer que le code est unique
+    while Matiere.objects.filter(code=code).exists():
+        suffix = ''.join(random.choices(string.digits, k=3))
+        code = f"{prefix}{suffix}"
+    return code
+
+
+
+def ajouter_matiere(request):
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "Méthode non autorisée"}, status=405)
+
+    try:
+        data = json.loads(request.body)  # <-- lecture du JSON
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Données invalides"}, status=400)
+
+    nom = data.get('nom', '').strip()
+    description = data.get('description', '').strip()
+
+    if not nom:
+        return JsonResponse({"success": False, "error": "Le nom de la matière est requis"}, status=400)
+
+    # Génération automatique du code
+    from django.utils.text import slugify
+    import random, string
+
+    prefix = slugify(nom)[:3].upper()
+    suffix = ''.join(random.choices(string.digits, k=3))
+    code = f"{prefix}{suffix}"
+    while Matiere.objects.filter(code=code).exists():
+        suffix = ''.join(random.choices(string.digits, k=3))
+        code = f"{prefix}{suffix}"
+
+    matiere = Matiere.objects.create(nom=nom, code=code, description=description)
+
+    return JsonResponse({
+        "success": True,
+        "id": matiere.id,
+        "nom": matiere.nom,
+        "code": matiere.code,
+        "description": matiere.description
+    })
 
 
 class UtilisateurListView(UtilisateurBaseView, ListView):

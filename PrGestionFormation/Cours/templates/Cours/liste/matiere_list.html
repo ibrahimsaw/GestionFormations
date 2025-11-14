@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="col-xl-12">
+    <div class="row g-3 mb-4 align-items-center justify-content-between">
+
+        <!-- Breadcrumb -->
+        {% include "nav_ol.html" %}
+
+        <div class="col-auto">
+            <div class="page-utilities">
+                <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
+
+                    <!-- Recherche -->
+                    <div class="col-auto">
+                        <form method="get" class="table-search-form row gx-1 align-items-center">
+                            <div class="col-auto">
+                                <input type="text" name="q" class="form-control"
+                                       placeholder="Rechercher..." value="{{ request.GET.q }}">
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn app-btn-secondary">Rechercher</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Filtre période -->
+                    <div class="col-auto">
+                        <select name="periode" class="form-select w-auto" onchange="this.form.submit()">
+                            <option value="">Tout</option>
+                            <option value="semaine" {% if request.GET.periode == 'semaine' %}selected{% endif %}>Cette semaine</option>
+                            <option value="mois" {% if request.GET.periode == 'mois' %}selected{% endif %}>Ce mois</option>
+                            <option value="3mois" {% if request.GET.periode == '3mois' %}selected{% endif %}>3 derniers mois</option>
+                        </select>
+                    </div>
+
+                    <!-- Bouton PDF -->
+                    <div class="col-auto">
+                        <a class="btn app-btn-secondary">
+                            <i class="bx bx-download"></i> Télécharger en PDF
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau de matières -->
+    <div class="card mb-4">
+        <div class="text-center">
+            <div class="alert bg-primary text-white">
+                <h5 class="mb-0">
+                    Table Matières
+                    <span class="badge bg-white text-dark float-end">{{ paginator.count }}</span>
+                </h5>
+            </div>
+        </div>
+
+        <div class="table-responsive scrollbar">
+            <table class="table table-bordered table-striped fs-10 mb-0">
+                <thead class="bg-200">
+                    <tr>
+                        <th>PK</th>
+                        <th>Nom</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for matiere in object_list %}
+                    <tr>
+                        <td>{{ matiere.pk }}</td>
+                        <td>{{ matiere.nom }}</td>
+                        <td>{{ matiere.code }}</td>
+                        <td>{{ matiere.description  }}</td>
+
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end">
+
+                                <!-- Détails -->
+                                <a href="{% url 'cours:matiere_detail' matiere.id %}"
+                                   class="btn btn-link p-0 me-2">
+                                    <i class="bx bx-show text-info fs-4"></i>
+                                </a>
+
+                                <!-- Modifier -->
+                                <a href="{% url 'cours:matiere_update' matiere.id %}"
+                                   class="btn btn-link p-0 me-2">
+                                    <i class="bx bx-edit text-warning fs-4"></i>
+                                </a>
+
+                                <!-- Supprimer -->
+                                <a href="{% url 'cours:matiere_delete' matiere.id %}"
+                                   class="btn btn-link p-0"
+                                   onclick="return confirm('Voulez-vous supprimer cette matière ?');">
+                                    <i class="bx bx-trash text-danger fs-4"></i>
+                                </a>
+
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="card-footer bg-light border-0 p-4">
+                <div class="text-center mb-3">
+                    <small class="text-muted">
+                        Page {{ page_obj.number }} sur {{ paginator.num_pages }}
+                        — Total : {{ paginator.count }} matières
+                    </small>
+                </div>
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-0">
+
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link rounded-pill me-2"
+                               href="?page={{ page_obj.previous_page_number }}">
+                                <i class="bx bx-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in paginator.page_range %}
+                        {% if num == page_obj.number %}
+                        <li class="page-item active">
+                            <span class="page-link rounded-pill mx-1">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link rounded-pill mx-1" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link rounded-pill ms-2"
+                               href="?page={{ page_obj.next_page_number }}">
+                                <i class="bx bx-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Bouton flottant -->
+<div class="fixed-action-buttons">
+    <a href="{% url 'cours:matiere_create' %}" class="btn btn-add">
+        <span class="tf-icons bx bx-notepad"></span> Ajouter
+    </a>
+</div>
+
+{% endblock %}

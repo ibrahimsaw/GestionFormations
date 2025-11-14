@@ -11,7 +11,7 @@
         </div>
         <div>
           <h5 class="mb-1 fw-bold">Zone de danger</h5>
-          <p class="mb-0 opacity-75">Supprimer définitivement ce compte</p>
+          <p class="mb-0 opacity-75">Supprimer définitivement {{ classe }}</p>
         </div>
       </div>
     </div>
@@ -26,10 +26,10 @@
             ⚠️ Attention : Action irréversible
           </h6>
           <p class="mb-0">
-            {% if object_name %} Vous êtes sur le point de supprimer
+            {% if object %} Vous êtes sur le point de supprimer
             définitivement
-            <strong>ID unique : {{ pk }}</strong>. {% else %} Vous êtes sur le
-            point de supprimer un compte utilisateur. {% endif %}
+            <strong>ID unique : {{ object.pk }}</strong>. {% else %} Vous êtes sur le
+            point de supprimer cette {{ classe }}. {% endif %}
             <br />
             Cette action ne peut pas être annulée et toutes les données
             associées seront perdues.
@@ -39,19 +39,17 @@
 
       <!-- Détails visibles -->
       <div class="mb-4 p-3 border rounded bg-light">
-        <h6 class="fw-bold mb-2">🧾 Détails de l'utilisateur :</h6>
+        <h6 class="fw-bold mb-2">🧾 Plus de Détails :</h6>
         <ul class="mb-0 list-unstyled">
-          <li><strong>ID unique :</strong> {{ pk }}</li>
-          <li><strong>Rôle :</strong> {{ role }}</li>
-          <li><strong>Info :</strong> {{ object_name }}</li>
-          <li><strong>Type :</strong> {{ type_name }}</li>
+          <li><strong>ID unique :</strong> {{ object.pk }}</li>
+          <li><strong>Info :</strong> {{ object.nom }}</li>
+          <li><strong>Type :</strong> {{ classe }}</li>
         </ul>
       </div>
 
       <!-- Formulaire de suppression -->
       <form
         method="POST"
-        action="{% url 'utilisateur:utilisateur_supprimer' role=role|lower pk=pk %}"
         id="formAccountDeactivation"
       >
         {% csrf_token %}
@@ -71,7 +69,7 @@
 
         <div class="d-flex justify-content-between">
           <a
-            href="{% url 'utilisateur:utilisateur_list' role %}"
+            href="{% url 'cours:salle_detail' type='salle' pk=object.pk %}"
             class="btn btn-secondary"
           >
             <i class="bx bx-arrow-back me-2"></i>Annuler

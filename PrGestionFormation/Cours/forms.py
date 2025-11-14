@@ -1,5 +1,5 @@
 from django import forms
-from .models import Salle, Matiere, Chapitre, Evaluation, Note, Cours
+from .models import Salle, Matiere, Chapitre, Evaluation, Note, Cours, MatiereClasse, Enseignement
 from Utilisateur.models import Etudiant, Enseignant
 from Formation.models import Classe
 
@@ -33,12 +33,45 @@ class MatiereForm(forms.ModelForm):
         widgets = {
             'nom': forms.TextInput(attrs={'class': 'form-control'}),
             'code': forms.TextInput(attrs={'class': 'form-control'}),
-            'coefficient': forms.NumberInput(attrs={'class': 'form-control'}),
-            'volume_horaire': forms.NumberInput(attrs={'class': 'form-control'}),
-            'classes': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
+class MatiereClasseForm(forms.ModelForm):
+    class Meta:
+        model = MatiereClasse
+        fields = '__all__'
+        widgets = {
+            'matiere': forms.Select(attrs={'class': 'form-select'}),
+            'classe': forms.Select(attrs={'class': 'form-select'}),
+            'coefficient': forms.NumberInput(attrs={'class': 'form-control'}),
+            'volume_horaire': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+class EnseignementForm(forms.ModelForm):
+    class Meta:
+        model = Enseignement
+        fields = '__all__'
+        widgets = {
+            'enseignant': forms.Select(attrs={'class': 'form-select'}),
+            'matiere_classe': forms.Select(attrs={'class': 'form-select'}),
+            'annee_scolaire': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Si une matière est déjà sélectionnée (dans le POST ou l’instance)
+        matiere_classe = self.initial.get('matiere_classe') or self.data.get('matiere_classe')
+
+        if matiere_classe := self.initial.get('matiere_classe') or self.data.get('matiere_classe'):
+            mc = MatiereClasse.objects.filter(pk=matiere_classe).first()
+            if mc:
+                # On filtre les enseignants qui enseignent cette matière
+                self.fields['enseignant'].queryset = Enseignant.objects.filter(matieres=mc.matiere)
+            else:
+                self.fields['enseignant'].queryset = Enseignant.objects.none()
+        else:
+            # Par défaut, on affiche tous les enseignants
+            self.fields['enseignant'].queryset = Enseignant.objects.all()
 # --------------------------
 # Formulaire Chapitre
 # --------------------------
@@ -90,9 +123,7 @@ class CoursForm(forms.ModelForm):
         model = Cours
         fields = '__all__'
         widgets = {
-            'matiere': forms.Select(attrs={'class': 'form-select'}),
-            'classe': forms.Select(attrs={'class': 'form-select'}),
-            'enseignant': forms.Select(attrs={'class': 'form-select'}),
+            'enseignement': forms.Select(attrs={'class': 'form-select'}),
             'salle': forms.Select(attrs={'class': 'form-select'}),
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'heure_debut': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),

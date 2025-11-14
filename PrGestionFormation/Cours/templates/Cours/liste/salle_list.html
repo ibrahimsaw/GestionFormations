@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+{% block content %}
+<div class="col-xl-12">
+    <div class="row g-3 mb-4 align-items-center justify-content-between">
+	        <!-- En-tête avec breadcrumb modernisé -->
+        {% include "nav_ol.html" %}
+	<div class="col-auto">
+		<div class="page-utilities">
+			<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
+				<div class="col-auto">
+					<form method="get" class="table-search-form row gx-1 align-items-center">
+						<div class="col-auto">
+							<input type="text" id="search-orders" name="q" class="form-control search-orders" placeholder="Rechercher..." value="{{ request.GET.q }}">
+						</div>
+						<div class="col-auto">
+							<button type="submit" class="btn app-btn-secondary">Rechecher</button>
+						</div>
+					</form>
+				</div>
+				<div class="col-auto">
+					<select name="periode" class="form-select w-auto" onchange="this.form.submit()">
+						<option value="" {% if not request.GET.periode %}selected{% endif %}>Tout</option>
+						<option value="semaine" {% if request.GET.periode == 'semaine' %}selected{% endif %}>Cette semaine</option>
+						<option value="mois" {% if request.GET.periode == 'mois' %}selected{% endif %}>Ce mois</option>
+						<option value="3mois" {% if request.GET.periode == "3mois" %}selected{% endif %}>3 derniers mois</option>
+					</select>
+				</div>
+				<div class="col-auto">
+					<a class="btn app-btn-secondary">
+						<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+							<path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+						</svg>
+						Télécharger en pdf {{model_type}}
+					</a>
+				</div>
+			</div><!--//row-->
+		</div><!--//table-utilities-->
+	</div><!--//col-auto-->
+</div><!--//row-->
+	  {% if model_type %}
+    <div class="card mb-4">
+        <div class="tab-content">
+            <div class="tab-pane fade show active">
+                <div class="text-center">
+                    <div class="alert bg-primary">
+                        <h5 class="mb-0 text-white">Table {{ titre_page }}
+                        <span class="badge bg-white text-dark float-end">{{ paginator.count }}</span>
+                        </h5>
+                    </div>
+                </div>
+                <div class="table-responsive scrollbar">
+                <table id="tableau" class="table table-bordered table-striped fs-10 mb-0">
+                    <thead class="bg-200">
+                        <tr>
+                            <th class="text-900 sort">pk</th>
+                            <th class="text-900 sort">Nom</th>
+                            <th class="text-900 sort">Type</th>
+                            <th class="text-900 sort">Capacité</th>
+                            <th class="text-end">Actions</th>                                 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for salle in object_list %}
+                        <tr>
+                            <td>{{ salle.pk }}</td>
+                            <td>{{ salle.nom }}</td>
+                            <td>{{ salle.type }}</td>
+                            <td>{{ salle.capacite }}</td>
+                            <td class="text-end">
+                            <div class="d-flex justify-content-end">
+                                <!-- Détails -->
+                                <a href="{% url 'cours:salle_detail' type='salle' pk=salle.id %}"
+                                class="btn btn-link p-0 me-2" title="Détails">
+                                <i class="bx bx-show text-info fs-4"></i>
+                                </a>
+                            
+                                <!-- Modifier -->
+                                <a href="{% url 'cours:salle_update' type='salle' pk=salle.id %}"
+                                class="btn btn-link p-0 me-2" title="Modifier">
+                                <i class="bx bx-edit text-warning fs-4"></i>
+                                </a>
+                            
+                                <!-- Supprimer -->
+                                <a href="{% url 'cours:salle_delete' type='salle' pk=salle.id %}"
+                                class="btn btn-link p-0" title="Supprimer"
+                                onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+                                <i class="bx bx-trash text-danger fs-4"></i>
+                                </a>
+                            </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
+        {% if is_paginated %}
+        <div class="card-footer bg-light border-0 p-4">
+            <div class="text-center mb-3">
+            <small class="text-muted">
+                Page {{ page_obj.number }} sur {{ paginator.num_pages }} — Total : {{ paginator.count }} éléments
+            </small>
+            </div>
+
+            <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-pill me-2" href="?page={{ page_obj.previous_page_number }}">
+                    <i class="bx bx-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-pill me-2">
+                    <i class="bx bx-chevron-left"></i>
+                    </span>
+                </li>
+                {% endif %}
+
+                {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                    <span class="page-link rounded-pill mx-1">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                    <a class="page-link rounded-pill mx-1" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-pill ms-2" href="?page={{ page_obj.next_page_number }}">
+                    <i class="bx bx-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-pill ms-2">
+                    <i class="bx bx-chevron-right"></i>
+                    </span>
+                </li>
+                {% endif %}
+            </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+		</div>
+
+		</div>
+	</div>
+</div>
+    </div>
+   <!-- Boutons flottants en bas à droite -->
+ <div class="fixed-action-buttons">
+	 <a href="{% url 'cours:salle_create' type='salle' %}" class="btn btn-add">
+		 <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
+	 </a>
+ </div>
+
+ {% else %}
+    <div class="card mb-4">
+ <div class="tab-content">
+	 <div class="tab-pane fade show active">
+		 <div class="alert alert-info">Choisissez une option en cliquant sur le bouton correspondant la liste.</div>
+	 </div>
+ </div>
+    </div>
+ {% endif %}
+</div>
+
+{% endblock %}
+
