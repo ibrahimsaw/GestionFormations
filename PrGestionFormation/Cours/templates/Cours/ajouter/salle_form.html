@@ -156,7 +156,7 @@
                     <!--      BOUTONS ACTION       -->
                     <!-- ========================= -->
                     <div class="text-end">
-                        <a href="{% url 'cours:salle_list' type='salle' %}" class="btn btn-secondary">Annuler</a>
+                        <a href="{% url 'cours:salle_list' %}" class="btn btn-secondary">Annuler</a>
                         <button type="submit" class="btn btn-primary">{{ bouton|default:"Enregistrer" }}</button>
                     </div>
 
@@ -168,7 +168,7 @@
     {% endif %}
        <!-- Boutons flottants en bas à droite -->
  <div class="fixed-action-buttons">
-	 <a href="{% url 'cours:salle_list' type='salle' %}" class="btn btn-list">
+	 <a href="{% url 'cours:salle_list' %}" class="btn btn-list">
 		 <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
 	 </a>
  </div>

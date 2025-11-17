@@ -41,8 +41,11 @@
       <div class="mb-4 p-3 border rounded bg-light">
         <h6 class="fw-bold mb-2">🧾 Plus de Détails :</h6>
         <ul class="mb-0 list-unstyled">
-          <li><strong>ID unique :</strong> {{ object.pk }}</li>
-          <li><strong>Info :</strong> {{ object.nom }}</li>
+          <li><strong>ID unique : </strong> {{ object.pk }}</li>
+          <li><strong>Info : </strong>{{object}}</br>  Matiere : {{ object.matiere.nom }} </br> Classe : {{ object.classe }} </br>
+            Coefficient : {{ object.coefficient }} </br>
+            Volume Horaire : {{ object.volume_horaire }} </br>
+        </li>
           <li><strong>Type :</strong> {{ classe }}</li>
         </ul>
       </div>
@@ -69,7 +72,7 @@
 
         <div class="d-flex justify-content-between">
           <a
-            href="{% url 'cours:salle_detail' pk=object.pk %}"
+            href="{% url 'cours:matiereclasse_detail' pk=object.pk %}"
             class="btn btn-secondary"
           >
             <i class="bx bx-arrow-back me-2"></i>Annuler

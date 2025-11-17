@@ -22,7 +22,7 @@
         <table class="table table-hover">
                       <div class="float-end">
               <a
-                href="{% url 'cours:salle_update' type='salle' pk=salle.pk %}"
+                href="{% url 'cours:salle_update' pk=salle.pk %}"
                 class="btn btn-success btn-sm"
               >
                 <i class="bx bx-edit me-1"></i>
@@ -30,7 +30,7 @@
               </a>
 
               <a
-                href="{% url 'cours:salle_delete' type='salle' pk=salle.pk %}"
+                href="{% url 'cours:salle_delete' pk=salle.pk %}"
                 class="btn btn-danger btn-sm"
               >
                 <i class="bx bx-trash me-1"></i>
@@ -154,14 +154,14 @@
     <div class="fixed-action-buttons">
       <div class="btn-group-vertical shadow-lg">
         <a
-          href="{% url 'cours:salle_create' type='salle' %}"
+          href="{% url 'cours:salle_create' %}"
           class="btn btn-add mb-2"
         >
           <i class="bx bx-plus me-2"></i>
           <span class="d-none d-sm-inline">Ajouter</span>
         </a>
         <a
-          href="{% url 'cours:salle_list' type='salle' %}"
+          href="{% url 'cours:salle_list' %}"
           class="btn btn-list"
         >
           <i class="bx bx-list-ul me-2"></i>

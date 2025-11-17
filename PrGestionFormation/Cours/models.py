@@ -47,6 +47,9 @@ class Matiere(models.Model):
             while Matiere.objects.filter(code=self.code).exists():
                 self.code = generate_code()
         super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.nom}"
+
 
 
 class MatiereClasse(models.Model):
@@ -62,14 +65,14 @@ class MatiereClasse(models.Model):
     def __str__(self):
         return f"{self.matiere.nom} - {self.classe.nom} (Coef: {self.coefficient}, {self.volume_horaire}h)"
 
-class Chapitre(BaseRoleModel):
-    """ Programme ou plan de cours lié à une matière """
-    matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE, related_name="chapitres")
-    titre = models.CharField(max_length=200)
-    objectifs = models.TextField(blank=True, null=True)
+# class Chapitre(BaseRoleModel):
+#     """ Programme ou plan de cours lié à une matière """
+#     matiere = models.ForeignKey(MatiereClasse, on_delete=models.CASCADE, related_name="chapitres")
+#     titre = models.CharField(max_length=200)
+#     objectifs = models.TextField(blank=True, null=True)
 
-    def __str__(self):
-        return f"{self.titre} - {self.matiere.nom}"
+#     def __str__(self):
+#         return f"{self.titre} - {self.matiere.nom}"
 
 
 class Evaluation(BaseRoleModel):
@@ -83,15 +86,13 @@ class Evaluation(BaseRoleModel):
         ("TP", "Travaux Pratiques"),
     ]
 
-    matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE, related_name="evaluations")
-    classe = models.ForeignKey(Classe, on_delete=models.CASCADE, related_name="evaluations")
+    matiereclasse = models.ForeignKey(MatiereClasse, on_delete=models.CASCADE, related_name="evaluations",default=1)
     titre = models.CharField(max_length=200)
     type = models.CharField(max_length=20, choices=TYPE_EVAL, default="DEVOIR")
     date = models.DateField(default=timezone.now)
-    coefficient = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f"{self.titre} - {self.matiere} ({self.classe})"
+        return f"{self.titre} -{self.type} {self.matiere} ({self.classe})"
 
 
 class Note(BaseRoleModel):

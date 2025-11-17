@@ -1,23 +1,23 @@
 from .views import *
 # ------------------------------------------------------
-# Base view générique pour Matiere
+# Base view générique pour MatiereClasse
 # ------------------------------------------------------
-class MatiereBaseView(BaseContextView):
+class MatiereClasseBaseView(BaseContextView):
     model_type = None
-    template_form = 'Cours/ajouter/matiere_form.html'
-    template_list = 'Cours/liste/matiere_list.html'
-    template_detail = 'Cours/detail/matiere_detail.html'
-    template_delete = 'Cours/supprimer/matiere_confirm_delete.html'
+    template_form = 'Cours/ajouter/matiereclasse_form.html'
+    template_list = 'Cours/liste/matiereclasse_list.html'
+    template_detail = 'Cours/detail/matiereclasse_detail.html'
+    template_delete = 'Cours/supprimer/matiereclasse_confirm_delete.html'
 
     bouton = ""
-    titre_page = "Matière"
+    titre_page = "Matière Classe"
     page = ""
     path = ""
     view_name = ""
     breadcrumb = []
 
     model_mapping = {
-        'matiere': (Matiere, MatiereForm, "Matière"),
+        'matiereclasse': (MatiereClasse, MatiereClasseForm, "Matière Classe"),
     }
 
     def get_model_class(self):
@@ -32,39 +32,39 @@ class MatiereBaseView(BaseContextView):
 
     def setup_configuration(self, request):
         self.view_name = request.resolver_match.view_name.split(':')[-1]
-        self.model_type = "matiere"
+        self.model_type = "matiereclasse"
         type_name = self.get_type_name()
         suffix = "s"
 
         config = {
-            'matiere_create': {
+            'matiereclasse_create': {
                 'template': self.template_form,
-                'bouton': 'Créer Matière',
+                'bouton': 'Créer',
                 'titre_page': f"Créer une {type_name}",
                 'label': 'Création',
             },
-            'matiere_list': {
+            'matiereclasse_list': {
                 'template': self.template_list,
                 'bouton': '',
-                'titre_page': f"Liste des {type_name}{suffix}",
+                'titre_page': f"Liste des lien {type_name}{suffix}",
                 'label': 'Liste',
             },
-            'matiere_detail': {
+            'matiereclasse_detail': {
                 'template': self.template_detail,
                 'bouton': '',
-                'titre_page': f"Détails de la {type_name}",
+                'titre_page': f"Détails du lien {type_name}",
                 'label': 'Détails',
             },
             'matiere_update': {
                 'template': self.template_form,
-                'bouton': 'Modifier Matière',
-                'titre_page': f"Modifier une {type_name}",
+                'bouton': 'Modifier',
+                'titre_page': f"Modifier le lien {type_name}",
                 'label': 'Modification',
             },
             'matiere_delete': {
                 'template': self.template_delete,
                 'bouton': '',
-                'titre_page': f"Supprimer une {type_name}",
+                'titre_page': f"Supprimer le lien {type_name}",
                 'label': 'Suppression',
             },
         }
@@ -95,15 +95,15 @@ class MatiereBaseView(BaseContextView):
     def dispatch(self, request, *args, **kwargs):
         self.model_type = "matiere"
         if self.model_type:
-            self.model = Matiere
-            self.form_class = MatiereForm
+            self.model = MatiereClasse
+            self.form_class = MatiereClasseForm
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         type_name = self.get_type_name()
         context.update({
-            'classe': "Matière",
+            'classe': "Matière Classe",
             'bouton': self.bouton,
             'buttonName': self.bouton,
             'path': self.path,
@@ -117,11 +117,11 @@ class MatiereBaseView(BaseContextView):
         return context
 
 # ------------------------------------------------------
-# Classes d’action pour Matiere
+# Classes d’action pour MatiereClasse
 # ------------------------------------------------------
-class MatiereListView(ListView, MatiereBaseView):
+class MatiereClasseListView(ListView, MatiereClasseBaseView):
     context_object_name = "matieres"
-    paginate_by = 10
+    paginate_by = 20
 
     def get(self, request, *args, **kwargs):
         self.setup_configuration(request)
@@ -130,7 +130,7 @@ class MatiereListView(ListView, MatiereBaseView):
         return super().get(request, *args, **kwargs)
 
 
-class MatiereCreateView(CreateView, MatiereBaseView):
+class MatiereClasseCreateView(CreateView, MatiereClasseBaseView):
     def get(self, request, *args, **kwargs):
         self.setup_configuration(request)
         self.model = self.get_model_class()
@@ -143,11 +143,11 @@ class MatiereCreateView(CreateView, MatiereBaseView):
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
 
-    success_url = reverse_lazy('cours:matiere_list')
+    success_url = reverse_lazy('cours:matiereclasse_list')
 
 
-class MatiereDetailView(DetailView, MatiereBaseView):
-    context_object_name = "matiere"
+class MatiereClasseDetailView(DetailView, MatiereClasseBaseView):
+    context_object_name = "matiereclasse"
     pk_url_kwarg = "pk"
 
     def get(self, request, *args, **kwargs):
@@ -156,7 +156,7 @@ class MatiereDetailView(DetailView, MatiereBaseView):
         return super().get(request, *args, **kwargs)
 
 
-class MatiereUpdateView(UpdateView, MatiereBaseView):
+class MatiereClasseUpdateView(UpdateView, MatiereClasseBaseView):
     pk_url_kwarg = "pk"
 
     def get(self, request, *args, **kwargs):
@@ -171,12 +171,12 @@ class MatiereUpdateView(UpdateView, MatiereBaseView):
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
 
-    success_url = reverse_lazy('cours:matiere_list')
+    success_url = reverse_lazy('cours:matiereclasse_list')
 
 
-class MatiereDeleteView(DeleteView, MatiereBaseView):
-    model = Matiere
+class MatiereClasseDeleteView(DeleteView,MatiereClasseBaseView):
+    model = MatiereClasse
     pk_url_kwarg = "pk"
-    context_object_name = "matiere"
-    template_name = 'Cours/supprimer/matiere_confirm_delete.html'
-    success_url = reverse_lazy('cours:matiere_list')
+    context_object_name = "matiereclasse"
+    template_name = 'Cours/supprimer/matiereclasse_confirm_delete.html'
+    success_url = reverse_lazy('cours:matiereclasse_list')

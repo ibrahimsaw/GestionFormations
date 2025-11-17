@@ -1,23 +1,23 @@
 from .views import *
 # ------------------------------------------------------
-# Base view générique pour Matiere
+# Base view générique pour Evaluation
 # ------------------------------------------------------
-class MatiereBaseView(BaseContextView):
+class EvaluationBaseView(BaseContextView):
     model_type = None
-    template_form = 'Cours/ajouter/matiere_form.html'
-    template_list = 'Cours/liste/matiere_list.html'
-    template_detail = 'Cours/detail/matiere_detail.html'
-    template_delete = 'Cours/supprimer/matiere_confirm_delete.html'
+    template_form = 'Cours/ajouter/evaluation_form.html'
+    template_list = 'Cours/liste/evaluation_list.html'
+    template_detail = 'Cours/detail/evaluation_detail.html'
+    template_delete = 'Cours/supprimer/evaluation_confirm_delete.html'
 
     bouton = ""
-    titre_page = "Matière"
+    titre_page = "Evaluation"
     page = ""
     path = ""
     view_name = ""
     breadcrumb = []
 
     model_mapping = {
-        'matiere': (Matiere, MatiereForm, "Matière"),
+        'evaluation': (Evaluation, EvaluationForm, "Evaluation"),
     }
 
     def get_model_class(self):
@@ -32,36 +32,36 @@ class MatiereBaseView(BaseContextView):
 
     def setup_configuration(self, request):
         self.view_name = request.resolver_match.view_name.split(':')[-1]
-        self.model_type = "matiere"
+        self.model_type = "evaluation"
         type_name = self.get_type_name()
         suffix = "s"
 
         config = {
-            'matiere_create': {
+            'evaluation_create': {
                 'template': self.template_form,
-                'bouton': 'Créer Matière',
+                'bouton': 'Créer Evaluation',
                 'titre_page': f"Créer une {type_name}",
                 'label': 'Création',
             },
-            'matiere_list': {
+            'evaluation_list': {
                 'template': self.template_list,
                 'bouton': '',
                 'titre_page': f"Liste des {type_name}{suffix}",
                 'label': 'Liste',
             },
-            'matiere_detail': {
+            'evaluation_detail': {
                 'template': self.template_detail,
                 'bouton': '',
                 'titre_page': f"Détails de la {type_name}",
                 'label': 'Détails',
             },
-            'matiere_update': {
+            'evaluation_update': {
                 'template': self.template_form,
-                'bouton': 'Modifier Matière',
+                'bouton': 'Modifier Evaluation',
                 'titre_page': f"Modifier une {type_name}",
                 'label': 'Modification',
             },
-            'matiere_delete': {
+            'evaluation_delete': {
                 'template': self.template_delete,
                 'bouton': '',
                 'titre_page': f"Supprimer une {type_name}",
@@ -93,17 +93,17 @@ class MatiereBaseView(BaseContextView):
             })
 
     def dispatch(self, request, *args, **kwargs):
-        self.model_type = "matiere"
+        self.model_type = "evaluation"
         if self.model_type:
-            self.model = Matiere
-            self.form_class = MatiereForm
+            self.model = Evaluation
+            self.form_class = EvaluationForm
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         type_name = self.get_type_name()
         context.update({
-            'classe': "Matière",
+            'classe': "Evaluation",
             'bouton': self.bouton,
             'buttonName': self.bouton,
             'path': self.path,
@@ -117,10 +117,10 @@ class MatiereBaseView(BaseContextView):
         return context
 
 # ------------------------------------------------------
-# Classes d’action pour Matiere
+# Classes d’action pour Evaluation
 # ------------------------------------------------------
-class MatiereListView(ListView, MatiereBaseView):
-    context_object_name = "matieres"
+class EvaluationListView(ListView, EvaluationBaseView):
+    context_object_name = "evaluation"
     paginate_by = 10
 
     def get(self, request, *args, **kwargs):
@@ -130,7 +130,7 @@ class MatiereListView(ListView, MatiereBaseView):
         return super().get(request, *args, **kwargs)
 
 
-class MatiereCreateView(CreateView, MatiereBaseView):
+class EvaluationCreateView(CreateView, EvaluationBaseView):
     def get(self, request, *args, **kwargs):
         self.setup_configuration(request)
         self.model = self.get_model_class()
@@ -143,11 +143,11 @@ class MatiereCreateView(CreateView, MatiereBaseView):
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
 
-    success_url = reverse_lazy('cours:matiere_list')
+    success_url = reverse_lazy('cours:evaluation_list')
 
 
-class MatiereDetailView(DetailView, MatiereBaseView):
-    context_object_name = "matiere"
+class EvaluationDetailView(DetailView, EvaluationBaseView):
+    context_object_name = "evaluation"
     pk_url_kwarg = "pk"
 
     def get(self, request, *args, **kwargs):
@@ -156,7 +156,7 @@ class MatiereDetailView(DetailView, MatiereBaseView):
         return super().get(request, *args, **kwargs)
 
 
-class MatiereUpdateView(UpdateView, MatiereBaseView):
+class EvaluationUpdateView(UpdateView, EvaluationBaseView):
     pk_url_kwarg = "pk"
 
     def get(self, request, *args, **kwargs):
@@ -171,12 +171,13 @@ class MatiereUpdateView(UpdateView, MatiereBaseView):
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
 
-    success_url = reverse_lazy('cours:matiere_list')
+    success_url = reverse_lazy('cours:evaluation_list')
 
 
-class MatiereDeleteView(DeleteView, MatiereBaseView):
-    model = Matiere
+class EvaluationDeleteView(DeleteView, EvaluationBaseView):
+    model = Evaluation
     pk_url_kwarg = "pk"
-    context_object_name = "matiere"
-    template_name = 'Cours/supprimer/matiere_confirm_delete.html'
-    success_url = reverse_lazy('cours:matiere_list')
+    context_object_name = "evaluation"
+    template_name = 'Cours/supprimer/evaluation_confirm_delete.html'
+    success_url = reverse_lazy('cours:evaluation_list')
+

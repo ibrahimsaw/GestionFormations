@@ -120,28 +120,28 @@
                     </td>
                     <td class="text-end">
                       <span class="badge bg-success">{{ frais.montant }} FCFA</span>
-					 <span class="badge">
-					  <div class="d-flex justify-content-end">
-						<!-- Détails -->
-						<a href="{% url 'finance:scolarite-detail' type=model_type pk=frais.pk %}"
-						   class="btn btn-link p-0 me-2" title="Détails">
-						  <i class="bx bx-show text-info fs-4"></i>
-						</a>
-					
-						<!-- Modifier -->
-						<a href="{% url 'finance:scolarite-update' type=model_type pk=frais.pk %}"
-						   class="btn btn-link p-0 me-2" title="Modifier">
-						  <i class="bx bx-edit text-warning fs-4"></i>
-						</a>
-					
-						<!-- Supprimer -->
-						<a href="{% url 'finance:scolarite-delete' type=model_type pk=frais.pk %}"
-						   class="btn btn-link p-0" title="Supprimer"
-						   onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
-						  <i class="bx bx-trash text-danger fs-4"></i>
-						</a>
-					  </div>
-					 </span>
+                        <span class="badge">
+                          <div class="d-flex justify-content-end">
+                          <!-- Détails -->
+                          <a href="{% url 'finance:scolarite-detail' type=model_type pk=frais.pk %}"
+                            class="btn btn-link p-0 me-2" title="Détails">
+                            <i class="bx bx-show text-info fs-4"></i>
+                          </a>
+                        
+                          <!-- Modifier -->
+                          <a href="{% url 'finance:scolarite-update' type=model_type pk=frais.pk %}"
+                            class="btn btn-link p-0 me-2" title="Modifier">
+                            <i class="bx bx-edit text-warning fs-4"></i>
+                          </a>
+                        
+                          <!-- Supprimer -->
+                          <a href="{% url 'finance:scolarite-delete' type=model_type pk=frais.pk %}"
+                            class="btn btn-link p-0" title="Supprimer"
+                            onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
+                            <i class="bx bx-trash text-danger fs-4"></i>
+                          </a>
+                          </div>
+                        </span>
                       {% if frais.recurrent %}
                         <span class="badge bg-info ms-1">Récurrent</span>
                       {% endif %}
@@ -168,7 +168,7 @@
                         <div>
                           <h6 class="mb-0">{{ ins.etudiant.MNP  }}</h6>
                           <small class="text-muted">{{ ins.annee_academique }}</small>
-						 </br>
+						          </br>
 						 <small class="text-muted">{{ ins.date_evenement }}</small>
                         </div>
                       </div>

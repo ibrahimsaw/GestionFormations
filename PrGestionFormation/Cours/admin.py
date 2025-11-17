@@ -25,19 +25,19 @@ class MatiereAdmin(admin.ModelAdmin):
 # --------------------------
 # Admin Chapitre
 # --------------------------
-@admin.register(Chapitre)
-class ChapitreAdmin(admin.ModelAdmin):
-    list_display = ('titre', 'matiere')
-    search_fields = ('titre',)
-    list_filter = ('matiere',)
+# @admin.register(Chapitre)
+# class ChapitreAdmin(admin.ModelAdmin):
+#     list_display = ('titre', 'matiere')
+#     search_fields = ('titre',)
+#     list_filter = ('matiere',)
 
 # --------------------------
 # Admin Evaluation
 # --------------------------
 @admin.register(Evaluation)
 class EvaluationAdmin(admin.ModelAdmin):
-    list_display = ('titre', 'matiere', 'classe', 'type', 'date', 'coefficient')
-    list_filter = ('type', 'matiere', 'classe', 'date')
+    list_display = ('titre', 'matiereclasse', 'type', 'date' )
+    list_filter = ('type', 'matiereclasse','date')
     search_fields = ('titre',)
     date_hierarchy = 'date'
 

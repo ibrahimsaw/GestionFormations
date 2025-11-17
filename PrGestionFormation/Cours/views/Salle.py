@@ -9,7 +9,7 @@ class SalleBaseView(BaseContextView):
     """
     Contrôleur générique complet (comme ScolariteBaseView)
     """
-    model_type = None
+    model_type = "salle"
     template_form = 'Cours/ajouter/salle_form.html'
     template_list = 'Cours/liste/salle_list.html'
     template_detail = 'Cours/detail/salle_detail.html'
@@ -28,21 +28,22 @@ class SalleBaseView(BaseContextView):
 
     # 🔹 Retourne le model associé
     def get_model_class(self):
-        return self.model_mapping[self.model_type][0]
+        return Salle
 
     # 🔹 Retourne le form associé
     def get_form_class(self):
-        return self.model_mapping[self.model_type][1]
+        return SalleForm
 
     # 🔹 Retourne le nom du type
     def get_type_name(self):
         model_info = self.model_mapping.get(self.model_type)
+        print(model_info)
         return model_info[-1] if model_info else "Type inconnu"
 
     # 🔹 Configure la vue selon l’action : list, create, detail, update, delete
     def setup_configuration(self, request):
         self.view_name = request.resolver_match.view_name.split(':')[-1]
-        self.model_type = request.resolver_match.kwargs.get('type')
+        self.model_type = "salle"
         print(self.model_type)
         type_name = self.get_type_name()
         suffix = "s"
@@ -102,7 +103,7 @@ class SalleBaseView(BaseContextView):
 
         self.breadcrumb = []
         for index, part in enumerate(parts):
-            url_stack += "/" + part
+            url_stack += f"/{part}"
             self.breadcrumb.append({
                 "name": part.capitalize(),
                 "url": url_stack,
@@ -111,7 +112,7 @@ class SalleBaseView(BaseContextView):
             })
 
     def dispatch(self, request, *args, **kwargs):
-        self.model_type = kwargs.get("type")
+        self.model_type = "salle"
         if self.model_type:
             self.model = Salle
             self.form_class = SalleForm
@@ -147,7 +148,7 @@ class SalleListView(ListView,SalleBaseView):
 
     def get(self, request, *args, **kwargs):
         self.setup_configuration(request)
-        self.model = self.get_model_class()
+        self.model = Salle
         self.template_name = self.template_list
         return super().get(request, *args, **kwargs)
 

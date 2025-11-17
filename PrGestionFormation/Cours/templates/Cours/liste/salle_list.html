@@ -72,19 +72,19 @@
                             <td class="text-end">
                             <div class="d-flex justify-content-end">
                                 <!-- Détails -->
-                                <a href="{% url 'cours:salle_detail' type='salle' pk=salle.id %}"
+                                <a href="{% url 'cours:salle_detail' pk=salle.id %}"
                                 class="btn btn-link p-0 me-2" title="Détails">
                                 <i class="bx bx-show text-info fs-4"></i>
                                 </a>
                             
                                 <!-- Modifier -->
-                                <a href="{% url 'cours:salle_update' type='salle' pk=salle.id %}"
+                                <a href="{% url 'cours:salle_update' pk=salle.id %}"
                                 class="btn btn-link p-0 me-2" title="Modifier">
                                 <i class="bx bx-edit text-warning fs-4"></i>
                                 </a>
                             
                                 <!-- Supprimer -->
-                                <a href="{% url 'cours:salle_delete' type='salle' pk=salle.id %}"
+                                <a href="{% url 'cours:salle_delete' pk=salle.id %}"
                                 class="btn btn-link p-0" title="Supprimer"
                                 onclick="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
                                 <i class="bx bx-trash text-danger fs-4"></i>
@@ -158,7 +158,7 @@
     </div>
    <!-- Boutons flottants en bas à droite -->
  <div class="fixed-action-buttons">
-	 <a href="{% url 'cours:salle_create' type='salle' %}" class="btn btn-add">
+	 <a href="{% url 'cours:salle_create' %}" class="btn btn-add">
 		 <span class="tf-icons bx bx-notepad"></span>&nbsp; Ajouter
 	 </a>
  </div>

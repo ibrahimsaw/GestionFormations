@@ -61,8 +61,7 @@ class ScolariteBaseView(BaseContextView):
         return context
 
     def get_type_name(self):
-        type_info = self.model_mapping.get(self.model_type)
-        if type_info:
+        if type_info := self.model_mapping.get(self.model_type):
             type_name = type_info[-1]
         else:
             type_name = "Nom inconnu"
@@ -138,7 +137,7 @@ class ScolariteBaseView(BaseContextView):
         cumulative_path = ''
         self.breadcrumb = []
         for i,part in enumerate(path):
-            cumulative_path += '/' + part
+            cumulative_path += f'/{part}'
             # print('name :', part.capitalize())
             # print('url :',cumulative_path)
             self.breadcrumb.append({
@@ -277,13 +276,11 @@ class ScolariteCreateView(ScolariteBaseView, CreateView):
                     continue
 
                 # Recherche s’il existe déjà un frais avec même libellé / classe / description
-                frais = Frais.objects.filter(
+                if frais:= Frais.objects.filter(
                     libelle=libelle,
                     classe=classe,
                     description=description
-                ).first()
-
-                if frais:
+                ).first():
                     # Mise à jour
                     frais.montant = montant
                     frais.recurrent = recurrent
@@ -334,19 +331,23 @@ from django.http import JsonResponse
 
 
 def frais_par_etudiant(request):
-    etudiant_id = request.GET.get('etudiant_id')
-    if etudiant_id:
+    if etudiant_id := request.GET.get('etudiant_id'):
         try:
-            etudiant = Etudiant.objects.get(utilisateur_id=etudiant_id)  # ✅ ici
-            classe = etudiant.classe_actuelle
-            print("classe :",classe)
-            frais_list = Frais.objects.filter(classe=classe).values('id', 'libelle', 'montant')
-            print("frais_list :", frais_list)
-            return JsonResponse(list(frais_list), safe=False)
+            return _extracted_from_frais_par_etudiant_4(etudiant_id)
         except Etudiant.DoesNotExist:
             return JsonResponse({'error': 'Étudiant non trouvé'}, status=404)
     return JsonResponse({'error': 'ID manquant'}, status=400)
 
+
+
+# TODO Rename this here and in `frais_par_etudiant`
+def _extracted_from_frais_par_etudiant_4(etudiant_id):
+    etudiant = Etudiant.objects.get(utilisateur_id=etudiant_id)  # ✅ ici
+    classe = etudiant.classe_actuelle
+    print("classe :",classe)
+    frais_list = Frais.objects.filter(classe=classe).values('id', 'libelle', 'montant')
+    print("frais_list :", frais_list)
+    return JsonResponse(list(frais_list), safe=False)
 
 # views.py
 from django.http import JsonResponse

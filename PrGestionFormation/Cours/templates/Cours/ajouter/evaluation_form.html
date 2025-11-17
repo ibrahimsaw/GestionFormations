@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<div class="col-xl-12">
+
+    <!-- En-tête -->
+    <div class="row g-3 mb-4 align-items-center justify-content-between">
+        {% include "nav_ol.html" %}
+    </div>
+
+    {% if model_type %}
+    <div class="card mb-4">
+        <div class="tab-content">
+            <div class="tab-pane fade show active">
+
+                <!-- Titre -->
+                <div class="text-center">
+                    <div class="alert bg-primary">
+                        <h5 class="mb-0 text-white">Formulaire {{ titre_page }}</h5>
+                    </div>
+                </div>
+
+                <form method="post" class="p-4">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field|add_class:"form-control" }}
+                            {% for error in field.errors %}
+                            <div class="text-danger small">⚠️ {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <hr>
+                    <div class="text-end">
+                        <a href="{% url 'cours:evaluation_list' %}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary">{{ bouton|default:"Enregistrer" }}</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

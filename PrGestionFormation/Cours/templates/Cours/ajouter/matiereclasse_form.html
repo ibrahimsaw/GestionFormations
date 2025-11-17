@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<div class="col-xl-12">
+
+    <!-- En-tête -->
+    <div class="row g-3 mb-4 align-items-center justify-content-between">
+        {% include "nav_ol.html" %}
+    </div>
+
+    {% if model_type %}
+    <div class="card mb-4">
+        <div class="tab-content">
+            <div class="tab-pane fade show active">
+
+                <!-- Titre -->
+                <div class="text-center">
+                    <div class="alert bg-primary">
+                        <h5 class="mb-0 text-white">Formulaire {{ titre_page }}</h5>
+                    </div>
+                </div>
+
+                <form method="post" class="p-4">
+                    {% csrf_token %}
+
+                    <!-- Erreurs globales -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Champs cachés -->
+                    {% for field in form.hidden_fields %}
+                        {% for error in field.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Erreur champ caché :</strong> {{ error }}
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    <div class="row">
+
+                        <!-- =============== MATIÈRE =============== -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.matiere.id_for_label }}">Matière</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-book"></i></span>
+                                {{ form.matiere|add_class:"form-control ps-2" }}
+                            </div>
+                            {% for error in form.matiere.errors %}
+                            <div class="text-danger small">⚠️ {{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- =============== CLASSE =============== -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.classe.id_for_label }}">Classe</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-building-house"></i></span>
+                                {{ form.classe|add_class:"form-control ps-2" }}
+                            </div>
+                            {% for error in form.classe.errors %}
+                            <div class="text-danger small">⚠️ {{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <!-- =============== COEFFICIENT =============== -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.coefficient.id_for_label }}">Coefficient</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-calculator"></i></span>
+                                <input type="number"
+                                    id="{{ form.coefficient.id_for_label }}"
+                                    name="{{ form.coefficient.html_name }}"
+                                    class="form-control ps-2"
+                                    placeholder="Ex: 1"
+                                    value="{{ form.coefficient.value|default:'' }}">
+                            </div>
+                            {% for error in form.coefficient.errors %}
+                            <div class="text-danger small">⚠️ {{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- =============== VOLUME HORAIRE =============== -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.volume_horaire.id_for_label }}">Volume horaire (par semaine)</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-time-five"></i></span>
+                                <input type="number"
+                                    id="{{ form.volume_horaire.id_for_label }}"
+                                    name="{{ form.volume_horaire.html_name }}"
+                                    class="form-control ps-2"
+                                    placeholder="Ex: 10"
+                                    value="{{ form.volume_horaire.value|default:'' }}">
+                            </div>
+                            {% for error in form.volume_horaire.errors %}
+                            <div class="text-danger small">⚠️ {{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <!-- Boutons -->
+                    <div class="text-end">
+                        <a href="{% url 'cours:matiereclasse_list' %}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary">{{ bouton|default:"Enregistrer" }}</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Boutons flottants -->
+    <div class="fixed-action-buttons">
+        <a href="{% url 'cours:matiereclasse_list' %}" class="btn btn-list">
+            <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
+        </a>
+    </div>
+
+</div>
+{% endblock %}

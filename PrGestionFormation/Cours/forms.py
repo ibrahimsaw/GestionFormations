@@ -1,5 +1,5 @@
 from django import forms
-from .models import Salle, Matiere, Chapitre, Evaluation, Note, Cours, MatiereClasse, Enseignement
+from .models import Salle, Matiere, Evaluation, Note, Cours, MatiereClasse, Enseignement
 from Utilisateur.models import Etudiant, Enseignant
 from Formation.models import Classe
 
@@ -75,15 +75,15 @@ class EnseignementForm(forms.ModelForm):
 # --------------------------
 # Formulaire Chapitre
 # --------------------------
-class ChapitreForm(forms.ModelForm):
-    class Meta:
-        model = Chapitre
-        fields = '__all__'
-        widgets = {
-            'matiere': forms.Select(attrs={'class': 'form-select'}),
-            'titre': forms.TextInput(attrs={'class': 'form-control'}),
-            'objectifs': forms.Textarea(attrs={'class': 'form-control'}),
-        }
+# class ChapitreForm(forms.ModelForm):
+#     class Meta:
+#         model = Chapitre
+#         fields = '__all__'
+#         widgets = {
+#             'matiere': forms.Select(attrs={'class': 'form-select'}),
+#             'titre': forms.TextInput(attrs={'class': 'form-control'}),
+#             'objectifs': forms.Textarea(attrs={'class': 'form-control'}),
+#         }
 
 # --------------------------
 # Formulaire Evaluation
