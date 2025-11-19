@@ -748,8 +748,8 @@ class UtilisateurUpdateView(UtilisateurBaseView, UpdateView):
         # Données spécifiques selon le rôle
         if self.model_type == 'enseignant':
             context.update({
-                'specialites': Specialite.objects.all(),
-                'specialite_form': SpecialiteForm(prefix='specialite'),
+                'specialites': Matiere.objects.all(),
+                'specialite_form': MatiereForm(prefix='specialite'),
             })
         elif self.model_type == 'parent':
             context['etudiants'] = Etudiant.objects.all()

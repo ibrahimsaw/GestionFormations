@@ -179,7 +179,7 @@ class Classe(BaseRoleModel):
         ordering = ['ordre']
 
     def __str__(self):
-        return f"{self.nom} ({self.annee_academique.nom})"
+        return f"{self.nom} ({self.annee_academique.nom}-{self.formation})"
 
 # Modèle AnneeAcademique
 class AnneeAcademique(BaseRoleModel):

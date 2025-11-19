@@ -65,14 +65,16 @@ class MatiereClasse(models.Model):
     def __str__(self):
         return f"{self.matiere.nom} - {self.classe.nom} (Coef: {self.coefficient}, {self.volume_horaire}h)"
 
-# class Chapitre(BaseRoleModel):
-#     """ Programme ou plan de cours lié à une matière """
-#     matiere = models.ForeignKey(MatiereClasse, on_delete=models.CASCADE, related_name="chapitres")
-#     titre = models.CharField(max_length=200)
-#     objectifs = models.TextField(blank=True, null=True)
+class Enseignement(models.Model):
+    enseignant = models.ForeignKey('Utilisateur.Enseignant', on_delete=models.CASCADE, related_name='enseignements')
+    matiere_classe = models.ForeignKey(MatiereClasse, on_delete=models.CASCADE, related_name='enseignements')
+    annee_academique = models.ForeignKey('Formation.AnneeAcademique', on_delete=models.CASCADE)
 
-#     def __str__(self):
-#         return f"{self.titre} - {self.matiere.nom}"
+    class Meta:
+        unique_together = ('enseignant', 'matiere_classe', 'annee_academique')
+
+    def __str__(self):
+        return f"{self.enseignant} → {self.matiere_classe.matiere.nom} ({self.matiere_classe.classe.nom})"
 
 
 class Evaluation(BaseRoleModel):
@@ -86,13 +88,13 @@ class Evaluation(BaseRoleModel):
         ("TP", "Travaux Pratiques"),
     ]
 
-    matiereclasse = models.ForeignKey(MatiereClasse, on_delete=models.CASCADE, related_name="evaluations",default=1)
+    enseignement = models.ForeignKey(Enseignement, on_delete=models.CASCADE,null=True,blank=True, related_name="evaluations")
     titre = models.CharField(max_length=200)
     type = models.CharField(max_length=20, choices=TYPE_EVAL, default="DEVOIR")
     date = models.DateField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.titre} -{self.type} {self.matiere} ({self.classe})"
+        return f"{self.titre} -{self.type} {self.matiereclasse}"
 
 
 class Note(BaseRoleModel):
@@ -109,16 +111,6 @@ class Note(BaseRoleModel):
     def __str__(self):
         return f"{self.etudiant} - {self.evaluation} : {self.note}"
 
-class Enseignement(models.Model):
-    enseignant = models.ForeignKey('Utilisateur.Enseignant', on_delete=models.CASCADE, related_name='enseignements')
-    matiere_classe = models.ForeignKey(MatiereClasse, on_delete=models.CASCADE, related_name='enseignements')
-    annee_academique = models.CharField(max_length=9, default="2025-2026")
-
-    class Meta:
-        unique_together = ('enseignant', 'matiere_classe', 'annee_academique')
-
-    def __str__(self):
-        return f"{self.enseignant} → {self.matiere_classe.matiere.nom} ({self.matiere_classe.classe.nom})"
 
 class Cours(BaseRoleModel):
     TYPE_COURS = [

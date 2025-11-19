@@ -1,0 +1,85 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block content %}
+<div class="container py-5">
+  <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+    <!-- Bande rouge de danger -->
+    <div class="bg-danger text-white p-4">
+      <div class="d-flex align-items-center">
+        <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+          <i class="bx bx-trash text-danger fs-3"></i>
+        </div>
+        <div>
+          <h5 class="mb-1 fw-bold">Zone de danger</h5>
+          <p class="mb-0 opacity-75">Supprimer définitivement {{ classe }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Corps -->
+    <div class="card-body p-4">
+      <!-- Message d’avertissement -->
+      <div class="alert alert-danger border-0 mb-4">
+        <i class="bx bx-error-circle me-2 fs-4"></i>
+        <div>
+          <h6 class="alert-heading fw-bold mb-1">
+            ⚠️ Attention : Action irréversible
+          </h6>
+          <p class="mb-0">
+            {% if object %} Vous êtes sur le point de supprimer
+            définitivement
+            <strong>ID unique : {{ object.pk }}</strong>. {% else %} Vous êtes sur le
+            point de supprimer cette {{ classe }}. {% endif %}
+            <br />
+            Cette action ne peut pas être annulée et toutes les données
+            associées seront perdues.
+          </p>
+        </div>
+      </div>
+
+      <!-- Détails visibles -->
+      <div class="mb-4 p-3 border rounded bg-light">
+        <h6 class="fw-bold mb-2">🧾 Plus de Détails :</h6>
+        <ul class="mb-0 list-unstyled">
+          <li><strong>ID unique :</strong> {{ object.pk }}</li>
+          <li><strong>Info :</strong> {{ object.matiereclasse }} / {{ object.get_type_display }} / {{ object.titre }}</li>
+          <li><strong>Type :</strong> {{ classe }}</li>
+        </ul>
+      </div>
+
+      <!-- Formulaire de suppression -->
+      <form
+        method="POST"
+        id="formAccountDeactivation"
+      >
+        {% csrf_token %}
+        <div class="form-check mb-3">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            name="confirmation"
+            id="confirmation"
+            required
+          />
+          <label class="form-check-label fw-semibold" for="confirmation">
+            Je comprends que cette action est irréversible et je confirme la
+            suppression définitive
+          </label>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <a
+            href="{% url 'cours:evaluation_detail' pk=object.pk %}"
+            class="btn btn-secondary"
+          >
+            <i class="bx bx-arrow-back me-2"></i>Annuler
+          </a>
+          <button type="submit" class="btn btn-danger">
+            <i class="bx bx-trash me-2"></i>Supprimer définitivement
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

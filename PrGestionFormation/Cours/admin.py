@@ -36,8 +36,8 @@ class MatiereAdmin(admin.ModelAdmin):
 # --------------------------
 @admin.register(Evaluation)
 class EvaluationAdmin(admin.ModelAdmin):
-    list_display = ('titre', 'matiereclasse', 'type', 'date' )
-    list_filter = ('type', 'matiereclasse','date')
+    list_display = ('titre', 'enseignement', 'type', 'date' )
+    list_filter = ('type', 'enseignement','date')
     search_fields = ('titre',)
     date_hierarchy = 'date'
 

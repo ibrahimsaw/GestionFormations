@@ -1,3 +1,4 @@
+
 from .views import *
 # ------------------------------------------------------
 # Base view générique pour Evaluation
@@ -130,7 +131,9 @@ class EvaluationListView(ListView, EvaluationBaseView):
         return super().get(request, *args, **kwargs)
 
 
-class EvaluationCreateView(CreateView, EvaluationBaseView):
+class EvaluationCreateView(EvaluationBaseView, CreateView):
+    template_name = "cours/evaluation_form.html"
+
     def get(self, request, *args, **kwargs):
         self.setup_configuration(request)
         self.model = self.get_model_class()
@@ -143,7 +146,123 @@ class EvaluationCreateView(CreateView, EvaluationBaseView):
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
 
-    success_url = reverse_lazy('cours:evaluation_list')
+    def form_valid(self, form):
+        """
+        On récupère classe + matière → on les transforme en matiereclasse
+        avant d’enregistrer l’évaluation.
+        """
+        classe = form.cleaned_data["classe"]
+        matiere = form.cleaned_data["matiere"]
+
+        try:
+            mc = MatiereClasse.objects.get(classe=classe, matiere=matiere)
+        except MatiereClasse.DoesNotExist:
+            form.add_error(None, "Cette matière n'est pas associée à la classe sélectionnée.")
+            return self.form_invalid(form)
+
+        form.instance.matiereclasse = mc
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('cours:evaluation_detail', kwargs={'pk': self.object.pk})
+
+# Filtrer matières et enseignants selon la classe
+def filter_by_classe(request, classe_id):
+    matieres = Matiere.objects.filter(
+        id__in=MatiereClasse.objects.filter(classe_id=classe_id).values_list('matiere', flat=True)
+    ).values('id', 'nom')
+
+    print("############@#@ Classes @#@############")               
+    print("Matieres :",matieres)
+    enseignants = Enseignant.objects.filter(
+        utilisateur_id__in=Enseignement.objects.filter(
+            matiere_classe__classe_id=classe_id
+        ).values_list('enseignant__utilisateur_id', flat=True)
+    ).values('utilisateur_id', 'utilisateur__last_name', 'utilisateur__first_name')
+    print("Enseignants :",enseignants)
+    return JsonResponse({
+        'matieres': list(matieres),
+        'enseignants': [
+            {
+                'id': str(e['utilisateur_id']),  # UUID en string
+                'nom': f"{e['utilisateur__last_name']} {e['utilisateur__first_name']}"
+            } for e in enseignants
+        ],
+    })
+
+
+# Filtrer classes et enseignants selon la matière
+def filter_by_matiere(request, matiere_id):
+    classes = Classe.objects.filter(
+        id__in=MatiereClasse.objects.filter(matiere_id=matiere_id).values_list('classe', flat=True)
+    ).values('id', 'nom')
+    print("############@#@ Matieres @#@############") 
+    print("Classes :",classes)
+    enseignants = Enseignant.objects.filter(
+        utilisateur_id__in=Enseignement.objects.filter(
+            matiere_classe__matiere_id=matiere_id
+        ).values_list('enseignant__utilisateur_id', flat=True)
+    ).values('utilisateur_id', 'utilisateur__last_name', 'utilisateur__first_name')
+    print("Enseignants :",enseignants)
+    return JsonResponse({
+        'classes': list(classes),
+        'enseignants': [
+            {
+                'id': str(e['utilisateur_id']),
+                'nom': f"{e['utilisateur__last_name']} {e['utilisateur__first_name']}"
+            } for e in enseignants
+        ],
+    })
+
+
+# Filtrer classes et matières selon l’enseignant
+def filter_by_enseignant(request, enseignant_id):
+    enseignements = Enseignement.objects.filter(enseignant__utilisateur_id=enseignant_id)
+    print("############@#@ Enseignant @#@############") 
+    print("Enseignements :",enseignements)
+    
+    classes = Classe.objects.filter(
+        id__in=enseignements.values_list('matiere_classe__classe', flat=True)
+    ).values('id', 'nom')
+
+    print("Classes :",classes)
+    matieres = Matiere.objects.filter(
+        id__in=enseignements.values_list('matiere_classe__matiere', flat=True)
+    ).values('id', 'nom')
+    
+    print("Matieres :",matieres)
+    
+    return JsonResponse({
+        'classes': list(classes),
+        'matieres': list(matieres),
+    })
+
+def filter_by_classe_matiere(request, classe_id, matiere_id):
+    # Vérifie qu'il existe bien le MatiereClasse
+    try:
+        mc = MatiereClasse.objects.get(classe_id=classe_id, matiere_id=matiere_id)
+    except MatiereClasse.DoesNotExist:
+        return JsonResponse({'enseignants': []})
+
+    # Récupère les enseignements correspondant à cette matière-classe
+    enseignements = Enseignement.objects.filter(matiere_classe=mc)
+
+    # Récupère les enseignants liés (utilisateur_id = UUID)
+    enseignants_qs = Enseignant.objects.filter(utilisateur_id__in=enseignements.values_list('enseignant__utilisateur_id', flat=True))
+
+    # Format JSON
+    enseignants = [
+        {
+            'id': str(e.utilisateur_id),
+            'nom': f"{e.utilisateur.utilisateur.last_name if hasattr(e, 'utilisateur') else e.utilisateur.last_name} {e.utilisateur.first_name if hasattr(e, 'utilisateur') else e.utilisateur.first_name}"
+        }
+        for e in enseignants_qs
+    ]
+
+    return JsonResponse({'enseignants': enseignants})
+
+
 
 
 class EvaluationDetailView(DetailView, EvaluationBaseView):

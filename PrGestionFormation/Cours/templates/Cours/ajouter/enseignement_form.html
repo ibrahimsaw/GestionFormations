@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+
+<div class="col-xl-12">
+
+    <div class="card mb-4">
+        <div class="tab-content">
+            <div class="tab-pane fade show active">
+
+                <div class="text-center">
+                    <div class="alert bg-primary">
+                        <h5 class="mb-0 text-white">Formulaire Enseignement</h5>
+                    </div>
+                </div>
+
+                <form method="post" class="p-4" id="enseignementForm">
+                    {% csrf_token %}
+
+                    <!-- CHAMP CLASSE -->
+                    <div class="mb-3">
+                        <label for="id_classe" class="form-label">Classe</label>
+                        <select id="id_classe" class="form-select">
+                            <option value="">--- Sélectionner une classe ---</option>
+                            {% for c in classes %}
+                                <option value="{{ c.id }}">{{ c.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- CHAMP MATIERE (dépend de classe) -->
+                    <div class="mb-3">
+                        <label for="id_matiere" class="form-label">Matière</label>
+                        <select id="id_matiere" name="matiere_classe" class="form-select" disabled>
+                            <option value="">--- Sélectionner la matière ---</option>
+                        </select>
+                    </div>
+
+                    <!-- CHAMP ENSEIGNANT (dépend de matière) -->
+                    <div class="mb-3">
+                        <label for="id_enseignant" class="form-label">Enseignant</label>
+                        <select id="id_enseignant" name="enseignant" class="form-select" disabled>
+                            <option value="">--- Aucun enseignant disponible ---</option>
+                        </select>
+                    </div>
+
+                    <!-- Année académique -->
+                    <div class="mb-3">
+                        <label for="id_annee_academique" class="form-label">Année académique</label>
+                        {{ form.annee_academique|add_class:"form-select" }}
+                    </div>
+
+                    <div class="text-end">
+                        <a href="{% url 'cours:enseignement_list' %}" class="btn btn-secondary">Annuler</a>
+                        <button class="btn btn-primary">Enregistrer</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!--      SCRIPTS AJAX         -->
+<!-- ========================= -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    // ================
+    //  CHARGER MATIERES PAR CLASSE
+    // ================
+    $("#id_classe").change(function () {
+        let classe_id = $(this).val();
+
+        $("#id_matiere").prop("disabled", true).html('<option>Chargement...</option>');
+        $("#id_enseignant").prop("disabled", true).html('<option>---</option>');
+
+        if (classe_id === "") {
+            $("#id_matiere").html('<option value="">--- Sélectionner la matière ---</option>');
+            return;
+        }
+
+        $.get("/cours/enseignement_by_classe/" + classe_id + "/", function (data) {
+
+            $("#id_matiere").prop("disabled", false).html('<option value="">--- Sélectionner ---</option>');
+
+            data.matieres.forEach(function (m) {
+                $("#id_matiere").append('<option value="' + m.id + '">' + m.nom + "</option>");
+            });
+        });
+    });
+
+
+    // ================
+    //  CHARGER ENSEIGNANTS PAR CLASSE + MATIÈRE
+    // ================
+    $("#id_matiere").change(function () {
+        let classe_id = $("#id_classe").val();
+        let matiere_id = $(this).val();
+
+        $("#id_enseignant").prop("disabled", true).html('<option>Chargement...</option>');
+
+        if (matiere_id === "") {
+            $("#id_enseignant").html('<option>---</option>');
+            return;
+        }
+
+        $.get(`/cours/enseignement_by_classe_matiere/${classe_id}/${matiere_id}/`, function (data) {
+
+            $("#id_enseignant").prop("disabled", false).html('<option value="">--- Choisir ---</option>');
+
+            data.enseignants.forEach(function (e) {
+                $("#id_enseignant").append(
+                    `<option value="${e.utilisateur_id}">${e.utilisateur__last_name} ${e.utilisateur__first_name}</option>`
+                );
+            });
+        });
+    });
+
+</script>
+
+{% endblock %}

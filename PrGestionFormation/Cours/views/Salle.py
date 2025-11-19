@@ -166,7 +166,8 @@ class SalleCreateView(CreateView,SalleBaseView):
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
 
-    success_url = reverse_lazy('cours:salle_list')
+    def get_success_url(self):
+        return reverse('cours:salle_detail', kwargs={'pk': self.object.pk})
 
 
 class SalleDetailView(DetailView,SalleBaseView):

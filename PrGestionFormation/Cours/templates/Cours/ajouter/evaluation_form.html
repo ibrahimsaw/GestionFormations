@@ -26,23 +26,46 @@
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
-                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
                     {% endif %}
 
+                    <!-- Champ Classe -->
+                    <div class="mb-3">
+                        <label class="form-label" for="id_classe">Classe</label>
+                        {{ form.classe|add_class:"form-select" }}
+                    </div>
+
+                    <!-- Champ Matière -->
+                    <div class="mb-3">
+                        <label class="form-label" for="id_matiere">Matière</label>
+                        {{ form.matiere|add_class:"form-select" }}
+                    </div>
+
+                    <!-- Champ Enseignant -->
+                    <div class="mb-3">
+                        <label class="form-label" for="id_enseignant">Enseignant</label>
+                        {{ form.enseignant|add_class:"form-select" }}
+                    </div>
+
+                    <!-- Autres champs (titre, type, date) -->
                     {% for field in form %}
+                        {% if field.name not in "classe matiere enseignant" %}
                         <div class="mb-3">
                             <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field|add_class:"form-control" }}
                             {% for error in field.errors %}
-                            <div class="text-danger small">⚠️ {{ error }}</div>
+                                <div class="text-danger small">⚠️ {{ error }}</div>
                             {% endfor %}
                         </div>
+                        {% endif %}
                     {% endfor %}
 
                     <hr>
                     <div class="text-end">
                         <a href="{% url 'cours:evaluation_list' %}" class="btn btn-secondary">Annuler</a>
-                        <button type="submit" class="btn btn-primary">{{ bouton|default:"Enregistrer" }}</button>
+                        <button type="submit" class="btn btn-primary">
+                            {{ bouton|default:"Enregistrer" }}
+                        </button>
                     </div>
 
                 </form>
@@ -53,4 +76,119 @@
     {% endif %}
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const classeSelect = document.getElementById("id_classe");
+    const matiereSelect = document.getElementById("id_matiere");
+    const enseignantSelect = document.getElementById("id_enseignant");
+
+    // Désactivation initiale
+    matiereSelect.disabled = true;
+    enseignantSelect.disabled = true;
+
+    // Placeholder
+    function resetSelect(select, placeholder) {
+        select.innerHTML = "";
+        let opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = placeholder;
+        select.appendChild(opt);
+        select.value = "";
+    }
+
+    // Remplissage générique
+    function fillSelect(select, data, placeholder) {
+        resetSelect(select, placeholder);
+        data.forEach(item => {
+            let opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = item.nom;
+            select.appendChild(opt);
+        });
+    }
+
+    // --- Change Classe ---
+    classeSelect.addEventListener("change", function() {
+        const classeId = this.value;
+
+        resetSelect(matiereSelect, "-- Sélectionnez une matière --");
+        resetSelect(enseignantSelect, "-- Enseignant auto --");
+
+        matiereSelect.disabled = true;
+        enseignantSelect.disabled = true;
+
+        if (!classeId) return;
+
+        // Charger les matières
+        fetch(`/cours/filter_by_classe/${classeId}/`)
+            .then(r => r.json())
+            .then(data => {
+                fillSelect(matiereSelect, data.matieres, "-- Sélectionnez une matière --");
+                matiereSelect.disabled = false;
+            })
+            .catch(e => console.error(e));
+    });
+
+    // --- Change Matière ---
+    matiereSelect.addEventListener("change", function() {
+    const matiereId = this.value;
+    const classeId = classeSelect.value;  // IMPORTANT : la classe déjà sélectionnée
+
+    // reset + grisé
+    resetSelect(enseignantSelect, "-- Enseignant auto --");
+    enseignantSelect.disabled = true;
+
+    if (!matiereId) {
+        // pas de matière choisie -> rien à faire
+        return;
+    }
+
+    if (!classeId) {
+        // si pas de classe choisie, on peut soit:
+        // - demander au user de choisir la classe d'abord, soit
+        // - appeler l'endpoint générique de matière (moins précis).
+        // Ici on demande la classe d'abord :
+        alert("Veuillez d'abord sélectionner la classe.");
+        return;
+    }
+
+    // Appel endpoint qui prend classe + matière
+    fetch(`/cours/filter_by_classe_matiere/${encodeURIComponent(classeId)}/${encodeURIComponent(matiereId)}/`)
+        .then(r => {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.json();
+        })
+        .then(data => {
+            // data.enseignants attendu = [{id: "...", nom: "Nom Prenom"}, ...]
+            if (Array.isArray(data.enseignants) && data.enseignants.length > 0) {
+                // remplir options (même si champ reste grisé)
+                fillSelect(enseignantSelect, data.enseignants, "-- Enseignant auto --");
+                enseignantSelect.disabled = true;
+
+                // si unique, sélectionner automatiquement
+                if (data.enseignants.length === 1) {
+                    enseignantSelect.value = String(data.enseignants[0].id);
+                } else {
+                    // si plusieurs enseignants possibles, laisse la première sélectionnée vide
+                    enseignantSelect.value = "";
+                }
+            } else {
+                // aucun enseignant trouvé pour (classe + matière)
+                resetSelect(enseignantSelect, "-- Aucun enseignant trouvé --");
+                enseignantSelect.disabled = true;
+            }
+        })
+        .catch(e => {
+            console.error("Erreur AJAX:", e);
+        });
+});
+
+
+});
+</script>
+
+
+
 {% endblock %}

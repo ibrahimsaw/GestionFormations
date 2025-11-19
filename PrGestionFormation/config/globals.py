@@ -123,6 +123,30 @@ navbarAdmin = [
         "url": "utilisateur:utilisateur_list",
         "icon": "bx bx-group"
     },
+    {
+        "ul": "Nouveaux", "bouton": "false", "role": "Administrateur",
+        "liste": [
+            ####################### Salle #######################
+            {"name": "Création Salle", "url": "cours:salle_create"},
+            {"name": "Liste des Salle", "url": "cours:salle_list"},
+            ####################### Matiere #######################
+            {"name": "Création Matiere", "url": "cours:matiere_create"},
+            {"name": "Liste des Matiere", "url": "cours:matiere_list"},
+            ####################### MatiereClasse #######################
+            {"name": "Création Matiere Classe", "url": "cours:matiereclasse_create"},
+            {"name": "Liste des Matiere Classe", "url": "cours:matiereclasse_list"},
+            ####################### Evaluation #######################
+            {"name": "Création Evaluation", "url": "cours:evaluation_create"},
+            {"name": "Liste des Evaluation", "url": "cours:evaluation_list"},
+            ####################### Note #######################
+            {"name": "Création Note", "url": "cours:note_create"},
+            {"name": "Liste des Note", "url": "cours:note_list"},
+            
+            ####################### Enseignement #######################
+            {"name": "Création Enseignement", "url": "cours:enseignement_create"},
+            {"name": "Liste des Enseignement", "url": "cours:enseignement_list"},
+        ]
+    },
     ]
 navbarAgent = [
     {

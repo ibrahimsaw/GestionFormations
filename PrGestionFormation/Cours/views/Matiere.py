@@ -142,8 +142,9 @@ class MatiereCreateView(CreateView, MatiereBaseView):
         self.model = self.get_model_class()
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
-
-    success_url = reverse_lazy('cours:matiere_list')
+    
+    def get_success_url(self):
+        return reverse('cours:matiere_detail', kwargs={'pk': self.object.pk})
 
 
 class MatiereDetailView(DetailView, MatiereBaseView):
@@ -171,7 +172,8 @@ class MatiereUpdateView(UpdateView, MatiereBaseView):
         self.form_class = self.get_form_class()
         return super().post(request, *args, **kwargs)
 
-    success_url = reverse_lazy('cours:matiere_list')
+    def get_success_url(self):
+        return reverse('cours:matiere_detail', kwargs={'pk': self.object.pk})
 
 
 class MatiereDeleteView(DeleteView, MatiereBaseView):

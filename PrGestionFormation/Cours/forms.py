@@ -1,7 +1,8 @@
 from django import forms
 from .models import Salle, Matiere, Evaluation, Note, Cours, MatiereClasse, Enseignement
 from Utilisateur.models import Etudiant, Enseignant
-from Formation.models import Classe
+from Formation.models import Classe,AnneeAcademique
+
 
 # --------------------------
 # Formulaire Salle
@@ -47,6 +48,8 @@ class MatiereClasseForm(forms.ModelForm):
             'volume_horaire': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
+
+
 class EnseignementForm(forms.ModelForm):
     class Meta:
         model = Enseignement
@@ -54,24 +57,37 @@ class EnseignementForm(forms.ModelForm):
         widgets = {
             'enseignant': forms.Select(attrs={'class': 'form-select'}),
             'matiere_classe': forms.Select(attrs={'class': 'form-select'}),
-            'annee_scolaire': forms.TextInput(attrs={'class': 'form-control'}),
+            'annee_academique': forms.Select(attrs={'class': 'form-select'}),
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Si une matière est déjà sélectionnée (dans le POST ou l’instance)
-        matiere_classe = self.initial.get('matiere_classe') or self.data.get('matiere_classe')
+        # ---- CHAMP ANNEE ACADEMIQUE ----
+        self.fields['annee_academique'].queryset = AnneeAcademique.objects.all()
 
-        if matiere_classe := self.initial.get('matiere_classe') or self.data.get('matiere_classe'):
-            mc = MatiereClasse.objects.filter(pk=matiere_classe).first()
+        # ---- FILTRAGE DES ENSEIGNANTS ----
+        # Récupération de matiere_classe depuis initial ou POST
+        matiere_classe_id = (
+            self.data.get('matiere_classe')
+            or self.initial.get('matiere_classe')
+        )
+
+        if matiere_classe_id:
+            mc = MatiereClasse.objects.filter(pk=matiere_classe_id).first()
             if mc:
-                # On filtre les enseignants qui enseignent cette matière
-                self.fields['enseignant'].queryset = Enseignant.objects.filter(matieres=mc.matiere)
+                # Filtrer uniquement les enseignants qui enseignent cette matière
+                self.fields['enseignant'].queryset = Enseignant.objects.filter(
+                    matieres=mc.matiere
+                )
             else:
                 self.fields['enseignant'].queryset = Enseignant.objects.none()
         else:
-            # Par défaut, on affiche tous les enseignants
-            self.fields['enseignant'].queryset = Enseignant.objects.all()
+            # Si pas encore de matière choisie → aucun enseignant
+            self.fields['enseignant'].queryset = Enseignant.objects.none()
+            self.fields['enseignant'].widget.attrs['disabled'] = True
+
+
 # --------------------------
 # Formulaire Chapitre
 # --------------------------
@@ -89,17 +105,108 @@ class EnseignementForm(forms.ModelForm):
 # Formulaire Evaluation
 # --------------------------
 class EvaluationForm(forms.ModelForm):
+    classe = forms.ModelChoiceField(
+        queryset=Classe.objects.all(),
+        required=False,
+        label="Classe",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    matiere = forms.ModelChoiceField(
+        queryset=Matiere.objects.all(),
+        required=False,
+        label="Matière",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    enseignant = forms.ModelChoiceField(
+        queryset=Enseignant.objects.all(),
+        required=False,
+        label="Enseignant",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     class Meta:
         model = Evaluation
-        fields = '__all__'
+        fields = ["classe", "matiere", "enseignant", "titre", "type", "date"]
         widgets = {
-            'matiere': forms.Select(attrs={'class': 'form-select'}),
-            'classe': forms.Select(attrs={'class': 'form-select'}),
             'titre': forms.TextInput(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-select'}),
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'coefficient': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        classe = self.data.get("classe") or (self.instance.pk and self.instance.enseignement.classe.id)
+        matiere = self.data.get("matiere") or (self.instance.pk and self.instance.enseignement.matiere_classe.matiere.id)
+        enseignant = self.data.get("enseignant") or (self.instance.pk and self.instance.enseignement.enseignant.id)
+
+        # ------------------------
+        # Filtrage dynamique des querysets
+        # ------------------------
+
+        if classe:
+            self.fields["matiere"].queryset = Matiere.objects.filter(
+                id__in=MatiereClasse.objects.filter(classe_id=classe).values("matiere")
+            )
+            self.fields["enseignant"].queryset = Enseignant.objects.filter(
+                id__in=Enseignement.objects.filter(matiere_classe__classe_id=classe).values("enseignant")
+            )
+
+        if matiere:
+            self.fields["classe"].queryset = Classe.objects.filter(
+                id__in=MatiereClasse.objects.filter(matiere_id=matiere).values("classe")
+            )
+            self.fields["enseignant"].queryset = Enseignant.objects.filter(
+                id__in=Enseignement.objects.filter(matiere_classe__matiere_id=matiere).values("enseignant")
+            )
+
+        if enseignant:
+            self.fields["classe"].queryset = Classe.objects.filter(
+                id__in=Enseignement.objects.filter(enseignant_id=enseignant).values("matiere_classe__classe")
+            )
+            self.fields["matiere"].queryset = Matiere.objects.filter(
+                id__in=Enseignement.objects.filter(enseignant_id=enseignant).values("matiere_classe__matiere")
+            )
+
+    # ------------------------
+    # Validation : on construit l'enseignement
+    # ------------------------
+    def clean(self):
+        cleaned_data = super().clean()
+        classe = cleaned_data.get("classe")
+        matiere = cleaned_data.get("matiere")
+        enseignant = cleaned_data.get("enseignant")
+
+        if not (classe and matiere and enseignant):
+            raise forms.ValidationError("Vous devez choisir la classe, la matière et l’enseignant.")
+
+        # Trouver le MatiereClasse correspondant
+        try:
+            mc = MatiereClasse.objects.get(classe=classe, matiere=matiere)
+        except MatiereClasse.DoesNotExist:
+            raise forms.ValidationError("Cette matière n’existe pas pour cette classe.")
+
+        # Trouver l’enseignement correspondant
+        try:
+            enseignement = Enseignement.objects.get(enseignant=enseignant, matiere_classe=mc)
+        except Enseignement.DoesNotExist:
+            raise forms.ValidationError("Cet enseignant n’enseigne pas cette matière dans cette classe.")
+
+        cleaned_data["enseignement"] = enseignement
+        return cleaned_data
+
+    # ------------------------
+    # Save : injecter l’enseignement
+    # ------------------------
+    def save(self, commit=True):
+        evaluation = super().save(commit=False)
+        evaluation.enseignement = self.cleaned_data["enseignement"]
+        if commit:
+            evaluation.save()
+        return evaluation
+
 
 # --------------------------
 # Formulaire Note

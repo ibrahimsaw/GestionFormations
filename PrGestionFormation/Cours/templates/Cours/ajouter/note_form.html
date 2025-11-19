@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<div class="col-xl-12">
+
+    <!-- En-tête -->
+    <div class="row g-3 mb-4 align-items-center justify-content-between">
+        {% include "nav_ol.html" %}
+    </div>
+
+    <div class="card mb-4">
+        <div class="tab-content">
+            <div class="tab-pane fade show active">
+
+                <!-- Titre -->
+                <div class="text-center">
+                    <div class="alert bg-primary">
+                        <h5 class="mb-0 text-white">Formulaire {{ titre_page }}</h5>
+                    </div>
+                </div>
+
+                <form method="post" class="p-4">
+                    {% csrf_token %}
+
+                    <!-- Erreurs globales -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Champs cachés -->
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                        {% for error in field.errors %}
+                        <div class="alert alert-danger">
+                            Erreur interne : {{ error }}
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    <div class="row">
+
+                        <!-- ============ Evaluation ============ -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.evaluation.id_for_label }}">
+                                Évaluation
+                            </label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-book"></i></span>
+                                {{ form.evaluation|add_class:"form-select ps-2" }}
+                            </div>
+                            {% for error in form.evaluation.errors %}
+                            <div class="text-danger small">⚠️ {{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- ============ Étudiant ============ -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.etudiant.id_for_label }}">
+                                Étudiant
+                            </label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-user"></i></span>
+                                {{ form.etudiant|add_class:"form-select ps-2" }}
+                            </div>
+                            {% for error in form.etudiant.errors %}
+                            <div class="text-danger small">⚠️ {{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                    <!-- ============ Note Numérique ============ -->
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.note.id_for_label }}">Note</label>
+                        <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="bx bx-edit"></i></span>
+                            <input type="number"
+                                   step="0.01"
+                                   min="0"
+                                   max="20"
+                                   id="{{ form.note.id_for_label }}"
+                                   name="{{ form.note.html_name }}"
+                                   class="form-control"
+                                   placeholder="Ex: 14.5"
+                                   value="{{ form.note.value|default:'' }}">
+                        </div>
+                        {% for error in form.note.errors %}
+                        <div class="text-danger small">⚠️ {{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- ============ Commentaire ============ -->
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.commentaire.id_for_label }}">Commentaire</label>
+                        {{ form.commentaire|add_class:"form-control" }}
+                        {% for error in form.commentaire.errors %}
+                        <div class="text-danger small">⚠️ {{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <hr>
+
+                    <!-- Boutons -->
+                    <div class="text-end">
+                        <a href="{% url 'cours:note_list' %}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary">{{ bouton|default:"Enregistrer" }}</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Boutons flottants -->
+    <div class="fixed-action-buttons">
+        <a href="{% url 'cours:note_list' %}" class="btn btn-list">
+            <span class="tf-icons bx bx-list-ul"></span>&nbsp; Listes
+        </a>
+    </div>
+
+</div>
+{% endblock %}
