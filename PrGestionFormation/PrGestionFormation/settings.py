@@ -8,6 +8,27 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
+
+git clone https://github.com/IbrahimSAWADOGO/GestionFormations.git
+cd GestionFormations
+python3 -m venv venv
+source venv\Scripts\activate 
+Étape 3 : Installer les dépendances
+pip install -r requirements.txt
+pip install django
+pip show django
+Étape 4 : Se placer dans le dossier contenant manage.py
+cd PrGestionFormation
+ls
+# tu dois voir manage.py 
+Étape 5 : Faire les migrations
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+📝 Étape 7 : Lancer un script Django
+python script_generation_utilisateurs.py
+
 """
 
 from pathlib import Path
